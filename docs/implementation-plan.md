@@ -6,7 +6,7 @@ This doc elaborates `docs/build-plan.md`'s Steps 3–13 into concrete backend en
 
 Status legend: ✅ Done · 🚧 Partial · ⬜ Not started.
 
-**Progress: 3 of 14 steps (0–13) fully done — Steps 0, 1, 3. Step 2 is partial (local dev only; a few items deferred into later steps, see below). Steps 4–13 are not started.**
+**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, domain, prod `JWT_SECRET`) needs the project owner's own Cloudflare account access and a domain decision, so it's deferred to Step 13's deploy prep rather than blocking anything now. Steps 4–13 are not started.
 
 Every table/field name below is taken directly from the current `apps/api/src/db/schema.ts` / `docs/data-model.md` — the schema already covers the entire MVP, so **no step below is expected to need a new migration** unless an implementation surfaces a genuine gap (none known today). If one does, follow `.claude/skills/d1-schema` and note the new migration number here.
 
@@ -24,7 +24,7 @@ All of `docs/adr/0001`–`0061`, `docs/data-model.md`, `docs/glossary.md`, `docs
 
 Includes the one-live-attempt-per-student partial unique index, enum `CHECK` constraints, and FK relationships across the whole model. Later steps consume this schema; they don't extend it.
 
-### Step 2 — Repo & infra scaffold — 🚧 Partial
+### Step 2 — Repo & infra scaffold — ✅ Done (local dev; real Cloudflare resources/domain deferred to Step 13)
 **Done:** pnpm workspace root, `apps/api` Hono skeleton (`GET /health` querying D1 via Drizzle, exports `AppType`), `apps/web` Next.js 16 App Router + Tailwind v4 scaffold with a placeholder homepage, `next.config.ts` dev-time `/api/*` rewrite to the API worker, `.nvmrc` pinning Node `24.14.1`.
 
 **Deferred (pulled forward into the steps below):**
@@ -32,8 +32,8 @@ Includes the one-live-attempt-per-student partial unique index, enum `CHECK` con
 |---|---|---|
 | `wrangler secret put JWT_SECRET` (prod); confirm local `.dev.vars` value | Step 3 backend | ✅ local `.dev.vars` confirmed working (live-verified); prod secret still open — lands with Step 13's real-deploy setup |
 | shadcn/ui `init` (no `components.json` yet) | Step 3 frontend (first real UI needed) | ✅ Done (`base-nova`/Base UI style) |
-| `drizzle-kit generate` baseline snapshot (no journal yet — `0001_init.sql` is hand-written) | Do once, before the first time any step actually needs a schema change (not expected before Step 13 given the schema is already complete — if it stays unneeded, do it as a standalone chore before Step 13) | ⬜ Not started |
-| Real Cloudflare resource IDs (`wrangler d1 create`, `wrangler kv namespace create`), domain/hosting, Cloudflare Pages project | Not tied to a specific step — do before first real deploy, i.e. before Step 13's pilot exit criteria | ⬜ Not started |
+| `drizzle-kit generate` baseline snapshot (no journal yet — `0001_init.sql` is hand-written) | Do once, before the first time any step actually needs a schema change | ✅ Done — `apps/api/migrations/0002_drizzle_baseline.sql` (all statements `IF NOT EXISTS`, safely no-ops on the already-migrated local D1); a follow-up `db:generate` confirmed zero drift. Real migrations resume at `0003`. See `.claude/skills/d1-schema/SKILL.md`. |
+| Real Cloudflare resource IDs (`wrangler d1 create`, `wrangler kv namespace create`), domain/hosting, Cloudflare Pages project, `wrangler secret put JWT_SECRET` (prod) | Not tied to a specific step — do before first real deploy, i.e. before Step 13's pilot exit criteria | ⬜ **Blocked on the project owner**: needs `wrangler login` against a real Cloudflare account and a domain-name decision — not something that can be done from this environment autonomously |
 | Next.js 16 `proxy.ts` convention (replaces `middleware.ts`) | Step 3 frontend (first route guards) | ✅ Done |
 
 ---

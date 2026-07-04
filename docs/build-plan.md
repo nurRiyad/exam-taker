@@ -18,10 +18,10 @@ What's done: pnpm workspace root, `apps/api` (Hono skeleton exporting `AppType`,
 
 Deliberately deferred (not needed for local dev, tracked here so they aren't forgotten):
 
-- shadcn/ui not initialized yet — add when the first real UI component is needed (Step 3+), against the mobile-first breakpoint plan (ADR-0061).
-- `drizzle-kit generate` not exercised yet. `schema.ts` exists and is used for queries, but `migrations/0001_init.sql` is still the original hand-written file — there's no drizzle-kit journal/snapshot baseline yet. Before the first real `db:generate` call (Step 6), generate one baseline snapshot against the current schema and verify it produces an empty/no-op diff before trusting it for a real schema change.
-- Real Cloudflare resources: `wrangler d1 create exam-taker-db`, `wrangler kv namespace create CACHE`, fill the placeholder IDs into `apps/api/wrangler.jsonc`, set `JWT_SECRET` via `wrangler secret put`.
-- Domain/hosting: confirm the actual domain name, add it to Cloudflare, set up the apex/`api.` subdomain split and a Cloudflare Pages project for `apps/web` via the OpenNext adapter (ADR-0060).
+- ~~shadcn/ui not initialized yet~~ — done in Step 3 (`base-nova`/Base UI style).
+- ~~`drizzle-kit generate` not exercised yet~~ — done: `migrations/0002_drizzle_baseline.sql` establishes the journal/snapshot baseline (every statement is `IF NOT EXISTS`, so it safely no-ops against the already-migrated local D1); a follow-up `db:generate` confirms zero schema drift. Real migrations resume at `0003`. See `.claude/skills/d1-schema/SKILL.md`.
+- Real Cloudflare resources: `wrangler d1 create exam-taker-db`, `wrangler kv namespace create CACHE`, fill the placeholder IDs into `apps/api/wrangler.jsonc`, set `JWT_SECRET` via `wrangler secret put`. **Needs the project owner's own Cloudflare account** (`wrangler login`) — still open.
+- Domain/hosting: confirm the actual domain name, add it to Cloudflare, set up the apex/`api.` subdomain split and a Cloudflare Pages project for `apps/web` via the OpenNext adapter (ADR-0060). **Needs a domain decision from the project owner** — still open.
 - `apps/web` scaffolded on Next.js 16 (Turbopack by default) — newer than what most existing Next.js knowledge assumes. It introduces a `proxy.ts` file convention that replaces/renames `middleware.ts`; check `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md` before building the Step 3 auth route guards so they use the current convention, not the old one.
 
 ## Step 3 — Auth vertical slice

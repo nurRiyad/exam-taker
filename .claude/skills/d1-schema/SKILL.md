@@ -25,7 +25,7 @@ D1 migrations are **forward-only** — there is no down migration. Never edit an
 
 Query access uses Drizzle ORM (`drizzle-orm/d1`), not raw bindings or Prisma (ADR-0059). `apps/api/src/db/schema.ts` is the TypeScript mirror of the schema — but Wrangler's migration files remain the only thing that actually touches the database. `drizzle-kit` only diffs `schema.ts` to generate SQL; it is never pointed at D1 directly.
 
-Migration `0001_init.sql` was hand-written to seed the initial schema and is now applied/frozen. From `0002` onward, generate migrations from `schema.ts` instead of hand-writing SQL:
+Migration `0001_init.sql` was hand-written to seed the initial schema and is now applied/frozen. `0002_drizzle_baseline.sql` is drizzle-kit's first-ever `generate` run — it establishes the `migrations/meta/` snapshot/journal baseline that future diffs are computed against. Every statement in it is `CREATE TABLE IF NOT EXISTS` / `CREATE UNIQUE INDEX IF NOT EXISTS` on purpose: it's not meant to actually create anything (0001 already did, including the CHECK constraints and partial unique index schema.ts deliberately omits — see its header comment), just to safely no-op on any database, fresh or already-migrated. **From `0003` onward**, generate real migrations from `schema.ts` instead of hand-writing SQL:
 
 ```bash
 # 1. Edit apps/api/src/db/schema.ts to reflect the new/changed table(s)
@@ -48,7 +48,7 @@ wrangler d1 migrations apply exam-taker-db --remote
 wrangler d1 execute exam-taker-db --local --command "SELECT * FROM users LIMIT 5"
 ```
 
-Migration files live in `apps/api/migrations/`, numbered sequentially (`0001_init.sql`, `0002_...sql`).
+Migration files live in `apps/api/migrations/`, numbered sequentially (`0001_init.sql`, `0002_drizzle_baseline.sql`, `0003_...sql`).
 
 ## Table Reference
 
