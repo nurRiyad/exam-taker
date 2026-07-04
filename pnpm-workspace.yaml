@@ -7,3 +7,8 @@ packages:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+# better-sqlite3's native binary is required for `drizzle-kit studio`
+# (apps/api's `db:studio`) to open the local D1 sqlite file directly.
+onlyBuiltDependencies:
+  - better-sqlite3

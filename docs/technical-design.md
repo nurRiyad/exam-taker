@@ -112,7 +112,8 @@ Prerequisites: Node `24.14.1` (pinned in `.nvmrc` — run `nvm use` in the repo 
    - `apps/api`: `wrangler dev` on port 8787.
    - `apps/web`: `next dev` on port 3000 (Next.js auto-falls back to 3001+ if 3000 is already taken locally), with `next.config.ts` `rewrites()` forwarding `/api/*` → the API dev server.
 5. Open the printed `apps/web` URL. Because of the rewrite proxy, the browser sees same-origin requests, so the auth cookie behaves the same in dev as it will in production's same-site subdomain setup (ADR-0060) — no dev-only CORS/cookie special-casing needed. Server Components call the API's origin directly (`API_INTERNAL_URL`, defaults to `http://localhost:8787`), bypassing the rewrite entirely — the rewrite exists for browser-originated requests, not server-to-server calls, which aren't subject to the same cookie/CORS concerns.
-5. **Changing the schema**: edit `apps/api/src/db/schema.ts`, run `pnpm --filter api db:generate` (`drizzle-kit generate`, writes the next numbered migration into `apps/api/migrations/`), review the generated SQL, then re-run step 2 to apply it locally.
+6. **Changing the schema**: edit `apps/api/src/db/schema.ts`, run `pnpm --filter api db:generate` (`drizzle-kit generate`, writes the next numbered migration into `apps/api/migrations/`), review the generated SQL, then re-run step 3 to apply it locally.
+7. **Inspecting local DB state**: `pnpm --filter api db:studio` (`drizzle-kit studio`) opens a browser UI (`https://local.drizzle.studio`, talking to a local server on port 4983) against the same local D1 sqlite file `wrangler dev`/`db:migrate:local` use — `apps/api/drizzle.config.ts` resolves that file's path itself (its name includes a wrangler-generated hash). Requires `better-sqlite3`'s native binary, approved once via `pnpm-workspace.yaml`'s `onlyBuiltDependencies` (`pnpm install` builds it automatically).
 
 ## Production Deployment
 

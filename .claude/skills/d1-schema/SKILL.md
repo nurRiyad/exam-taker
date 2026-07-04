@@ -46,7 +46,12 @@ wrangler d1 migrations apply exam-taker-db --remote
 
 # One-off query against local D1 during development
 wrangler d1 execute exam-taker-db --local --command "SELECT * FROM users LIMIT 5"
+
+# Browse/edit local DB state in a GUI instead of one-off queries
+pnpm --filter api db:studio     # drizzle-kit studio, opens https://local.drizzle.studio
 ```
+
+`db:studio` needs `better-sqlite3`'s native binary (only used for this local tool, never shipped to Workers) — `apps/api/drizzle.config.ts` locates wrangler's local D1 sqlite file itself, so no manual path configuration is needed.
 
 Migration files live in `apps/api/migrations/`, numbered sequentially (`0001_init.sql`, `0002_drizzle_baseline.sql`, `0003_...sql`).
 
