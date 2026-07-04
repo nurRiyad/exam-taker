@@ -2,13 +2,15 @@
 // `Database` handle and plain values, never a Hono `Context`, so this file
 // stays unit-testable without mocking cookies/env/HTTPException.
 import type { Database } from "../db/client";
-import { BadRequestError, ConflictError, NotFoundError, UnauthorizedError } from "../utils/errors";
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError, UnauthorizedError } from "../utils/errors";
 import { hashPassword, verifyPassword } from "../utils/password";
 import { normalizePhoneToE164 } from "../utils/phone";
 import { generateResetCode as generateResetCodeValue, hashResetCode, verifyResetCode } from "../utils/reset-code";
 import { formatSqliteTimestamp } from "../utils/sqlite-time";
 import { toPublicUser, type PublicUser } from "../utils/user";
+import * as courseEnrollmentsRepository from "../repositories/course-enrollments.repository";
 import * as resetCodesRepository from "../repositories/reset-codes.repository";
+import * as teacherMembershipsRepository from "../repositories/teacher-memberships.repository";
 import * as usersRepository from "../repositories/users.repository";
 import type { GenerateResetCodeInput, LoginInput, RedeemResetCodeInput, SignupInput } from "../validation/auth";
 
@@ -86,17 +88,22 @@ export async function login(db: Database, input: LoginInput): Promise<PublicUser
 export async function generateResetCode(
   db: Database,
   input: GenerateResetCodeInput,
-  generatedByUserId: string,
+  generatedBy: PublicUser,
 ): Promise<{ code: string }> {
   const target = await usersRepository.findById(db, input.userId);
   if (!target || target.role !== "student") {
     throw new NotFoundError("Student not found");
   }
-  // NOTE: ADR-0025 restricts teacher-generated codes to "students in their
-  // courses," but course_enrollments doesn't exist until Step 4, so that
-  // check is a no-op here — any teacher/admin can generate for any student.
-  // Tracked as a Step 4 backend task in docs/implementation-plan.md
-  // (search "tighten Step 3's POST /auth/reset-codes").
+
+  // ADR-0025 restricts teacher-generated codes to students in the teacher's
+  // own courses; admins have no tenant of their own and are exempt.
+  if (generatedBy.role === "teacher") {
+    const membership = await teacherMembershipsRepository.findByUserId(db, generatedBy.id);
+    const enrolled = membership
+      ? await courseEnrollmentsRepository.existsForTenantAndStudent(db, membership.tenantId, target.id)
+      : false;
+    if (!enrolled) throw new ForbiddenError("Student is not enrolled in any of your courses");
+  }
 
   const code = generateResetCodeValue();
   const codeHash = await hashResetCode(code);
@@ -105,7 +112,7 @@ export async function generateResetCode(
   await resetCodesRepository.insert(db, {
     userId: target.id,
     codeHash,
-    generatedByUserId,
+    generatedByUserId: generatedBy.id,
     expiresAt,
   });
 

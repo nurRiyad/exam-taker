@@ -44,7 +44,7 @@ export function me(c: Context<AuthEnv>) {
 
 export async function generateResetCode(c: Context<AuthEnv>, input: GenerateResetCodeInput) {
   const db = getDb(c.env.DB);
-  const result = await authService.generateResetCode(db, input, c.get("user").id);
+  const result = await authService.generateResetCode(db, input, c.get("user"));
   return c.json(result, 201);
 }
 

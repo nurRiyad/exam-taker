@@ -35,3 +35,9 @@ export class BadRequestError extends DomainError {
     super(message, 400);
   }
 }
+
+export class ForbiddenError extends DomainError {
+  constructor(message: string) {
+    super(message, 403);
+  }
+}

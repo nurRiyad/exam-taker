@@ -8,8 +8,8 @@
 // `pnpm --filter api db:seed:admin`.
 import { execFileSync } from "node:child_process";
 import path from "node:path";
-import { hashPassword } from "../src/lib/password";
-import { normalizePhoneToE164 } from "../src/lib/phone";
+import { hashPassword } from "../src/utils/password";
+import { normalizePhoneToE164 } from "../src/utils/phone";
 
 const ADMIN = {
   name: "Local Admin",

@@ -12,7 +12,7 @@ export const errorHandler: ErrorHandler = (err, c) => {
   // and, for conflicts, a field-level error map.
   if (err instanceof DomainError) {
     const body = err instanceof ConflictError ? { error: err.message, fields: err.fields } : { error: err.message };
-    return c.json(body, err.status as 400 | 401 | 404 | 409);
+    return c.json(body, err.status as 400 | 401 | 403 | 404 | 409);
   }
 
   if (err instanceof HTTPException) {

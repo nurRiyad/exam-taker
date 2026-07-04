@@ -55,3 +55,7 @@ export async function insert(db: Database, data: NewUser): Promise<UserRow> {
 export function updatePasswordQuery(db: Database, userId: string, passwordHash: string) {
   return db.update(users).set({ passwordHash }).where(eq(users.id, userId));
 }
+
+export async function updateRole(db: Database, id: string, role: UserRow["role"]): Promise<void> {
+  await db.update(users).set({ role }).where(eq(users.id, id));
+}

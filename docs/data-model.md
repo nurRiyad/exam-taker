@@ -75,6 +75,11 @@ Access states:
 - `blocked`
 - `removed`
 
+Rules:
+
+- `removed` only blocks future access (see [ADR-0011](adr/0011-locked-exams-before-payment-approval.md)); a removed student may call the join endpoint again, which resets their existing row back through the normal join flow rather than permanently locking them out.
+- `blocked` does not allow the student to self-recover by rejoining — access can only be restored by the teacher. **Known gap**: no unblock endpoint exists yet as of Step 4; a blocked student stays blocked until a future step adds one or an admin edits the row directly.
+
 ## Payment Access Request
 
 - `id`
@@ -141,7 +146,8 @@ Rules:
 
 Course route publish rule:
 
-- A course can be published once it has `title`, `short_description`, and a price/free status, plus at least one `Exam Topic` with `title`, `short_description`, and `scheduled_at` set. See [ADR-0058](adr/0058-course-route-minimum-publish-fields.md).
+- A course can be published once it has `title`, `short_description`, and a price/free status, plus at least one `Exam Topic` with `status = 'published'`, `title`, `short_description`, and `scheduled_at` set. See [ADR-0058](adr/0058-course-route-minimum-publish-fields.md).
+- `status` also gates visibility: a topic still at `draft` is only visible to the owning tenant's teacher/admin (via `GET /courses/:id`); non-owning viewers, including students, only ever see `published` topics.
 
 ## Exam
 

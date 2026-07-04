@@ -6,7 +6,7 @@ This doc elaborates `docs/build-plan.md`'s Steps 3–13 into concrete backend en
 
 Status legend: ✅ Done · 🚧 Partial · ⬜ Not started.
 
-**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, domain, prod `JWT_SECRET`) needs the project owner's own Cloudflare account access and a domain decision, so it's deferred to Step 13's deploy prep rather than blocking anything now. Steps 4–13 are not started.
+**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3 — plus Step 4's Backend track done.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, domain, prod `JWT_SECRET`) needs the project owner's own Cloudflare account access and a domain decision, so it's deferred to Step 13's deploy prep rather than blocking anything now. Step 4's Frontend track and Steps 5–13 are not started.
 
 Every table/field name below is taken directly from the current `apps/api/src/db/schema.ts` / `docs/data-model.md` — the schema already covers the entire MVP, so **no step below is expected to need a new migration** unless an implementation surfaces a genuine gap (none known today). If one does, follow `.claude/skills/d1-schema` and note the new migration number here.
 
@@ -60,7 +60,7 @@ Endpoints:
 | POST | `/auth/login` | none | `identifier (username\|phone\|email), password` | `{ user }` + sets cookie | Vague error on any failure, never reveals which field was wrong (ADR-0020) |
 | POST | `/auth/logout` | cookie | — | `204` + clears cookie | |
 | GET | `/auth/me` | cookie | — | `{ user }` or `401` | Frontend session bootstrap |
-| POST | `/auth/reset-codes` | teacher/admin | `{ userId }` | `{ code }` (plaintext, shown once) | Hash stored, `expires_at` = +1h, delivered manually outside the platform (ADR-0025). **Known gap, tracked here**: ADR-0025 restricts teacher-generated codes to students in the teacher's own courses, but `course_enrollments` doesn't exist until Step 4 — as shipped, any teacher/admin can generate a code for any student. Step 4 must add the enrollment-membership check once that table is populated (see Step 4's backend task list below). |
+| POST | `/auth/reset-codes` | teacher/admin | `{ userId }` | `{ code }` (plaintext, shown once) | Hash stored, `expires_at` = +1h, delivered manually outside the platform (ADR-0025). **Resolved in Step 4**: teacher-generated codes now require the target student to have a non-`removed` `course_enrollments` row in one of the teacher's own courses (admins are exempt, having no tenant of their own); see Step 4's backend section below. |
 | POST | `/auth/reset` | none | `{ identifier, code, newPassword, newPasswordConfirmation }` | `{ ok: true }` | Verifies hash + not expired + not used; marks `used_at` |
 
 Verification: `curl`/`run` skill through the sequence signup → logout (clear cookie) → login → generate reset code (as a manually-seeded teacher row) → reset password → login with new password.
@@ -83,10 +83,10 @@ Verification: exercised end-to-end with a headless-browser script against both d
 
 ---
 
-## Step 4 — Tenant, course, and access workflow — ⬜ Not started
+## Step 4 — Tenant, course, and access workflow — 🚧 Partial (Backend ✅, Frontend ⬜)
 ADRs: [0052](adr/0052-single-shared-multi-tenant-deployment.md), [0058](adr/0058-course-route-minimum-publish-fields.md), [0048](adr/0048-login-required-course-join.md), [0011](adr/0011-locked-exams-before-payment-approval.md), [0026](adr/0026-one-by-one-payment-approval.md), [0046](adr/0046-course-exam-topics.md)
 
-### Backend
+### Backend — ✅ Done
 Tables: `tenants`, `teacher_memberships`, `courses`, `exam_topics`, `course_enrollments`, `payment_access_requests`.
 
 New files: `apps/api/src/routes/admin.ts` (tenant creation, first use), `apps/api/src/routes/courses.ts`, `apps/api/src/routes/exam-topics.ts`, `apps/api/src/middleware/tenant-scope.ts` (first use — every query below must filter by the caller's `tenant_id`/course membership), `apps/api/src/validation/{courses,exam-topics}.ts`.
@@ -113,6 +113,8 @@ Endpoints:
 | PATCH | `/auth/reset-codes` scoping *(revisit existing Step 3 endpoint, not a new route)* | teacher/admin | — | — | Now that `course_enrollments` exists, tighten Step 3's `POST /auth/reset-codes` to require the target student be enrolled in one of the calling teacher's courses (ADR-0025) — see the flagged gap in Step 3's endpoint table above |
 
 Verification: create a tenant + course via API, publish it, join as a student, submit a payment request, approve it — confirm `course_enrollments.access_status` transitions correctly at each step. Also confirm the tightened `/auth/reset-codes` check now rejects a teacher generating a code for a student outside their courses.
+
+**Done** — exercised live end to end against a local dev server (`run`/`verify`): admin creates a tenant (owner promoted `student`→`teacher`, a second tenant for the same owner is rejected), teacher brands the tenant, creates a course, adds an exam topic, publish is rejected until the topic is marked `title`+`short_description`+`scheduled_at`+`status: 'published'`, a student joins the published paid course, submits a payment request, teacher approves it and `course_enrollments.access_status` flips to `approved`. Also confirmed: cross-tenant access returns 404 without leaking existence; a draft exam topic is hidden from non-owning viewers; a blocked enrollment can't self-rejoin (403) while a removed one can; approving a payment request no longer reinstates a since-blocked/removed enrollment; and the tightened `/auth/reset-codes` check rejects a teacher generating a code for a student outside their courses. `/code-review` ran at high effort and every finding it surfaced was fixed before this was marked done.
 
 ### Frontend
 New shadcn components: `dialog`, `select`, `textarea`, `badge`, `table`, `tabs`.
