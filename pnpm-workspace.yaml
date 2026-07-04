@@ -1,0 +1,9 @@
+packages:
+  - "apps/*"
+
+# create-next-app scaffolds apps/web with a duplicate of this line to skip
+# pnpm's build-script approval prompt for these native-binary deps; merged
+# here since a workspace can only have one pnpm-workspace.yaml.
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

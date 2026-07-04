@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "exam-taker-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  // Real Cloudflare resources are created in Step 2's "one-time setup" (docs/build-plan.md).
+  // Local dev works against `--local` D1/KV simulation without these IDs being real.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "exam-taker-db",
+      "database_id": "REPLACE_WITH_REAL_D1_DATABASE_ID",
+      "migrations_dir": "./migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "CACHE",
+      "id": "REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+    }
+  ]
+  // JWT signing secret (ADR-0054) is never set here:
+  //   local dev  -> apps/api/.dev.vars (gitignored)
+  //   production -> `wrangler secret put JWT_SECRET`
+}

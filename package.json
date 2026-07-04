@@ -1,0 +1,15 @@
+{
+  "name": "exam-taker",
+  "private": true,
+  "engines": {
+    "node": ">=24.14.1"
+  },
+  "packageManager": "pnpm@10.6.2",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "db:generate": "pnpm --filter api db:generate",
+    "db:migrate:local": "pnpm --filter api db:migrate:local"
+  }
+}
