@@ -14,7 +14,7 @@ A framework for building ui, components and design systems. Components are added
 ## Current Project Context
 
 ```json
-!`npx shadcn@latest info --json`
+!`d=$(dirname "$(find . -maxdepth 5 -not -path '*/node_modules/*' -not -path '*/.next/*' -name components.json | head -1)" 2>/dev/null); npx shadcn@latest info --json -c "${d:-.}"`
 ```
 
 The JSON above contains the project config and installed components. Use `npx shadcn@latest docs <component>` to get documentation and example URLs for any component.

@@ -5,8 +5,16 @@
 // leak audit is Step 13, this just shapes responses correctly from the start.
 import type { ErrorHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { ConflictError, DomainError } from "../utils/errors";
 
 export const errorHandler: ErrorHandler = (err, c) => {
+  // Thrown by the service layer (see src/errors.ts) — carries its own status
+  // and, for conflicts, a field-level error map.
+  if (err instanceof DomainError) {
+    const body = err instanceof ConflictError ? { error: err.message, fields: err.fields } : { error: err.message };
+    return c.json(body, err.status as 400 | 401 | 404 | 409);
+  }
+
   if (err instanceof HTTPException) {
     // A route that built a structured JSON body itself (e.g. field-level
     // signup conflict errors) passed it via `options.res` — reconstruct that

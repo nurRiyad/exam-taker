@@ -3,7 +3,7 @@
 // length + first-char-is-letter (SQLite GLOB can't express charset rules), so
 // the letters/numbers/underscores-only rule must be enforced here too.
 import { z } from "zod";
-import { BD_LOCAL_PHONE_REGEX } from "../lib/phone";
+import { BD_LOCAL_PHONE_REGEX } from "../utils/phone";
 
 export const usernameSchema = z
   .string()

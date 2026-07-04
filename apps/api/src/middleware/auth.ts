@@ -9,8 +9,8 @@ import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import { getDb } from "../db/client";
 import { users } from "../db/schema";
-import { SESSION_COOKIE_NAME, verifySession } from "../lib/jwt";
-import { toPublicUser, type PublicUser } from "../lib/user";
+import { SESSION_COOKIE_NAME, verifySession } from "../utils/jwt";
+import { toPublicUser, type PublicUser } from "../utils/user";
 import type { Role } from "../types";
 
 export type AuthEnv = {

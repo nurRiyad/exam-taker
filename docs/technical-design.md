@@ -20,6 +20,7 @@ This is the detailed engineering reference: exact stack, project structure, loca
 | Component system | Tailwind CSS + shadcn/ui | ADR-0061 |
 | Design posture | Mobile-first everywhere, not just the exam page | ADR-0061, ADR-0002 |
 | API type sharing | Hono RPC (`hono/client`), type-only import of the API's `AppType` — no generated client, no separate types package | ADR-0059 |
+| Backend code layering | `apps/api` routes → controllers → services → repositories, one set per resource | ADR-0062 |
 | PDF/print | `pdf-lib`-style direct generation, no headless browser | ADR-0057 |
 | Monorepo tooling | pnpm workspaces (no Turborepo yet — two apps don't need it; add later if build times justify it) | this doc |
 | Budget guardrail | Under 2,000 BDT/month during early validation | ADR-0051 |
@@ -36,7 +37,7 @@ exam-taker/
 │   │   │   ├── db/
 │   │   │   │   ├── schema.ts         # Drizzle schema, mirrors applied migrations exactly
 │   │   │   │   └── client.ts         # drizzle(env.DB) factory
-│   │   │   ├── routes/
+│   │   │   ├── routes/                # thin Hono chains: path/method/validator/guard, inline handlers only (ADR-0062)
 │   │   │   │   ├── auth.ts
 │   │   │   │   ├── courses.ts
 │   │   │   │   ├── exam-topics.ts
@@ -45,13 +46,25 @@ exam-taker/
 │   │   │   │   ├── attempts.ts
 │   │   │   │   ├── billing.ts
 │   │   │   │   └── admin.ts
+│   │   │   ├── controllers/           # HTTP orchestration: status codes, response shaping, cookies (ADR-0062)
+│   │   │   │   └── auth.controller.ts
+│   │   │   ├── services/              # business logic, no Hono imports, throws utils/errors.ts errors (ADR-0062)
+│   │   │   │   └── auth.service.ts
+│   │   │   ├── repositories/          # Drizzle query builders only, one file per table (ADR-0062)
+│   │   │   │   ├── users.repository.ts
+│   │   │   │   └── reset-codes.repository.ts
 │   │   │   ├── middleware/
 │   │   │   │   ├── auth.ts           # verifies JWT, attaches user + role to context
 │   │   │   │   ├── tenant-scope.ts   # enforces tenant/course-membership filtering
-│   │   │   │   └── error-handler.ts
-│   │   │   ├── lib/
+│   │   │   │   └── error-handler.ts  # maps HTTPException and domain errors (utils/errors.ts) to responses
+│   │   │   ├── utils/                 # shared technical helpers, no resource/route awareness
 │   │   │   │   ├── password.ts       # PBKDF2 hash/verify (ADR-0054)
-│   │   │   │   └── jwt.ts            # sign/verify, cookie helpers (ADR-0060 cookie domain)
+│   │   │   │   ├── jwt.ts            # sign/verify, cookie helpers (ADR-0060 cookie domain)
+│   │   │   │   ├── phone.ts, sqlite-time.ts, user.ts, reset-code.ts
+│   │   │   │   └── errors.ts         # domain error classes (ConflictError, UnauthorizedError, ...)
+│   │   │   ├── types/                 # shared TS-only types; index.ts re-exports each file
+│   │   │   │   ├── role.ts
+│   │   │   │   └── index.ts
 │   │   │   ├── validation/           # Zod schemas: drizzle-zod derived + hand-written request shapes
 │   │   │   └── index.ts              # Hono app entry; exports `AppType` for RPC
 │   │   ├── drizzle.config.ts
@@ -84,6 +97,7 @@ exam-taker/
 
 Notes:
 
+- `apps/api/src` is layered routes → controllers → services → repositories per resource (ADR-0062). Route handlers must stay inline one-line arrows in the chain (Hono RPC type inference for `hc<AppType>()` depends on it) and delegate immediately to a controller — the layering happens inside that delegation, not by breaking the chain. Only `auth` is fully layered so far; apply the same shape to each new resource in Steps 4+ rather than reverting to inline route logic.
 - No `packages/shared` directory. API contract types flow through Hono's RPC client (`AppType`), and DB-shape validation flows through `drizzle-zod` — both eliminate the usual reason for a shared-types package. Add one later only if a real cross-cutting need shows up (for example, shared constants used by both apps that aren't API-shaped), not preemptively.
 - Route groups in `apps/app/` — `(public)`, `(student)`, `(teacher)`, `(admin)` — map directly to the four roles in `docs/mvp-spec.md`; this is a Next.js App Router convention (parentheses = no effect on the URL path), used purely to keep each role's pages and layouts organized separately.
 

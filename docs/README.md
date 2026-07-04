@@ -48,6 +48,7 @@ Most consequential ADRs to read before touching related code:
 | Signup/identity | `0017`, `0020`, `0025`, `0048`, `0049` |
 | Budget guardrail | `0051` |
 | Data access / ORM / validation | `0059` |
+| Backend code layering (routes/controllers/services/repositories) | `0062` |
 | Frontend hosting / cookie domain | `0060` |
 | Design system / mobile-first scope | `0061`, `0002` |
 
