@@ -8,6 +8,7 @@ Mobile-first exam platform for Bangladesh coaching teachers: branded course page
 - `docs/data-model.md` — product-level entity model, mirrored by `apps/api/migrations/`.
 - `docs/glossary.md` — the one definition of every product term.
 - `docs/build-plan.md` — the sequential implementation roadmap. Work through it in order; don't skip ahead to a later step's concerns.
+- `docs/implementation-plan.md` — per-step backend-then-frontend breakdown of `build-plan.md` (endpoints, files, pages, status). Keep its status markers current as steps land.
 - `docs/mvp-spec.md`, `docs/product-brief.md` — the narrative specs the ADRs formalize.
 - `docs/technical-design.md` — stack, project structure, local dev, and production deployment in full detail. Read this before scaffolding or restructuring either app.
 
