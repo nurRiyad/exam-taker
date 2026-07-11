@@ -6,29 +6,97 @@ on:
     branches: [main]
 
 jobs:
-  lint-format-test:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
-
       - name: Enable Corepack
         run: corepack enable
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Format check
         run: pnpm run format:check
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm run lint
 
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # worker-configuration.d.ts is gitignored (it's generated, per CLAUDE.md
+      # "never hand-write the Env interface") — regenerate it here, purely
+      # local codegen against wrangler.jsonc, no Cloudflare credentials needed.
+      # `wrangler types` also reads secret *names* (not values) from
+      # .dev.vars to type them onto Env — .dev.vars is itself gitignored, so
+      # write a throwaway placeholder for CI; the value is never used for
+      # anything real and isn't the production secret.
+      - name: Write placeholder .dev.vars for type generation
+        working-directory: apps/api
+        run: echo "JWT_SECRET=ci-placeholder-not-a-real-secret" > .dev.vars
+      - name: Generate Worker types
+        working-directory: apps/api
+        run: pnpm run types
       - name: Typecheck
         run: pnpm run typecheck
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Write placeholder .dev.vars for type generation
+        working-directory: apps/api
+        run: echo "JWT_SECRET=ci-placeholder-not-a-real-secret" > .dev.vars
+      - name: Generate Worker types
+        working-directory: apps/api
+        run: pnpm run types
+      - name: Build web
+        run: pnpm --filter web run build
+      # Bundles the Worker without deploying or touching any Cloudflare
+      # account — catches bundling errors (bad imports, missing
+      # nodejs_compat-gated APIs, etc.) without needing secrets on PRs.
+      - name: Build API (dry run, no deploy)
+        working-directory: apps/api
+        run: pnpm exec wrangler deploy --dry-run
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
       - name: Test
         run: pnpm run test

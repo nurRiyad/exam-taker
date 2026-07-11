@@ -11,8 +11,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # Requires branch protection on `main` to require the CI workflow's
-    # lint-format-test job before merge (ADR-0063) — this job trusts that
-    # gate rather than re-running tests itself.
+    # format/lint/typecheck/build/test jobs before merge (ADR-0063) — this
+    # job trusts that gate rather than re-running checks itself.
     environment: production
     steps:
       - uses: actions/checkout@v4

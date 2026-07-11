@@ -19,7 +19,7 @@ This is the detailed engineering reference: exact stack, project structure, loca
 | API hosting | Cloudflare Worker | ADR-0060, ADR-0063 |
 | Domain topology | Free default domains for now — `*.vercel.app` (frontend), `*.workers.dev` (API); no custom domain yet | ADR-0063 |
 | CORS | API allow-lists the exact deployed frontend origin(s), allows `Authorization` header, no credentialed cookies | ADR-0064 |
-| CI/CD | GitHub Actions: lint/format/test on every PR; on merge to `main`, API migrates+deploys via Wrangler, frontend deploys via Vercel's Git integration | ADR-0063 |
+| CI/CD | GitHub Actions: `format`/`lint`/`typecheck`/`build`/`test` run as independent parallel jobs on every PR; on merge to `main`, API migrates+deploys via Wrangler, frontend deploys via Vercel's Git integration | ADR-0063 |
 | Component system | Tailwind CSS + shadcn/ui | ADR-0061 |
 | Design posture | Mobile-first everywhere, not just the exam page | ADR-0061, ADR-0002 |
 | API type sharing | Hono RPC (`hono/client`), type-only import of the API's `AppType` — no generated client, no separate types package | ADR-0059 |
