@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (status corrected from a stale "Proposed" — `apps/web` is built on Next.js).
 
 ## Context
 

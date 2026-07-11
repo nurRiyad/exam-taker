@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (status corrected from a stale "Proposed" — this stack is implemented and live across `apps/api`/`apps/web`).
 
 ## Context
 

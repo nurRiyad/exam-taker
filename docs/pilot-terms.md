@@ -1,6 +1,8 @@
 # First Paid Pilot Terms
 
-## Offer
+**Historical framing.** The exam-pack pricing below (500 BDT / 5 exams / 100 students) was the original pilot offer explored during discovery. **The live billing mechanism is per-course, negotiated per-student rate, manually invoiced by admin — see [ADR-0053](adr/0053-per-course-negotiated-student-invoicing.md).** The rest of this doc (support commitments, responsibilities, refund/downtime policy, scope limits) still reflects how the platform actually operates during a pilot.
+
+## Offer (Historical — Superseded By ADR-0053)
 
 - Price: 500 BDT.
 - Included: 5 live exams.
