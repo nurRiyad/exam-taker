@@ -48,6 +48,13 @@ jobs:
       # worker-configuration.d.ts is gitignored (it's generated, per CLAUDE.md
       # "never hand-write the Env interface") — regenerate it here, purely
       # local codegen against wrangler.jsonc, no Cloudflare credentials needed.
+      # `wrangler types` also reads secret *names* (not values) from
+      # .dev.vars to type them onto Env — .dev.vars is itself gitignored, so
+      # write a throwaway placeholder for CI; the value is never used for
+      # anything real and isn't the production secret.
+      - name: Write placeholder .dev.vars for type generation
+        working-directory: apps/api
+        run: echo "JWT_SECRET=ci-placeholder-not-a-real-secret" > .dev.vars
       - name: Generate Worker types
         working-directory: apps/api
         run: pnpm run types
@@ -65,6 +72,9 @@ jobs:
         run: corepack enable
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Write placeholder .dev.vars for type generation
+        working-directory: apps/api
+        run: echo "JWT_SECRET=ci-placeholder-not-a-real-secret" > .dev.vars
       - name: Generate Worker types
         working-directory: apps/api
         run: pnpm run types
