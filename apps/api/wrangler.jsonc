@@ -12,22 +12,23 @@
   // domain since frontend/API are on different registrable domains.
   // Update once the real Vercel production URL is known.
   "vars": {
-    "FRONTEND_ORIGIN": "http://localhost:3000"
+    "FRONTEND_ORIGIN": "http://localhost:3000,https://exam-taker-db.vercel.app"
   },
-  // Real Cloudflare resources are created in Step 2's "one-time setup" (docs/build-plan.md).
-  // Local dev works against `--local` D1/KV simulation without these IDs being real.
+  // Real Cloudflare resources, created via `wrangler d1 create` / `wrangler kv namespace create`
+  // (docs/build-plan.md Step 2). Local dev still works against `--local` D1/KV
+  // simulation regardless of these IDs being real.
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "exam-taker-db",
-      "database_id": "REPLACE_WITH_REAL_D1_DATABASE_ID",
+      "database_id": "404cfd1a-d816-49a7-8afd-e971ea61b3f2",
       "migrations_dir": "./migrations"
     }
   ],
   "kv_namespaces": [
     {
       "binding": "CACHE",
-      "id": "REPLACE_WITH_REAL_KV_NAMESPACE_ID"
+      "id": "d60a5acf5ee442d6a3367a44fade9821"
     }
   ]
   // JWT signing secret (ADR-0054) is never set here:
