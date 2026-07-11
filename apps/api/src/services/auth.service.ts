@@ -7,20 +7,26 @@ import { hashPassword, verifyPassword } from "../utils/password";
 import { normalizePhoneToE164 } from "../utils/phone";
 import { generateResetCode as generateResetCodeValue, hashResetCode, verifyResetCode } from "../utils/reset-code";
 import { formatSqliteTimestamp } from "../utils/sqlite-time";
-import { toPublicUser, type PublicUser } from "../utils/user";
+import { makeProfilePlaceholderEmail, toPublicUser, type PublicUser } from "../utils/user";
 import * as courseEnrollmentsRepository from "../repositories/course-enrollments.repository";
 import * as resetCodesRepository from "../repositories/reset-codes.repository";
+import * as tenantsRepository from "../repositories/tenants.repository";
 import * as teacherMembershipsRepository from "../repositories/teacher-memberships.repository";
 import * as usersRepository from "../repositories/users.repository";
+import * as tenantsService from "./tenants.service";
 import type { GenerateResetCodeInput, LoginInput, RedeemResetCodeInput, SignupInput } from "../validation/auth";
 
 // Same message regardless of *why* login/reset failed — user not found, wrong
 // password/code, expired code, inactive account — so neither endpoint leaks
 // which identifiers exist (ADR-0020/0049's "vague login errors" requirement,
 // extended here to reset redemption for the same reason).
-const VAGUE_LOGIN_ERROR = "Incorrect username/phone/email or password";
+const VAGUE_LOGIN_ERROR = "Incorrect username/phone or password";
 const VAGUE_RESET_ERROR = "Invalid or expired reset code";
 const RESET_CODE_TTL_MS = 60 * 60 * 1000; // 1 hour, ADR-0025
+
+function tenantSlugFromUsername(username: string): string {
+  return username.toLowerCase().replaceAll("_", "-");
+}
 
 export async function checkUsernameAvailability(db: Database, username: string): Promise<boolean> {
   const existing = await usersRepository.findByUsername(db, username);
@@ -29,15 +35,17 @@ export async function checkUsernameAvailability(db: Database, username: string):
 
 export async function signup(db: Database, input: SignupInput): Promise<PublicUser> {
   const phoneE164 = normalizePhoneToE164(input.phone);
-  const email = input.email.toLowerCase(); // stored lowercase so login/reset can match case-insensitively
+  const tenantSlug = input.role === "teacher" ? tenantSlugFromUsername(input.username) : undefined;
 
   // Explicit, field-level conflict errors on signup — the deliberate
   // opposite of login's vague errors (ADR-0049).
-  const conflicts = await usersRepository.findConflicts(db, { username: input.username, phoneE164, email });
+  const conflicts = await usersRepository.findConflicts(db, { username: input.username, phoneE164 });
   const fields: Record<string, string> = {};
   if (conflicts.some((u) => u.username === input.username)) fields.username = "Username is already taken";
   if (conflicts.some((u) => u.phoneE164 === phoneE164)) fields.phone = "Phone number is already registered";
-  if (conflicts.some((u) => u.email === email)) fields.email = "Email is already registered";
+  if (tenantSlug && (await tenantsRepository.findBySlug(db, tenantSlug))) {
+    fields.username = "Username is already taken";
+  }
   if (Object.keys(fields).length > 0) {
     throw new ConflictError("Some fields are already taken", fields);
   }
@@ -46,13 +54,16 @@ export async function signup(db: Database, input: SignupInput): Promise<PublicUs
 
   try {
     const user = await usersRepository.insert(db, {
-      name: input.name,
+      name: input.username,
       username: input.username,
       phoneE164,
-      email,
+      email: makeProfilePlaceholderEmail(input.username),
       passwordHash,
-      role: "student", // Public signup only ever creates students; teachers/admins are provisioned out-of-band (Step 4).
+      role: input.role,
     });
+    if (input.role === "teacher" && tenantSlug) {
+      await tenantsService.createTenant(db, { name: input.username, slug: tenantSlug, ownerUserId: user.id });
+    }
     return toPublicUser(user);
   } catch (err) {
     // The conflict check above has a check-then-insert race: two concurrent
@@ -65,7 +76,7 @@ export async function signup(db: Database, input: SignupInput): Promise<PublicUs
     const raceFields: Record<string, string> = {};
     if (message.includes("users.username")) raceFields.username = "Username is already taken";
     if (message.includes("users.phone_e164")) raceFields.phone = "Phone number is already registered";
-    if (message.includes("users.email")) raceFields.email = "Email is already registered";
+    if (message.includes("tenants.slug")) raceFields.username = "Username is already taken";
     throw new ConflictError(
       "Some fields are already taken",
       Object.keys(raceFields).length > 0 ? raceFields : { username: "Already taken" },

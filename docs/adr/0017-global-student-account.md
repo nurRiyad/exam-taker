@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-0065 for required signup identity fields. Global student accounts and immutable unique usernames still stand.
 
 ## Context
 

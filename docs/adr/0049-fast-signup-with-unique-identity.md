@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-0065 for signup fields and email login. The low-friction, one-screen signup principle still stands.
 
 ## Context
 

@@ -5,7 +5,7 @@ This is a product-level model, not final database DDL.
 ## Tenant
 
 - `id`
-- `name`
+- `name` (profile-completion field; API may expose `null` before completion)
 - `slug`
 - `logo_url`
 - `banner_url`
@@ -20,7 +20,7 @@ This is a product-level model, not final database DDL.
 - `name`
 - `username`
 - `phone_e164`
-- `email`
+- `email` (profile-completion field; API may expose `null` before completion)
 - `password_hash`
 - `role`
 - `city`
@@ -30,10 +30,10 @@ This is a product-level model, not final database DDL.
 
 Rules:
 
-- `username`, `phone_e164`, and `email` are globally unique.
+- `username` and `phone_e164` are globally unique at signup. Real completed emails are globally unique; initial signup may use an internal placeholder until profile completion (ADR-0065).
 - Phone stores `+880...` and displays as local `01...`.
 - `password_hash` stores PBKDF2-SHA256 output encoded with its salt and iteration count, for example `pbkdf2$<iterations>$<salt>$<hash>`. See [ADR-0054](adr/0054-jwt-auth-with-pbkdf2-password-hashing.md).
-- Login issues a signed JWT (id, role, tenant/course-membership hints) stored in an httpOnly cookie; JWT claims are a UI convenience only, not the source of truth for authorization checks.
+- Login accepts username or phone and issues a signed JWT stored as a bearer token client-side; JWT claims are a UI convenience only, not the source of truth for authorization checks (ADR-0064, ADR-0065).
 
 ## Teacher Membership
 

@@ -6,14 +6,11 @@ import { BD_LOCAL_PHONE_REGEX, normalizePhoneToE164 } from "../utils/phone";
 type UserRow = typeof users.$inferSelect;
 type NewUser = typeof users.$inferInsert;
 
-/** Login/reset both accept a username, phone (local or E.164), or email.
- * Email is matched case-insensitively (stored lowercase, see `insert`) —
- * username and phone are matched verbatim, unaffected. */
+/** Login/reset both accept a username or phone (local or E.164). */
 function byIdentifier(identifier: string) {
   const candidateE164 = BD_LOCAL_PHONE_REGEX.test(identifier) ? normalizePhoneToE164(identifier) : undefined;
   return or(
     eq(users.username, identifier),
-    eq(users.email, identifier.toLowerCase()),
     eq(users.phoneE164, identifier),
     candidateE164 ? eq(users.phoneE164, candidateE164) : undefined,
   );
@@ -36,12 +33,12 @@ export async function findByUsername(db: Database, username: string): Promise<Pi
 
 export async function findConflicts(
   db: Database,
-  { username, phoneE164, email }: { username: string; phoneE164: string; email: string },
+  { username, phoneE164 }: { username: string; phoneE164: string },
 ): Promise<Array<Pick<UserRow, "username" | "phoneE164" | "email">>> {
   return db
     .select({ username: users.username, phoneE164: users.phoneE164, email: users.email })
     .from(users)
-    .where(or(eq(users.username, username), eq(users.phoneE164, phoneE164), eq(users.email, email)));
+    .where(or(eq(users.username, username), eq(users.phoneE164, phoneE164)));
 }
 
 export async function insert(db: Database, data: NewUser): Promise<UserRow> {

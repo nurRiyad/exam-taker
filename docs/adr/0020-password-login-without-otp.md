@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by ADR-0065 for email-as-login and required-email signup. Password login without OTP still stands.
 
 ## Context
 
@@ -10,7 +10,7 @@ OTP-based login and password recovery cost money and add operational complexity.
 
 ## Decision
 
-Use simple password login for MVP. Login accepts username, phone, or email as identifier. Phone number and email are required at signup, but login does not require OTP.
+Use simple password login for MVP. Login accepts username or phone as identifier. Phone number is required at signup, but login does not require OTP.
 
 Signup requires password confirmation.
 
@@ -21,7 +21,7 @@ Password rule:
 
 Email verification is skipped in MVP.
 
-Email is used for login/future recovery only in MVP. Teacher email communication is post-MVP.
+Email is a profile-later field and is not used for login in MVP. Teacher email communication is post-MVP.
 
 Login errors should be vague for privacy/security.
 

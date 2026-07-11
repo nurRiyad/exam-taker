@@ -56,12 +56,12 @@ Endpoints:
 | Method | Path | Auth | Request body | Response | Key rules |
 |---|---|---|---|---|---|
 | GET | `/auth/username-availability` | none | query `?username=` | `{ available: boolean }` | Live check while typing (ADR-0049) |
-| POST | `/auth/signup` | none | `name, username, phone (local 01...), email, password, passwordConfirmation` | `{ user, token }` | One screen, no optional fields (ADR-0049); username/phone/email uniqueness; normalize phone to `+880...` for storage; username starts with a letter, ≥3 chars, letters/numbers/underscores; password ≥6 chars, no composition rule |
-| POST | `/auth/login` | none | `identifier (username\|phone\|email), password` | `{ user, token }` | Vague error on any failure, never reveals which field was wrong (ADR-0020) |
+| POST | `/auth/signup` | none | `username, phone (local 01...), role? (student\|teacher), password, passwordConfirmation` | `{ user, token }` | One screen (ADR-0065); username/phone uniqueness; name/email are profile-later fields represented as `null` in API responses until completed; teacher signup creates tenant + owner membership; normalize phone to `+880...` for storage; username starts with a letter, ≥3 chars, letters/numbers/underscores; password ≥6 chars, no composition rule |
+| POST | `/auth/login` | none | `identifier (username\|phone), password` | `{ user, token }` | Email is not a login identifier (ADR-0065); vague error on any failure, never reveals which field was wrong (ADR-0020) |
 | POST | `/auth/logout` | bearer | — | `204` | No server-side revocation (ADR-0054); client discards the token/cookie |
 | GET | `/auth/me` | bearer | — | `{ user }` or `401` | Frontend session bootstrap |
 | POST | `/auth/reset-codes` | teacher/admin | `{ userId }` | `{ code }` (plaintext, shown once) | Hash stored, `expires_at` = +1h, delivered manually outside the platform (ADR-0025). **Resolved in Step 4**: teacher-generated codes now require the target student to have a non-`removed` `course_enrollments` row in one of the teacher's own courses (admins are exempt, having no tenant of their own); see Step 4's backend section below. |
-| POST | `/auth/reset` | none | `{ identifier, code, newPassword, newPasswordConfirmation }` | `{ ok: true }` | Verifies hash + not expired + not used; marks `used_at` |
+| POST | `/auth/reset` | none | `{ identifier (username\|phone), code, newPassword, newPasswordConfirmation }` | `{ ok: true }` | Verifies hash + not expired + not used; marks `used_at` |
 
 Verification: `curl`/`run` skill through the sequence signup → logout (discard token) → login → generate reset code (as a manually-seeded teacher row) → reset password → login with new password.
 
@@ -74,8 +74,8 @@ New files:
 Pages:
 | Route | Purpose | Key components | API calls | Notes |
 |---|---|---|---|---|
-| `(public)/signup/page.tsx` | One-screen signup form | `Input`, `Label`, `Card`, live-availability hint | `GET /auth/username-availability`, `POST /auth/signup` | ADR-0049 |
-| `(public)/login/page.tsx` | Login form | `Input`, `Label`, `Card` | `POST /auth/login` | Vague error display (ADR-0020) |
+| `(public)/signup/page.tsx` | One-screen signup form | `Input`, `Label`, `Card`, role selector, live-availability hint | `GET /auth/username-availability`, `POST /auth/signup` | ADR-0065 |
+| `(public)/login/page.tsx` | Login form | `Input`, `Label`, `Card` | `POST /auth/login` | Username/phone only; vague error display (ADR-0020, ADR-0065) |
 | `(public)/reset/page.tsx` | Redeem a reset code | `Input`, `Label`, `Card` | `POST /auth/reset` | |
 | `(teacher)/reset-codes/page.tsx` | Generate a code for a student (support flow) | shared `ResetCodeForm` component | `POST /auth/reset-codes` | **Deviation from the original plan**: route groups don't add path segments, so a separate `(teacher)/reset-codes/page.tsx` and `(admin)/reset-codes/page.tsx` would both resolve to the same literal URL (`/reset-codes`) and collide at build time. Built as **one page**, physically under `(teacher)/`, that both `teacher` and `admin` roles can reach — gated by `src/proxy.ts`'s `ROUTE_ROLES` map, not by which route group the file lives in. Minimal now (raw student-ID input); full lookup UI comes in Step 12 |
 
@@ -94,7 +94,7 @@ New files: `apps/api/src/routes/admin.ts` (tenant creation, first use), `apps/ap
 Endpoints:
 | Method | Path | Auth | Request body | Response | Key rules |
 |---|---|---|---|---|---|
-| POST | `/admin/tenants` | admin | `name, slug, ownerUserId` | `{ tenant }` | Admin-created in MVP (build-plan Step 4); creates owning `teacher_memberships` row |
+| POST | `/admin/tenants` | admin | `name, slug, ownerUserId` | `{ tenant }` | Support/admin path for tenant creation; self-serve teacher signup also creates a tenant + owning `teacher_memberships` row (ADR-0065) |
 | PATCH | `/teacher/tenant` | teacher (own tenant) | `logoUrl?, bannerUrl?, brandColor?, teacherPictureUrl?` | `{ tenant }` | Branding self-service |
 | POST | `/courses` | teacher | `title, shortDescription, fullSyllabus, basePriceBdt, isFree, discountPercent?, discountStartAt?, discountEndAt?` | `{ course }` | Tenant-scoped |
 | PATCH | `/courses/:id` | teacher (own) | any course field | `{ course }` | `basePriceBdt` becomes immutable once ≥1 `course_enrollments` row exists (product default) |

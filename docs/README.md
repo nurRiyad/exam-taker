@@ -32,6 +32,7 @@ Currently superseded or partially superseded:
 - `0023` — the exam-pack billing clause → superseded by `0053`. Exam duplication itself is still allowed.
 - `0060` — frontend hosting on Cloudflare → superseded by `0063` (frontend on Vercel) and `0064` (cookie-domain topology → bearer token, since the project shipped on free default domains instead of a shared custom domain).
 - `0054` — JWT stored in an httpOnly cookie → the cookie-transport piece is superseded by `0064` (bearer token). Hashing, signing, and expiry are unchanged.
+- `0017` / `0049` — required name/email signup identity and email login → superseded by `0065` (username/phone signup, profile-later name/email, self-serve teacher signup).
 
 Most consequential ADRs to read before touching related code:
 
@@ -47,7 +48,7 @@ Most consequential ADRs to read before touching related code:
 | Exam attempt mechanics (shuffle, autosave, auto-submit, one live attempt) | `0009`, `0033`, `0036`–`0041` |
 | Result/leaderboard | `0010`, `0018`, `0021`, `0044`, `0045` |
 | Weak-zone visibility | `0028`, `0032` |
-| Signup/identity | `0017`, `0020`, `0025`, `0048`, `0049` |
+| Signup/identity | `0065`, `0020`, `0025`, `0048` |
 | Budget guardrail | `0051` |
 | Data access / ORM / validation | `0059` |
 | Backend code layering (routes/controllers/services/repositories) | `0062` |

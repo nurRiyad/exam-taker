@@ -33,7 +33,7 @@ export default function ResetPage() {
 
   function validate(): FieldErrors {
     const errors: FieldErrors = {};
-    if (!form.identifier.trim()) errors.identifier = "Enter your username, phone, or email";
+    if (!form.identifier.trim()) errors.identifier = "Enter your username or phone";
     if (form.code.length !== 6) errors.code = "Enter the 6-digit reset code";
     const passwordError = validatePassword(form.newPassword);
     if (passwordError) errors.newPassword = passwordError;
@@ -71,7 +71,7 @@ export default function ResetPage() {
     <AuthCard title="Reset your password" description="Enter the code your teacher or admin gave you.">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="identifier">Username, phone, or email</Label>
+          <Label htmlFor="identifier">Username or phone</Label>
           <Input
             id="identifier"
             value={form.identifier}
