@@ -132,4 +132,7 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
 ];
 
 export const COURSE_FILTERS = ["All", ...Array.from(new Set(PUBLIC_COURSES.map((course) => course.subject)))] as const;
-export const TEACHER_FILTERS = ["All", ...Array.from(new Set(PUBLIC_TEACHERS.map((teacher) => teacher.subject)))] as const;
+export const TEACHER_FILTERS = [
+  "All",
+  ...Array.from(new Set(PUBLIC_TEACHERS.map((teacher) => teacher.subject))),
+] as const;
