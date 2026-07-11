@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (status corrected from a stale "Proposed" — the direction this ADR sets is depended on by [ADR-0057](0057-print-pdf-without-headless-browser.md), which is itself Accepted; print/export lands in Step 10 of `docs/build-plan.md`, not yet built).
 
 ## Context
 

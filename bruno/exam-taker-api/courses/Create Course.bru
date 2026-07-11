@@ -1,0 +1,31 @@
+meta {
+  name: Create Course
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/courses
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "title": "BCS Preli Crash Course",
+    "shortDescription": "6-week intensive for the preliminary exam",
+    "fullSyllabus": "Bangla, English, Math, GK, Bangladesh Affairs, International Affairs",
+    "basePriceBdt": 1500,
+    "isFree": false
+  }
+}
+
+docs {
+  Teacher only, requires an active tenant (requireTenant). Creates a draft
+  course — use "Publish Course" to make it live. discountPercent (0-100) and
+  discountStartAt/discountEndAt are optional.
+}

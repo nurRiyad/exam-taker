@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (status corrected from a stale "Proposed" — implemented as the payment access request flow, refined further by [ADR-0026](0026-one-by-one-payment-approval.md)'s one-by-one approval).
 
 ## Context
 

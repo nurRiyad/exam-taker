@@ -1,0 +1,27 @@
+meta {
+  name: Update Tenant Branding
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/teacher/tenant
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "brandColor": "#0f766e"
+  }
+}
+
+docs {
+  Teacher only, requires an active tenant. All fields optional but at least
+  one required: logoUrl, bannerUrl, brandColor, teacherPictureUrl (URLs must
+  be valid).
+}

@@ -38,6 +38,7 @@ Full directory tree with rationale: `docs/technical-design.md`. Summary:
 apps/api/          Hono + Cloudflare Workers backend, Drizzle over D1, Zod validation
 apps/web/           Next.js frontend (App Router), Tailwind + shadcn/ui, mobile-first
 docs/               Product spec, ADRs, data model, glossary, build plan, technical design
+bruno/              Bruno API collection for apps/api, mirrors routes/ 1:1 — Local/Dev environments
 .claude/skills/     Project-specific Claude Code skills (see below)
 ```
 
@@ -57,8 +58,9 @@ Follow `docs/build-plan.md` in order — later steps assume earlier ones exist (
 
 - **Node version**: `24.14.1`, pinned in `.nvmrc`. Run `nvm use` at the start of any work in this repo — this environment does not auto-switch Node versions on `cd`, so a fresh shell defaults back to whatever `nvm alias default` is, not this project's version.
 - **Package manager**: pnpm via Corepack (`packageManager` field in root `package.json`). Don't use npm/yarn.
-- **Workspace commands** (run from repo root): `pnpm install`, `pnpm dev` (both apps, parallel), `pnpm dev:api` / `pnpm dev:web` (one app), `pnpm db:generate` / `pnpm db:migrate:local` (see `.claude/skills/d1-schema`).
+- **Workspace commands** (run from repo root): `pnpm install`, `pnpm dev` (both apps, parallel), `pnpm dev:api` / `pnpm dev:web` (one app), `pnpm db:generate` / `pnpm db:migrate:local` / `pnpm db:studio` (see `.claude/skills/d1-schema`; full first-time-setup vs. resuming walkthrough in `docs/technical-design.md`'s Local Development section).
 - **Per-app commands**: `pnpm --filter api <script>` / `pnpm --filter web <script>`, or `cd` into the app. Both have `typecheck` (`tsc --noEmit`); `apps/web` has `lint` (ESLint).
 - **`apps/api`**: routes chained per-resource (and mounted in `src/index.ts`) for Hono RPC type inference (see `hono` skill); route handlers stay inline and delegate to `controllers/` (ADR-0062). Env bindings come from `wrangler types`-generated `worker-configuration.d.ts` — never hand-write the `Env` interface.
 - **`apps/web`**: built on Next.js 16 — this is newer than a lot of existing Next.js knowledge assumes (Turbopack by default, a `proxy.ts` file convention that replaces/renames `middleware.ts`). Check `node_modules/next/dist/docs/` for current behavior before assuming an older API, especially before Step 3's auth route guards.
 - **Testing**: Vitest is set up for `apps/api` (`src/**/*.test.ts`); add coverage there as service-layer logic grows (ADR-0062 makes services easy to unit test without mocking Hono). `apps/web` has no test runner yet — add one when the first piece of frontend logic actually needs regression coverage, not preemptively.
+- **Manual API testing**: `bruno/exam-taker-api` is a Bruno collection mirroring every `apps/api` route, with `Local` (`http://localhost:8787`) and `Dev` (deployed Worker) environments. Add a request there whenever a new route lands. `Login`/`Signup` auto-capture the bearer token into a runtime `{{token}}` var (`bru.setVar`, not `setEnvVar` — never write it to disk) that every other authenticated request reuses. Run headlessly via `npx @usebruno/cli run --env Local -r` from that folder.

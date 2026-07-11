@@ -4,8 +4,8 @@ This is the map of every product/architecture decision made before and during im
 
 ## Read First
 
-- [`product-brief.md`](product-brief.md) — market, value proposition, MVP scope, business model, current product defaults.
-- [`mvp-spec.md`](mvp-spec.md) — the MVP feature spec organized by area (auth, course, exam, results, etc.), plus the technical direction.
+- [`product-brief.md`](product-brief.md) — market, value proposition, business model exploration, risks, success metrics. The narrative "why"; not a source of current product facts (those live in `mvp-spec.md`/ADRs).
+- [`mvp-spec.md`](mvp-spec.md) — the single current reference for feature-area product defaults (auth, course, exam, results, etc.) and the technical direction.
 - [`glossary.md`](glossary.md) — every product term, one definition each. If a word is ambiguous, it is defined here.
 - [`data-model.md`](data-model.md) — the product-level entity model. Mirrors the actual D1 schema at `apps/api/migrations/0001_init.sql`; keep both in sync.
 - [`technical-design.md`](technical-design.md) — stack, project structure, local dev workflow, and production deployment in full detail.
@@ -13,9 +13,9 @@ This is the map of every product/architecture decision made before and during im
 ## Supporting References
 
 - [`flat-tags.md`](flat-tags.md) — question tagging taxonomy and CSV tag format.
-- [`pilot-terms.md`](pilot-terms.md) — the first-pilot commercial terms (historical framing; see ADR-0053 for the live billing mechanism).
+- [`pilot-terms.md`](pilot-terms.md) — pilot support commitments, responsibilities, refund/downtime policy, scope limits. Its pricing section is historical (see ADR-0053 for the live billing mechanism).
 - [`question-import-template.csv`](question-import-template.csv) — official CSV import template.
-- [`interview-questions.md`](interview-questions.md) — discovery notes from early teacher interviews.
+- [`interview-questions.md`](interview-questions.md) — the discovery interview question list (for future teacher interviews/pilot debriefs), not a source of current product facts.
 
 ## Build Plan
 
@@ -59,3 +59,5 @@ For the full list, browse `adr/` in numeric order — each file name describes i
 ## Keeping This Consistent
 
 Whenever a new product or architecture decision is made: write a new ADR (never edit or renumber an old one — mark it `Superseded` instead), then update `data-model.md`, `glossary.md`, and this index if the decision changes the map. See `.claude/skills/documentation-maintenance/SKILL.md` for the full checklist.
+
+Each product fact should live in exactly one place: `mvp-spec.md` for current feature-area defaults, the relevant ADR for the decision and its reasoning. `product-brief.md` and `interview-questions.md` are narrative/discovery documents, not specs — don't re-add a "current defaults" list to either; that's how this drifted out of sync before (fixed 2026-07-11).

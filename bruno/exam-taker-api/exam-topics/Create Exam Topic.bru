@@ -1,0 +1,30 @@
+meta {
+  name: Create Exam Topic
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/exam-topics
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "courseId": "",
+    "title": "Weekly Mock Test 1",
+    "shortDescription": "Covers Bangla and English sections"
+  }
+}
+
+docs {
+  Teacher only, requires an active tenant. courseId must belong to the
+  calling teacher's own course. scheduledAt (ISO date) and sortOrder
+  (int >= 0) are optional. Note: no trailing slash — POST /exam-topics/
+  (with slash) 404s.
+}

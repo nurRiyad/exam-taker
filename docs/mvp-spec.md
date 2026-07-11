@@ -141,7 +141,8 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 - KV for low-cost cache/session/ephemeral data where appropriate.
 - Storage only if needed for branding assets/PDF artifacts.
 - Frontend: Next.js, Tailwind CSS + shadcn/ui, mobile-first as the default design posture across the whole product, not just the exam page (ADR-0061).
-- Hosting: both apps on Cloudflare — API as a Worker, frontend via the OpenNext Cloudflare adapter, split across an apex/`api.` subdomain with a shared cookie domain (ADR-0060).
+- Hosting: frontend on Vercel, API as a Cloudflare Worker, each on its platform's free default domain for now — no custom domain yet (ADR-0063, supersedes ADR-0060's Cloudflare-only hosting).
+- Auth transport: JWT as a bearer token (`Authorization: Bearer`), not an httpOnly cookie, since frontend and API are on different registrable domains (ADR-0064, supersedes ADR-0054/0060's cookie transport).
 - Budget guardrail: stay under 2,000 BDT/month during early validation.
 - Upgrade Cloudflare paid limits if free limits fail during pilot.
 - Full detail: `docs/technical-design.md`.

@@ -1,0 +1,39 @@
+meta {
+  name: Signup
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/signup
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Test Student",
+    "username": "teststudent1",
+    "phone": "01730238191",
+    "email": "riyad@example.com",
+    "password": "password123",
+    "passwordConfirmation": "password123"
+  }
+}
+
+script:post-response {
+  if (res.body.token) {
+    bru.setVar("token", res.body.token);
+  }
+}
+
+docs {
+  Creates a new account (ADR-0049 one-screen signup) and stores the returned
+  bearer token into a runtime `token` variable via bru.setVar (ADR-0064) —
+  not written to disk — so subsequent requests in this environment are
+  authenticated automatically.
+  
+  phone must match BD local mobile format: 01[3-9]XXXXXXXX.
+  Change the username/phone/email before re-running — signup fails on
+  duplicates.
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Submit Payment Request
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/courses/:id/payment-requests
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+body:json {
+  {
+    "transactionId": "bkash-txn-123456"
+  }
+}
+
+docs {
+  Student only. One-by-one teacher approval flow (ADR-0011, ADR-0026) — see
+  "Approve Payment Request" / "Reject Payment Request".
+}

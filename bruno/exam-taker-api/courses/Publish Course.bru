@@ -1,0 +1,25 @@
+meta {
+  name: Publish Course
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/courses/:id/publish
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+docs {
+  Teacher only, requires an active tenant. Requires the minimum publish
+  fields (ADR-0058). Courses lock completely at publish — no further
+  settings/question edits after this (ADR-0056).
+}

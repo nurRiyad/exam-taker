@@ -12,7 +12,7 @@
   // domain since frontend/API are on different registrable domains.
   // Update once the real Vercel production URL is known.
   "vars": {
-    "FRONTEND_ORIGIN": "http://localhost:3000,https://exam-taker-db.vercel.app"
+    "FRONTEND_ORIGIN": "http://localhost:3000,https://exam-taker-bd.vercel.app"
   },
   // Real Cloudflare resources, created via `wrangler d1 create` / `wrangler kv namespace create`
   // (docs/build-plan.md Step 2). Local dev still works against `--local` D1/KV

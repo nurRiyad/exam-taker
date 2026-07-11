@@ -16,8 +16,20 @@ import { defineConfig } from "drizzle-kit";
 function findLocalD1File(): string {
   const dir = join(".wrangler", "state", "v3", "d1", "miniflare-D1DatabaseObject");
   if (!existsSync(dir)) return "";
-  const file = readdirSync(dir).find((name) => name.endsWith(".sqlite") && name !== "metadata.sqlite");
-  return file ? join(dir, file) : "";
+  const files = readdirSync(dir).filter((name) => name.endsWith(".sqlite") && name !== "metadata.sqlite");
+  if (files.length > 1) {
+    // Multiple candidates usually means stale `wrangler dev` processes left
+    // behind old D1 state (each gets its own hash-named file). Picking one
+    // arbitrarily makes Studio silently diverge from whatever the live dev
+    // server is actually reading/writing, so fail loud instead: kill orphaned
+    // `wrangler dev`/`workerd` processes and delete the stale file(s).
+    throw new Error(
+      `Found ${files.length} local D1 sqlite files in ${dir}, expected 1: ${files.join(", ")}. ` +
+        "This usually means an old `wrangler dev` process is still running. " +
+        "Kill orphaned wrangler/workerd processes and delete the stale file before running db:studio.",
+    );
+  }
+  return files[0] ? join(dir, files[0]) : "";
 }
 
 export default defineConfig({

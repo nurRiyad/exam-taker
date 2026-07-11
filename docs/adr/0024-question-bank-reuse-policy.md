@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (status corrected from a stale "Proposed" — formalized further by [ADR-0055](0055-shared-question-bank-with-exam-links.md), which is Accepted).
 
 ## Context
 

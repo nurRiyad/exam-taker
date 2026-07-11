@@ -11,6 +11,7 @@
     "dev:web": "pnpm --filter web dev",
     "db:generate": "pnpm --filter api db:generate",
     "db:migrate:local": "pnpm --filter api db:migrate:local",
+    "db:studio": "pnpm --filter api db:studio",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",

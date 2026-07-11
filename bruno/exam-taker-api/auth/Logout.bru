@@ -1,0 +1,18 @@
+meta {
+  name: Logout
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  body: none
+  auth: none
+}
+
+docs {
+  No server-side session to revoke (ADR-0064, stateless bearer token) — this
+  always returns 204. Logging out for real just means discarding {{token}}
+  client-side; clear the environment's token var yourself if you want to
+  simulate that here.
+}

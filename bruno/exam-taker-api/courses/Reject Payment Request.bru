@@ -1,0 +1,23 @@
+meta {
+  name: Reject Payment Request
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/payment-requests/:id/reject
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+docs {
+  Teacher only, requires an active tenant.
+}
