@@ -12,7 +12,7 @@ export function AuthCard({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex min-h-dvh items-start justify-center bg-muted/30 p-4 sm:items-center">
+    <main className="flex min-h-[calc(100dvh-13rem)] items-start justify-center bg-muted/30 p-4 sm:items-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-lg">{title}</CardTitle>

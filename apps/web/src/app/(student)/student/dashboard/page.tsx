@@ -1,0 +1,5 @@
+import { PlaceholderPage } from "@/components/placeholder-page";
+
+export default function StudentDashboardPage() {
+  return <PlaceholderPage title="Student dashboard" description="Student workspace placeholder." />;
+}

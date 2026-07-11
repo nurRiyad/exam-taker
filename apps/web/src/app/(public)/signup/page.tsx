@@ -106,7 +106,7 @@ export default function SignupPage() {
       }
       const { token } = await res.json();
       setSessionToken(token);
-      router.push("/");
+      router.push("/dashboard");
     } catch {
       setGeneralError("Network error — check your connection and try again.");
     } finally {

@@ -49,7 +49,7 @@ function LoginForm() {
       }
       const { token } = await res.json();
       setSessionToken(token);
-      router.push(searchParams.get("next") ?? "/");
+      router.push(searchParams.get("next") ?? "/dashboard");
     } catch {
       setError("Network error — check your connection and try again.");
     } finally {
