@@ -1,8 +1,6 @@
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { createdAt, id } from "./helper";
 
-
-
 export const users = sqliteTable("users", {
   id: id(),
   name: text("name").notNull(),
