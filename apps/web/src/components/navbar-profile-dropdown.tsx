@@ -31,7 +31,9 @@ export function NavbarProfileDropdown({ label }: { label: string }) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button size="sm" variant="outline" className="max-w-32 justify-start sm:max-w-44" />}>
+      <DropdownMenuTrigger
+        render={<Button size="sm" variant="outline" className="max-w-32 justify-start sm:max-w-44" />}
+      >
         <UserCircleIcon data-icon="inline-start" />
         <span className="truncate">{label}</span>
       </DropdownMenuTrigger>
