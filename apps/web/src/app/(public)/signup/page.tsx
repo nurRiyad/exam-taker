@@ -7,6 +7,7 @@ import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { apiClient } from "@/lib/api-client";
 import { extractApiError, type FieldErrors } from "@/lib/api-error";
 import { setSessionToken } from "@/lib/session-token";
@@ -147,26 +148,26 @@ export default function SignupPage() {
 
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-medium">Account type</legend>
-          <div className="grid grid-cols-2 gap-2">
+          <RadioGroup
+            value={form.role}
+            onValueChange={(value) => update("role", value as AccountRole)}
+            className="grid grid-cols-2 gap-2"
+          >
             {(["student", "teacher"] as const).map((role) => (
               <Label
                 key={role}
                 htmlFor={`role-${role}`}
-                className="flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm has-checked:border-primary has-checked:bg-primary/5"
+                className="flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm has-data-[checked]:border-primary has-data-[checked]:bg-primary/5"
               >
-                <input
+                <RadioGroupItem
                   id={`role-${role}`}
-                  type="radio"
-                  name="role"
                   value={role}
-                  checked={form.role === role}
-                  onChange={() => update("role", role)}
-                  className="size-4 accent-primary"
+                  aria-invalid={Boolean(fieldErrors.role) || undefined}
                 />
                 <span className="capitalize">{role}</span>
               </Label>
             ))}
-          </div>
+          </RadioGroup>
           <FieldError message={fieldErrors.role} />
         </fieldset>
 
