@@ -109,15 +109,30 @@ Notes:
 
 Prerequisites: Node `24.14.1` (pinned in `.nvmrc` — run `nvm use` in the repo root before anything else; this environment's shell does not auto-switch on `cd`), `pnpm` (via Corepack — `corepack enable` once per Node install), the Wrangler CLI. A Cloudflare account is only needed for `wrangler login` and remote operations — local dev (including local D1) works offline.
 
-1. **Switch Node versions**: `nvm use` (reads `.nvmrc`). Re-run this every time you start a new shell in this repo.
-2. **Install**: `pnpm install` at the repo root (installs both apps' dependencies through the workspace).
-3. **Apply migrations locally**: `pnpm db:migrate:local` → runs `wrangler d1 migrations apply exam-taker-db --local`, which creates a local SQLite file simulating D1. No real Cloudflare resource needed for this.
-4. **Run both dev servers**: `pnpm dev` at the root, which runs concurrently:
+### First-time setup (new machine / new clone)
+
+1. **Switch Node versions**: `nvm use` (reads `.nvmrc`). Re-run this every time you start a new shell in this repo — the shell does not auto-switch on `cd`.
+2. **Install**: `pnpm install` at the repo root (installs both apps' dependencies through the workspace, and builds `better-sqlite3`'s native binary via `pnpm-workspace.yaml`'s `onlyBuiltDependencies` — needed by `db:studio`).
+3. **Apply migrations locally**: `pnpm db:migrate:local` → runs `wrangler d1 migrations apply exam-taker-db --local`, which creates a local SQLite file simulating D1 under `apps/api/.wrangler/state/`. No real Cloudflare resource needed for this — do this once; it's a no-op on future runs once the file exists (skip straight to "Resuming" below after this).
+4. **(Optional) Seed a local admin account**: `pnpm --filter api db:seed:admin` — idempotent, inserts one admin user (`localadmin` / `admin123456`) into the local D1 only if it doesn't already exist. Useful for exercising login/role-guarded routes without going through signup.
+5. **Run everything**: in one terminal, `pnpm dev` at the root, which runs concurrently:
    - `apps/api`: `wrangler dev` on port 8787.
    - `apps/web`: `next dev` on port 3000 (Next.js auto-falls back to 3001+ if 3000 is already taken locally), with `next.config.ts` `rewrites()` forwarding `/api/*` → the API dev server.
-5. Open the printed `apps/web` URL. The auth token travels as an `Authorization: Bearer` header attached by application code (ADR-0064), so it works the same whether the browser call is same-origin (dev, via the rewrite proxy) or cross-origin (prod, direct to `*.workers.dev`) — the rewrite proxy is kept for convenience but isn't load-bearing for auth. Server Components call the API's origin directly (`API_INTERNAL_URL`, defaults to `http://localhost:8787`), bypassing the rewrite entirely, reading the token from the request's cookies to attach the header themselves.
-6. **Changing the schema**: edit `apps/api/src/db/schema.ts`, run `pnpm --filter api db:generate` (`drizzle-kit generate`, writes the next numbered migration into `apps/api/migrations/`), review the generated SQL, then re-run step 3 to apply it locally.
-7. **Inspecting local DB state**: `pnpm --filter api db:studio` (`drizzle-kit studio`) opens a browser UI (`https://local.drizzle.studio`, talking to a local server on port 4983) against the same local D1 sqlite file `wrangler dev`/`db:migrate:local` use — `apps/api/drizzle.config.ts` resolves that file's path itself (its name includes a wrangler-generated hash). Requires `better-sqlite3`'s native binary, approved once via `pnpm-workspace.yaml`'s `onlyBuiltDependencies` (`pnpm install` builds it automatically).
+
+   In a second terminal, `pnpm db:studio` (root alias for `pnpm --filter api db:studio`, i.e. `drizzle-kit studio`) opens a browser UI at `https://local.drizzle.studio` (talking to a local server on port 4983) against the same local D1 sqlite file `wrangler dev` uses — `apps/api/drizzle.config.ts` resolves that file's path itself (its name includes a wrangler-generated hash) and errors loudly if it ever finds more than one candidate file, instead of silently opening the wrong one.
+6. Open the printed `apps/web` URL. The auth token travels as an `Authorization: Bearer` header attached by application code (ADR-0064), so it works the same whether the browser call is same-origin (dev, via the rewrite proxy) or cross-origin (prod, direct to `*.workers.dev`) — the rewrite proxy is kept for convenience but isn't load-bearing for auth. Server Components call the API's origin directly (`API_INTERNAL_URL`, defaults to `http://localhost:8787`), bypassing the rewrite entirely, reading the token from the request's cookies to attach the header themselves.
+
+### Resuming (already set up before)
+
+Stopping both dev servers and Drizzle Studio (`Ctrl+C` in each terminal) does **not** touch the local D1 data — it's a real sqlite file on disk under `apps/api/.wrangler/state/`, not in-memory state, so it survives restarts and stays exactly as you left it.
+
+To pick back up: just re-run `pnpm dev` (root) and, if you also want the DB inspector, `pnpm db:studio` in a second terminal. Do **not** re-run `pnpm db:migrate:local` unless you actually pulled new migration files (check `apps/api/migrations/` for new numbered files) — it's safe either way (migrations are tracked and idempotent), but there's no need to re-apply what's already applied.
+
+Only wipe local data on purpose, if you ever want a truly clean slate: delete `apps/api/.wrangler/state/` and re-run `pnpm db:migrate:local`.
+
+### Changing the schema
+
+Edit `apps/api/src/db/schema.ts`, run `pnpm --filter api db:generate` (`drizzle-kit generate`, writes the next numbered migration into `apps/api/migrations/`), review the generated SQL, then `pnpm db:migrate:local` to apply it locally.
 
 ## Production Deployment
 
