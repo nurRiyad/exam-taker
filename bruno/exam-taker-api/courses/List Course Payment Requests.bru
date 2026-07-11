@@ -1,0 +1,28 @@
+meta {
+  name: List Course Payment Requests
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/teacher/courses/:id/payment-requests?status=pending
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+params:query {
+  status: pending
+}
+
+docs {
+  Teacher only, requires an active tenant. `status` query param is optional:
+  pending | approved | rejected. Remove the query param to list all.
+}

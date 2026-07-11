@@ -1,0 +1,32 @@
+meta {
+  name: Login
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "identifier": "teststudent1",
+    "password": "password123"
+  }
+}
+
+script:post-response {
+  if (res.body.token) {
+    bru.setVar("token", res.body.token);
+  }
+}
+
+docs {
+  identifier can be username, phone, or email. Stores the returned bearer
+  token into a runtime `token` variable via bru.setVar (ADR-0064) — not
+  written to disk, so it never ends up committed. Run this once per session
+  and every other authenticated request in this collection will pick it up
+  automatically via {{token}}.
+}

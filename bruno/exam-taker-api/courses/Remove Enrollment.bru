@@ -1,0 +1,24 @@
+meta {
+  name: Remove Enrollment
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/enrollments/:id/remove
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+docs {
+  Teacher only, requires an active tenant. `id` is the enrollment id
+  (course_enrollments row), not the student's user id.
+}

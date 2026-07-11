@@ -1,0 +1,20 @@
+meta {
+  name: List My Courses
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/teacher/courses
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Teacher only, requires an active tenant. Lists only the calling teacher's
+  own courses.
+}

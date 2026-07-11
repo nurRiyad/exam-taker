@@ -1,0 +1,23 @@
+meta {
+  name: Get Course
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/courses/:id
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+docs {
+  Any authenticated role. Fetches a single course by id.
+}

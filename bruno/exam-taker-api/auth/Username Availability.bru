@@ -1,0 +1,19 @@
+meta {
+  name: Username Availability
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/auth/username-availability?username=teststudent1
+  body: none
+  auth: none
+}
+
+params:query {
+  username: teststudent1
+}
+
+docs {
+  Live availability check used by the signup form while typing (ADR-0049).
+}

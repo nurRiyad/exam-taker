@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "Exam Taker API",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

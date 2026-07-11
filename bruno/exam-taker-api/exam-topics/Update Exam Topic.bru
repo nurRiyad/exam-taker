@@ -1,0 +1,31 @@
+meta {
+  name: Update Exam Topic
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/exam-topics/:id
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+body:json {
+  {
+    "status": "published"
+  }
+}
+
+docs {
+  Teacher only, requires an active tenant. All fields optional but at least
+  one required: title, shortDescription, scheduledAt, sortOrder,
+  status (draft|published).
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Update Course
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/courses/:id
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+body:json {
+  {
+    "title": "BCS Preli Crash Course (Updated)"
+  }
+}
+
+docs {
+  Teacher only, requires an active tenant. All fields optional but at least
+  one required. `status` is deliberately not editable here — courses lock at
+  publish (ADR-0056); see "Publish Course".
+}

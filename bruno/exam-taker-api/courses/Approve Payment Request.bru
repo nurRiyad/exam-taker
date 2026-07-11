@@ -1,0 +1,24 @@
+meta {
+  name: Approve Payment Request
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/payment-requests/:id/approve
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:path {
+  id:
+}
+
+docs {
+  Teacher only, requires an active tenant. `id` is the payment request id
+  (from "Submit Payment Request" or "List Course Payment Requests").
+}
