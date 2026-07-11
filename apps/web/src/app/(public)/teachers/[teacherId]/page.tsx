@@ -7,5 +7,7 @@ type TeacherDetailsPageProps = {
 export default async function TeacherDetailsPage({ params }: TeacherDetailsPageProps) {
   const { teacherId } = await params;
 
-  return <PlaceholderPage title="Teacher details" description={`Public teacher profile placeholder for ${teacherId}.`} />;
+  return (
+    <PlaceholderPage title="Teacher details" description={`Public teacher profile placeholder for ${teacherId}.`} />
+  );
 }

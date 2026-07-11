@@ -7,5 +7,10 @@ type TeacherCourseExamPrintPageProps = {
 export default async function TeacherCourseExamPrintPage({ params }: TeacherCourseExamPrintPageProps) {
   const { courseId, examId } = await params;
 
-  return <PlaceholderPage title="Print exam" description={`Print/PDF placeholder for exam ${examId} in course ${courseId}.`} />;
+  return (
+    <PlaceholderPage
+      title="Print exam"
+      description={`Print/PDF placeholder for exam ${examId} in course ${courseId}.`}
+    />
+  );
 }

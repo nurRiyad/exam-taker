@@ -8,6 +8,9 @@ export default async function TeacherCourseExamPage({ params }: TeacherCourseExa
   const { courseId, examId } = await params;
 
   return (
-    <PlaceholderPage title="Manage exam" description={`Teacher exam editor placeholder for ${examId} in course ${courseId}.`} />
+    <PlaceholderPage
+      title="Manage exam"
+      description={`Teacher exam editor placeholder for ${examId} in course ${courseId}.`}
+    />
   );
 }

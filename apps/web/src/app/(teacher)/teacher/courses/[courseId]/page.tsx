@@ -7,5 +7,7 @@ type TeacherCoursePageProps = {
 export default async function TeacherCoursePage({ params }: TeacherCoursePageProps) {
   const { courseId } = await params;
 
-  return <PlaceholderPage title="Manage course" description={`Teacher course management placeholder for ${courseId}.`} />;
+  return (
+    <PlaceholderPage title="Manage course" description={`Teacher course management placeholder for ${courseId}.`} />
+  );
 }

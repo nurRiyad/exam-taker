@@ -18,7 +18,11 @@ export function SiteFooter() {
           <p>© 2026 Exam Taker. All rights reserved.</p>
           <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-4 gap-y-2">
             {FOOTER_LINKS.map((link) => (
-              <Link key={link.href} href={link.href} className="underline-offset-4 hover:text-foreground hover:underline">
+              <Link
+                key={link.href}
+                href={link.href}
+                className="underline-offset-4 hover:text-foreground hover:underline"
+              >
                 {link.label}
               </Link>
             ))}
