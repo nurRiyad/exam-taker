@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted, except the cookie-transport piece of the Decision below (line "Store the JWT in an httpOnly... cookie") — that is superseded by [ADR-0064](0064-bearer-token-auth-default-domains.md) now that frontend and API are on different registrable domains. JWT issuance, PBKDF2 hashing, 30-day flat expiry, and the "claims are a UI convenience only" principle are all still in effect unchanged.
 
 ## Context
 

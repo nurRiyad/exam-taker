@@ -398,4 +398,4 @@ Teacher workflow for copying an old exam to create a new one faster. Duplication
 
 ## JWT Session
 
-The signed token (HS256) issued at login, stored in an httpOnly cookie, containing user id, role, and tenant/course-membership hints. A convenience for identity and UI gating; server-side authorization still checks real DB relationships. See ADR-0054.
+The signed token (HS256) issued at login, returned in the response body and sent back as an `Authorization: Bearer` header on every request (stored client-side in a non-httpOnly cookie so both the browser and Next.js Server Components can read it), containing user id, role, and tenant/course-membership hints. A convenience for identity and UI gating; server-side authorization still checks real DB relationships. See ADR-0054, ADR-0064.

@@ -6,7 +6,7 @@ This doc elaborates `docs/build-plan.md`'s Steps 3–13 into concrete backend en
 
 Status legend: ✅ Done · 🚧 Partial · ⬜ Not started.
 
-**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3 — plus Step 4's Backend track done.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, domain, prod `JWT_SECRET`) needs the project owner's own Cloudflare account access and a domain decision, so it's deferred to Step 13's deploy prep rather than blocking anything now. Step 4's Frontend track and Steps 5–13 are not started.
+**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3 — plus Step 4's Backend track done.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, Vercel/Cloudflare account access, prod `JWT_SECRET`) needs the project owner's own account access, and is being done now (ahead of Step 13) alongside the CI/CD + hosting setup — see ADR-0063/ADR-0064. Step 3's auth is being revised in place from an httpOnly cookie to a bearer token (ADR-0064) since frontend/API now live on different registrable domains (`*.vercel.app` / `*.workers.dev`). Step 4's Frontend track and Steps 5–13 are not started.
 
 Every table/field name below is taken directly from the current `apps/api/src/db/schema.ts` / `docs/data-model.md` — the schema already covers the entire MVP, so **no step below is expected to need a new migration** unless an implementation surfaces a genuine gap (none known today). If one does, follow `.claude/skills/d1-schema` and note the new migration number here.
 
@@ -33,21 +33,21 @@ Includes the one-live-attempt-per-student partial unique index, enum `CHECK` con
 | `wrangler secret put JWT_SECRET` (prod); confirm local `.dev.vars` value | Step 3 backend | ✅ local `.dev.vars` confirmed working (live-verified); prod secret still open — lands with Step 13's real-deploy setup |
 | shadcn/ui `init` (no `components.json` yet) | Step 3 frontend (first real UI needed) | ✅ Done (`base-nova`/Base UI style) |
 | `drizzle-kit generate` baseline snapshot (no journal yet — `0001_init.sql` is hand-written) | Do once, before the first time any step actually needs a schema change | ✅ Done — `apps/api/migrations/0002_drizzle_baseline.sql` (all statements `IF NOT EXISTS`, safely no-ops on the already-migrated local D1); a follow-up `db:generate` confirmed zero drift. Real migrations resume at `0003`. See `.claude/skills/d1-schema/SKILL.md`. |
-| Real Cloudflare resource IDs (`wrangler d1 create`, `wrangler kv namespace create`), domain/hosting, Cloudflare Pages project, `wrangler secret put JWT_SECRET` (prod) | Not tied to a specific step — do before first real deploy, i.e. before Step 13's pilot exit criteria | ⬜ **Blocked on the project owner**: needs `wrangler login` against a real Cloudflare account and a domain-name decision — not something that can be done from this environment autonomously |
+| Real Cloudflare resource IDs (`wrangler d1 create`, `wrangler kv namespace create`), Vercel project for `apps/web`, `wrangler secret put JWT_SECRET` (prod), GitHub Actions secrets | Not tied to a specific step — brought forward from Step 13 to now (ADR-0063) | ⬜ **Blocked on the project owner**: needs `wrangler login` and a Vercel account/project connection — not something that can be done from this environment autonomously. No domain-name decision needed — shipping on free default domains (ADR-0063). |
 | Next.js 16 `proxy.ts` convention (replaces `middleware.ts`) | Step 3 frontend (first route guards) | ✅ Done |
 
 ---
 
-## Step 3 — Auth vertical slice — ✅ Done (Backend ✅, Frontend ✅)
-ADRs: [0054](adr/0054-jwt-auth-with-pbkdf2-password-hashing.md), [0020](adr/0020-password-login-without-otp.md), [0025](adr/0025-manual-password-reset-codes.md), [0017](adr/0017-global-student-account.md), [0049](adr/0049-fast-signup-with-unique-identity.md)
+## Step 3 — Auth vertical slice — ✅ Done (Backend ✅, Frontend ✅); auth transport revised to bearer token (ADR-0064)
+ADRs: [0054](adr/0054-jwt-auth-with-pbkdf2-password-hashing.md), [0064](adr/0064-bearer-token-auth-default-domains.md), [0020](adr/0020-password-login-without-otp.md), [0025](adr/0025-manual-password-reset-codes.md), [0017](adr/0017-global-student-account.md), [0049](adr/0049-fast-signup-with-unique-identity.md)
 
 ### Backend
 Tables: `users`, `reset_codes`.
 
 New files:
 - `apps/api/src/lib/password.ts` — PBKDF2-SHA256 hash/verify via Web Crypto, encoded as `pbkdf2$<iterations>$<salt>$<hash>` (ADR-0054).
-- `apps/api/src/lib/jwt.ts` — HS256 sign/verify, cookie helpers (`httpOnly`, `Secure`, `SameSite=Lax`, `Domain=.<domain>` in prod per ADR-0060), 30-day flat expiry, no refresh flow (ADR-0054).
-- `apps/api/src/middleware/auth.ts` — reads the cookie, verifies the JWT, then **re-loads the user + role from the DB** (JWT claims are UI convenience only, ADR-0054) and attaches to Hono context; exports a `requireRole(...)` guard factory.
+- `apps/api/src/lib/jwt.ts` — HS256 sign/verify only (no cookie helpers), 30-day flat expiry, no refresh flow (ADR-0054, ADR-0064).
+- `apps/api/src/middleware/auth.ts` — reads the `Authorization: Bearer` header, verifies the JWT, then **re-loads the user + role from the DB** (JWT claims are UI convenience only, ADR-0054) and attaches to Hono context; exports a `requireRole(...)` guard factory.
 - `apps/api/src/middleware/error-handler.ts` — first use; generic error responses (no stack traces / SQL errors leaked — full audit deferred to Step 13, but shape it correctly now).
 - `apps/api/src/validation/auth.ts` — Zod schemas: `signupSchema`, `loginSchema`, `generateResetCodeSchema`, `redeemResetCodeSchema`.
 - `apps/api/src/routes/auth.ts` — mounted in `src/index.ts`.
@@ -56,20 +56,20 @@ Endpoints:
 | Method | Path | Auth | Request body | Response | Key rules |
 |---|---|---|---|---|---|
 | GET | `/auth/username-availability` | none | query `?username=` | `{ available: boolean }` | Live check while typing (ADR-0049) |
-| POST | `/auth/signup` | none | `name, username, phone (local 01...), email, password, passwordConfirmation` | `{ user }` + sets cookie | One screen, no optional fields (ADR-0049); username/phone/email uniqueness; normalize phone to `+880...` for storage; username starts with a letter, ≥3 chars, letters/numbers/underscores; password ≥6 chars, no composition rule |
-| POST | `/auth/login` | none | `identifier (username\|phone\|email), password` | `{ user }` + sets cookie | Vague error on any failure, never reveals which field was wrong (ADR-0020) |
-| POST | `/auth/logout` | cookie | — | `204` + clears cookie | |
-| GET | `/auth/me` | cookie | — | `{ user }` or `401` | Frontend session bootstrap |
+| POST | `/auth/signup` | none | `name, username, phone (local 01...), email, password, passwordConfirmation` | `{ user, token }` | One screen, no optional fields (ADR-0049); username/phone/email uniqueness; normalize phone to `+880...` for storage; username starts with a letter, ≥3 chars, letters/numbers/underscores; password ≥6 chars, no composition rule |
+| POST | `/auth/login` | none | `identifier (username\|phone\|email), password` | `{ user, token }` | Vague error on any failure, never reveals which field was wrong (ADR-0020) |
+| POST | `/auth/logout` | bearer | — | `204` | No server-side revocation (ADR-0054); client discards the token/cookie |
+| GET | `/auth/me` | bearer | — | `{ user }` or `401` | Frontend session bootstrap |
 | POST | `/auth/reset-codes` | teacher/admin | `{ userId }` | `{ code }` (plaintext, shown once) | Hash stored, `expires_at` = +1h, delivered manually outside the platform (ADR-0025). **Resolved in Step 4**: teacher-generated codes now require the target student to have a non-`removed` `course_enrollments` row in one of the teacher's own courses (admins are exempt, having no tenant of their own); see Step 4's backend section below. |
 | POST | `/auth/reset` | none | `{ identifier, code, newPassword, newPasswordConfirmation }` | `{ ok: true }` | Verifies hash + not expired + not used; marks `used_at` |
 
-Verification: `curl`/`run` skill through the sequence signup → logout (clear cookie) → login → generate reset code (as a manually-seeded teacher row) → reset password → login with new password.
+Verification: `curl`/`run` skill through the sequence signup → logout (discard token) → login → generate reset code (as a manually-seeded teacher row) → reset password → login with new password.
 
 ### Frontend (after backend above is done) — ✅ Done
 New files:
 - `apps/web/components.json` + `apps/web/src/components/ui/*` — shadcn `init`, first components: `button`, `input`, `label`, `card`. **Deviation from the original plan**: shadcn was initialized with the new Base UI style (`base-nova`, the CLI's now-recommended default over Radix), whose registry doesn't yet ship a `form` component (the registry entry exists but is an empty stub — no files). Forms are built with plain controlled `<input>`s + `Label`/`Input`/`Button`/`Card` and hand-rolled client-side validation instead, matching Next.js's own plain-form guidance. Revisit if/when shadcn ships a Base UI `form` component and a real need for its extra ergonomics shows up.
-- `apps/web/src/lib/api-client.ts` — `hc<AppType>()` instance pointed at `/api` (same-origin, per ADR-0060). The type-only cross-package import needed two small additions not in the original plan: `apps/web/package.json` gets `api: "workspace:*"` as a devDependency, and `apps/web/src/types/api-ambient-shim.d.ts` declares loose `Env`/`D1Database` ambients so the import resolves — deliberately *not* including apps/api's real `worker-configuration.d.ts`, since that file also redefines the global `Response`/`fetch` to Cloudflare's Workers-flavored shapes, which would conflict with Hono's browser-flavored RPC client types across the whole Next.js app.
-- `apps/web/src/proxy.ts` — Next.js 16 route-guard convention; calls the API's `/auth/me` directly against `API_INTERNAL_URL` (server-side, bypassing the `/api/*` rewrite — see `docs/technical-design.md`'s Local Development section) and enforces role match server-side, never trusting a client-side JWT decode. Gates by **literal path**, not by route-group prefix — `(student)`/`(teacher)`/`(admin)` are organizational only and don't appear in the URL (see the Pages note below), so the guard is a small `path -> allowed roles[]` map, extended as new gated pages land in later steps.
+- `apps/web/src/lib/api-client.ts` — `hc<AppType>()` instance pointed at `/api`, attaching `Authorization: Bearer <token>` (read from the `session_token` cookie) to every call (ADR-0064; frontend/API are cross-origin by default now, not same-origin). The type-only cross-package import needed two small additions not in the original plan: `apps/web/package.json` gets `api: "workspace:*"` as a devDependency, and `apps/web/src/types/api-ambient-shim.d.ts` declares loose `Env`/`D1Database` ambients so the import resolves — deliberately *not* including apps/api's real `worker-configuration.d.ts`, since that file also redefines the global `Response`/`fetch` to Cloudflare's Workers-flavored shapes, which would conflict with Hono's browser-flavored RPC client types across the whole Next.js app.
+- `apps/web/src/proxy.ts` — Next.js 16 route-guard convention; reads the `session_token` cookie and calls the API's `/auth/me` directly against `API_INTERNAL_URL` with an `Authorization: Bearer` header (server-side, bypassing the `/api/*` rewrite — see `docs/technical-design.md`'s Local Development section) and enforces role match server-side, never trusting a client-side JWT decode. Gates by **literal path**, not by route-group prefix — `(student)`/`(teacher)`/`(admin)` are organizational only and don't appear in the URL (see the Pages note below), so the guard is a small `path -> allowed roles[]` map, extended as new gated pages land in later steps.
 
 Pages:
 | Route | Purpose | Key components | API calls | Notes |
@@ -383,8 +383,8 @@ This step is a hardening checklist, not new endpoints/pages:
 **Backend**
 - [ ] Rate-limit `POST /auth/reset-codes` and `POST /admin/users/:id/reset-codes` (KV-based counter; ADR-0025).
 - [ ] Full error-message audit across every route — confirm `error-handler.ts` (from Step 3) never leaks stack traces, SQL errors, or internal IDs in production responses.
-- [ ] Do the deferred real-Cloudflare-resources setup if not already done: `wrangler d1 create`, `wrangler kv namespace create`, `wrangler secret put JWT_SECRET`, domain + Cloudflare Pages project (Step 2's deferred list).
-- [ ] Verify actual Cloudflare usage against the <2,000 BDT/month guardrail (ADR-0051); upgrade paid limits rather than risk a live-exam failure.
+- [ ] Real-Cloudflare-resources + Vercel setup, brought forward to now (ADR-0063): `wrangler d1 create`, `wrangler kv namespace create`, `wrangler secret put JWT_SECRET`, Vercel project for `apps/web`. No domain purchase needed — shipping on free default domains. **Blocked on the project owner's account access.**
+- [ ] Verify actual Cloudflare **and Vercel** usage against the <2,000 BDT/month guardrail (ADR-0051, ADR-0063 — Vercel likely needs a paid plan); upgrade paid limits rather than risk a live-exam failure.
 
 **Frontend**
 - [ ] Mobile QA pass on a real low-end device / throttled connection across every flow built in Steps 3–12 — no new pages, just fixes: touch-target sizing, loading states, offline resilience (ADR-0061).

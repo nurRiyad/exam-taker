@@ -1,0 +1,22 @@
+node_modules/
+.next/
+out/
+dist/
+.open-next/
+.wrangler/
+pnpm-lock.yaml
+worker-configuration.d.ts
+next-env.d.ts
+apps/api/migrations/
+
+# Prose docs aren't part of the lint/format CI surface (ADR-0063) — scope
+# formatting to source code, not the doc corpus (docs/, ADRs, skills, etc.).
+docs/
+.claude/
+.agents/
+CLAUDE.md
+apps/web/AGENTS.md
+apps/api/AGENTS.md
+
+# jsonc allows comments; Prettier's JSON parser would mangle them.
+**/wrangler.jsonc

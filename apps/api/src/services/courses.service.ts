@@ -113,7 +113,13 @@ export async function listTeacherCourses(db: Database, tenantId: string) {
   return coursesRepository.findByTenant(db, tenantId);
 }
 
-function computeJoinAccess(course: { isFree: boolean; basePriceBdt: number; discountPercent: number | null; discountStartAt: string | null; discountEndAt: string | null }) {
+function computeJoinAccess(course: {
+  isFree: boolean;
+  basePriceBdt: number;
+  discountPercent: number | null;
+  discountStartAt: string | null;
+  discountEndAt: string | null;
+}) {
   const priceSnapshotBdt = course.isFree ? 0 : computeEffectivePriceBdt(course, new Date());
   const accessStatus = course.isFree ? "approved" : "joined_pending_payment";
   return { priceSnapshotBdt, accessStatus } as const;

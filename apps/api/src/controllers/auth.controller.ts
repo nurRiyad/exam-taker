@@ -1,9 +1,8 @@
 // HTTP-facing orchestration — the only layer aware of both Hono `Context` and
-// the service layer. Owns status codes, response shaping, and session cookie
-// issuance (cookies need `c`, so that can't live in the Hono-agnostic service).
+// the service layer. Owns status codes and response shaping.
 import type { Context } from "hono";
 import { getDb } from "../db/client";
-import { clearSessionCookie, setSessionCookie, signSession } from "../utils/jwt";
+import { signSession } from "../utils/jwt";
 import type { AuthEnv } from "../middleware/auth";
 import * as authService from "../services/auth.service";
 import type { GenerateResetCodeInput, LoginInput, RedeemResetCodeInput, SignupInput } from "../validation/auth";
@@ -18,23 +17,20 @@ export async function signup(c: Context<AuthEnv>, input: SignupInput) {
   const db = getDb(c.env.DB);
   const user = await authService.signup(db, input);
   const token = await signSession({ sub: user.id, role: user.role }, c.env.JWT_SECRET);
-  setSessionCookie(c, token);
-  return c.json({ user }, 201);
+  return c.json({ user, token }, 201);
 }
 
 export async function login(c: Context<AuthEnv>, input: LoginInput) {
   const db = getDb(c.env.DB);
   const user = await authService.login(db, input);
   const token = await signSession({ sub: user.id, role: user.role }, c.env.JWT_SECRET);
-  setSessionCookie(c, token);
-  return c.json({ user });
+  return c.json({ user, token });
 }
 
 export function logout(c: Context<AuthEnv>) {
-  // No requireAuth: logout must succeed idempotently even for an expired
-  // session or a deactivated/blocked account — it only clears the
-  // requester's own cookie, nothing that needs authorization.
-  clearSessionCookie(c);
+  // No requireAuth, no server-side action: the token is stateless and
+  // client-held (ADR-0064) — there's nothing here to revoke or clear.
+  // Logging out is entirely the client discarding its stored token.
   return c.body(null, 204);
 }
 

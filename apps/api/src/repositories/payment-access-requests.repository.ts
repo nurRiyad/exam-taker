@@ -26,11 +26,7 @@ export async function insert(db: Database, data: NewPaymentRequest): Promise<Pay
   return row;
 }
 
-export async function update(
-  db: Database,
-  id: string,
-  data: Partial<NewPaymentRequest>,
-): Promise<PaymentRequestRow> {
+export async function update(db: Database, id: string, data: Partial<NewPaymentRequest>): Promise<PaymentRequestRow> {
   const [row] = await db.update(paymentAccessRequests).set(data).where(eq(paymentAccessRequests.id, id)).returning();
   return row;
 }

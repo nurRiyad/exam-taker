@@ -23,8 +23,8 @@ export default async function Home() {
     <main className="flex min-h-dvh flex-col gap-4 p-4">
       <h1 className="text-xl font-semibold">Exam Taker — local dev</h1>
       <p className="text-sm text-zinc-500">
-        This page is a Step 2 scaffold placeholder, not product UI. It exists to prove the
-        Next.js dev server can reach the Hono API through the same-origin proxy.
+        This page is a Step 2 scaffold placeholder, not product UI. It exists to prove the Next.js dev server can reach
+        the Hono API through the same-origin proxy.
       </p>
       <div className="rounded-lg border p-4 text-sm">
         <p className="font-medium">API health check (/api/health):</p>

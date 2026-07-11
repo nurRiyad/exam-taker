@@ -12,11 +12,14 @@ This is the detailed engineering reference: exact stack, project structure, loca
 | Migrations | `drizzle-kit generate` → SQL files → `wrangler d1 migrations apply` | ADR-0059, `.claude/skills/d1-schema` |
 | Validation | Zod, with `drizzle-zod` deriving schemas from DB tables where shapes overlap | ADR-0059 |
 | Cache / ephemeral data | Cloudflare KV (never source of truth for submissions/payments) | ADR-0004 |
-| Auth | JWT in an httpOnly cookie, PBKDF2-SHA256 password hashing via Web Crypto | ADR-0054 |
+| Auth | JWT as a bearer token (`Authorization: Bearer`, stored client-side in a non-httpOnly cookie), PBKDF2-SHA256 password hashing via Web Crypto | ADR-0054, ADR-0064 |
 | Tenancy | One shared multi-tenant deployment, scoped by `tenant_id` | ADR-0052 |
 | Frontend framework | Next.js (App Router) | ADR-0005 |
-| Frontend hosting | Cloudflare, via OpenNext Cloudflare adapter (`@opennextjs/cloudflare`) | ADR-0060 |
-| Domain topology | Apex/`www` → frontend, `api.<domain>` → backend, shared cookie domain | ADR-0060 |
+| Frontend hosting | Vercel (native Next.js build, no adapter) | ADR-0063 (supersedes ADR-0060) |
+| API hosting | Cloudflare Worker | ADR-0060, ADR-0063 |
+| Domain topology | Free default domains for now — `*.vercel.app` (frontend), `*.workers.dev` (API); no custom domain yet | ADR-0063 |
+| CORS | API allow-lists the exact deployed frontend origin(s), allows `Authorization` header, no credentialed cookies | ADR-0064 |
+| CI/CD | GitHub Actions: lint/format/test on every PR; on merge to `main`, API migrates+deploys via Wrangler, frontend deploys via Vercel's Git integration | ADR-0063 |
 | Component system | Tailwind CSS + shadcn/ui | ADR-0061 |
 | Design posture | Mobile-first everywhere, not just the exam page | ADR-0061, ADR-0002 |
 | API type sharing | Hono RPC (`hono/client`), type-only import of the API's `AppType` — no generated client, no separate types package | ADR-0059 |
@@ -59,7 +62,7 @@ exam-taker/
 │   │   │   │   └── error-handler.ts  # maps HTTPException and domain errors (utils/errors.ts) to responses
 │   │   │   ├── utils/                 # shared technical helpers, no resource/route awareness
 │   │   │   │   ├── password.ts       # PBKDF2 hash/verify (ADR-0054)
-│   │   │   │   ├── jwt.ts            # sign/verify, cookie helpers (ADR-0060 cookie domain)
+│   │   │   │   ├── jwt.ts            # sign/verify only, no cookie helpers (bearer token, ADR-0064)
 │   │   │   │   ├── phone.ts, sqlite-time.ts, user.ts, reset-code.ts
 │   │   │   │   └── errors.ts         # domain error classes (ConflictError, UnauthorizedError, ...)
 │   │   │   ├── types/                 # shared TS-only types; index.ts re-exports each file
@@ -70,7 +73,7 @@ exam-taker/
 │   │   ├── drizzle.config.ts
 │   │   ├── wrangler.jsonc
 │   │   └── package.json
-│   └── web/                          # Next.js frontend, deployed via OpenNext to Cloudflare
+│   └── web/                          # Next.js frontend, deployed to Vercel (ADR-0063)
 │       ├── src/
 │       │   ├── app/                  # App Router
 │       │   │   ├── (public)/         # Public teacher pages, public past-exam list
@@ -85,8 +88,9 @@ exam-taker/
 │       │       ├── en/               # launch language
 │       │       └── bn/               # empty placeholders (ADR-0047)
 │       ├── next.config.ts            # rewrites() proxy to API worker in dev
-│       ├── open-next.config.ts
 │       └── package.json
+├── .github/
+│   └── workflows/                    # CI (lint/format/test on PR) + CD (API migrate+deploy on merge to main) (ADR-0063)
 ├── docs/                             # product spec, ADRs, data model, glossary, build plan
 ├── .claude/
 │   └── skills/                       # product-knowledge, d1-schema, documentation-maintenance
@@ -111,31 +115,33 @@ Prerequisites: Node `24.14.1` (pinned in `.nvmrc` — run `nvm use` in the repo 
 4. **Run both dev servers**: `pnpm dev` at the root, which runs concurrently:
    - `apps/api`: `wrangler dev` on port 8787.
    - `apps/web`: `next dev` on port 3000 (Next.js auto-falls back to 3001+ if 3000 is already taken locally), with `next.config.ts` `rewrites()` forwarding `/api/*` → the API dev server.
-5. Open the printed `apps/web` URL. Because of the rewrite proxy, the browser sees same-origin requests, so the auth cookie behaves the same in dev as it will in production's same-site subdomain setup (ADR-0060) — no dev-only CORS/cookie special-casing needed. Server Components call the API's origin directly (`API_INTERNAL_URL`, defaults to `http://localhost:8787`), bypassing the rewrite entirely — the rewrite exists for browser-originated requests, not server-to-server calls, which aren't subject to the same cookie/CORS concerns.
+5. Open the printed `apps/web` URL. The auth token travels as an `Authorization: Bearer` header attached by application code (ADR-0064), so it works the same whether the browser call is same-origin (dev, via the rewrite proxy) or cross-origin (prod, direct to `*.workers.dev`) — the rewrite proxy is kept for convenience but isn't load-bearing for auth. Server Components call the API's origin directly (`API_INTERNAL_URL`, defaults to `http://localhost:8787`), bypassing the rewrite entirely, reading the token from the request's cookies to attach the header themselves.
 6. **Changing the schema**: edit `apps/api/src/db/schema.ts`, run `pnpm --filter api db:generate` (`drizzle-kit generate`, writes the next numbered migration into `apps/api/migrations/`), review the generated SQL, then re-run step 3 to apply it locally.
 7. **Inspecting local DB state**: `pnpm --filter api db:studio` (`drizzle-kit studio`) opens a browser UI (`https://local.drizzle.studio`, talking to a local server on port 4983) against the same local D1 sqlite file `wrangler dev`/`db:migrate:local` use — `apps/api/drizzle.config.ts` resolves that file's path itself (its name includes a wrangler-generated hash). Requires `better-sqlite3`'s native binary, approved once via `pnpm-workspace.yaml`'s `onlyBuiltDependencies` (`pnpm install` builds it automatically).
 
 ## Production Deployment
 
-**One-time setup** (once a domain is chosen, per ADR-0060's follow-up):
+**One-time setup** (default domains, per ADR-0063/ADR-0064 — no custom domain purchase needed):
 
-1. Add the domain to Cloudflare.
-2. `wrangler d1 create exam-taker-db` (remote) and `wrangler kv namespace create CACHE` (remote); fill the real IDs into `apps/api/wrangler.jsonc` in place of the current placeholders.
-3. `wrangler secret put JWT_SECRET` for the API Worker — never committed to code (ADR-0054).
-4. Create a Cloudflare Pages project for `apps/web`, connected to the GitHub repo, using the OpenNext Cloudflare build.
-5. Set `NEXT_PUBLIC_API_URL=https://api.<domain>` as a Pages environment variable.
+1. `wrangler d1 create exam-taker-db` (remote) and `wrangler kv namespace create CACHE` (remote); fill the real IDs into `apps/api/wrangler.jsonc` in place of the current placeholders.
+2. `wrangler secret put JWT_SECRET` for the API Worker — never committed to code (ADR-0054).
+3. `wrangler deploy` once to learn the API's real `*.workers.dev` URL (or set a custom Workers name in `wrangler.jsonc` to make it predictable ahead of time).
+4. Create a Vercel project for `apps/web`, connected to the GitHub repo (monorepo root directory set to `apps/web`).
+5. Set `NEXT_PUBLIC_API_URL=https://<worker-name>.<account>.workers.dev` as a Vercel environment variable.
+6. Once the real `*.vercel.app` URL is known, add it to the API's CORS allow-list (`apps/api/src/index.ts`).
+7. Create GitHub Actions secrets for CI/CD: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (API deploy + migrations).
 
-**Per-release steps:**
+**Per-release steps (automated, ADR-0063):**
 
-- **API**: `wrangler d1 migrations apply exam-taker-db --remote` (apply any new migrations), then `wrangler deploy` from `apps/api`, routed to `api.<domain>`.
-- **Frontend**: push to `main` — Cloudflare Pages auto-builds and deploys `apps/web` via its GitHub integration. No manual step needed.
-
-This is intentionally manual/low-ceremony for MVP: no CI pipeline is required to ship. Add GitHub Actions automation as part of Step 13 (pilot hardening, `docs/build-plan.md`) once release cadence and risk justify the extra machinery — don't build CI before there's a release volume that needs it.
+- **Every PR**: GitHub Actions runs lint, format check, and tests for both apps (`.github/workflows/ci.yml`).
+- **On merge to `main`**:
+  - **API**: `.github/workflows/deploy-api.yml` runs `wrangler d1 migrations apply exam-taker-db --remote`, then `wrangler deploy` from `apps/api`.
+  - **Frontend**: Vercel's own Git integration auto-builds and promotes `apps/web` to production — no GitHub Actions step needed for this half.
 
 **Rollback:**
 
 - Workers keep prior deployments — `wrangler rollback` reverts the API.
-- Cloudflare Pages keeps prior deployments too — redeploy any previous build from the dashboard.
+- Vercel keeps prior deployments too — redeploy or instantly roll back to any previous build from the dashboard.
 - D1 migrations are forward-only. A bad migration is fixed with a new corrective migration, never a rollback of the migration file itself (`.claude/skills/d1-schema`).
 
 ## Environment Variables / Secrets Reference
@@ -145,7 +151,9 @@ This is intentionally manual/low-ceremony for MVP: no CI pipeline is required to
 | `JWT_SECRET` | `apps/api` (Worker secret) | `wrangler secret put JWT_SECRET` |
 | D1 binding (`DB`) | `apps/api/wrangler.jsonc` | `wrangler d1 create`, then fill `database_id` |
 | KV binding (`CACHE`) | `apps/api/wrangler.jsonc` | `wrangler kv namespace create`, then fill `id` |
-| `NEXT_PUBLIC_API_URL` | `apps/web` (Pages env var; also a local `.env.local` pointing at the dev proxy) | Cloudflare Pages dashboard / `.env.local` |
+| `NEXT_PUBLIC_API_URL` | `apps/web` (Vercel env var; also a local `.env.local` pointing at the dev proxy) | Vercel dashboard / `.env.local` |
+| `CLOUDFLARE_API_TOKEN` | GitHub Actions secret (API deploy workflow) | GitHub repo → Settings → Secrets |
+| `CLOUDFLARE_ACCOUNT_ID` | GitHub Actions secret (API deploy workflow) | GitHub repo → Settings → Secrets |
 
 ## Where To Go Next
 

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api-client";
 import { extractApiError } from "@/lib/api-error";
+import { setSessionToken } from "@/lib/session-token";
 
 // useSearchParams() opts the tree above it into client-side rendering, which
 // Next.js requires wrapping in Suspense (build otherwise errors on
@@ -46,6 +47,8 @@ function LoginForm() {
         setError(message);
         return;
       }
+      const { token } = await res.json();
+      setSessionToken(token);
       router.push(searchParams.get("next") ?? "/");
     } catch {
       setError("Network error — check your connection and try again.");

@@ -21,12 +21,14 @@ Deliberately deferred (not needed for local dev, tracked here so they aren't for
 - ~~shadcn/ui not initialized yet~~ — done in Step 3 (`base-nova`/Base UI style).
 - ~~`drizzle-kit generate` not exercised yet~~ — done: `migrations/0002_drizzle_baseline.sql` establishes the journal/snapshot baseline (every statement is `IF NOT EXISTS`, so it safely no-ops against the already-migrated local D1); a follow-up `db:generate` confirms zero schema drift. Real migrations resume at `0003`. See `.claude/skills/d1-schema/SKILL.md`.
 - Real Cloudflare resources: `wrangler d1 create exam-taker-db`, `wrangler kv namespace create CACHE`, fill the placeholder IDs into `apps/api/wrangler.jsonc`, set `JWT_SECRET` via `wrangler secret put`. **Needs the project owner's own Cloudflare account** (`wrangler login`) — still open.
-- Domain/hosting: confirm the actual domain name, add it to Cloudflare, set up the apex/`api.` subdomain split and a Cloudflare Pages project for `apps/web` via the OpenNext adapter (ADR-0060). **Needs a domain decision from the project owner** — still open.
+- Hosting: create a Vercel project for `apps/web` and deploy `apps/api` as a Cloudflare Worker, each on its free default domain (`*.vercel.app`, `*.workers.dev`) — no custom domain purchase needed to launch (ADR-0063, supersedes ADR-0060's OpenNext/Cloudflare Pages choice). **Needs Vercel/Cloudflare account access from the project owner** — still open.
+- Auth transport: bearer token instead of an httpOnly cookie, since frontend and API are on different registrable domains (ADR-0064, supersedes ADR-0054's cookie-transport piece).
+- CI/CD: GitHub Actions for lint/format/test on PR, plus API migrate+deploy on merge to `main` — brought forward from Step 13 to now, per explicit project-owner request (ADR-0063). Frontend deploy automation is Vercel's own Git integration, no Actions workflow needed for that half.
 - `apps/web` scaffolded on Next.js 16 (Turbopack by default) — newer than what most existing Next.js knowledge assumes. It introduces a `proxy.ts` file convention that replaces/renames `middleware.ts`; check `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md` before building the Step 3 auth route guards so they use the current convention, not the old one.
 
 ## Step 3 — Auth vertical slice
 
-- Signup (one screen, username/phone/email/password + confirmation), PBKDF2 hashing, JWT issuance in an httpOnly cookie (ADR-0054).
+- Signup (one screen, username/phone/email/password + confirmation), PBKDF2 hashing, JWT issued as a bearer token (ADR-0054, ADR-0064).
 - Login (username/phone/email + password), vague error messages (ADR-0020).
 - Manual reset-code flow: teacher/admin generates a code, student redeems it (ADR-0025).
 - Role-based route guards (student/teacher/admin) enforced server-side against the DB, not JWT claims alone.
@@ -90,5 +92,6 @@ Deliberately deferred (not needed for local dev, tracked here so they aren't for
 
 ## Step 13 — Pilot hardening pass
 
-- Rate-limit reset-code generation (ADR-0025), verify budget guardrail assumptions against real Cloudflare usage (ADR-0051), mobile QA pass on a real low-end device/slow connection, error-message audit (no leaking of internal state).
+- Rate-limit reset-code generation (ADR-0025), verify budget guardrail assumptions against real Cloudflare **and Vercel** usage (ADR-0051, ADR-0063 — Vercel likely needs a paid plan, re-check the guardrail once real invoices exist), mobile QA pass on a real low-end device/slow connection, error-message audit (no leaking of internal state).
+- ~~CI/CD automation~~ — done ahead of schedule; see Step 2's CI/CD note and ADR-0063.
 - Exit criteria: ready to run the first real pilot exam with the founder available for support, per `pilot-terms.md`.

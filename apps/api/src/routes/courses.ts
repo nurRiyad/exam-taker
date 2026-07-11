@@ -18,11 +18,8 @@ const paymentRequestStatusQuerySchema = z.object({
 export const courseAccessRoutes = new Hono<AuthEnv>()
   .get("/courses/:id", requireAuth, (c) => coursesController.getCourse(c, c.req.param("id")))
   .post("/courses/:id/join", requireRole("student"), (c) => coursesController.joinCourse(c, c.req.param("id")))
-  .post(
-    "/courses/:id/payment-requests",
-    requireRole("student"),
-    zValidator("json", paymentRequestSchema),
-    (c) => coursesController.createPaymentRequest(c, c.req.param("id"), c.req.valid("json")),
+  .post("/courses/:id/payment-requests", requireRole("student"), zValidator("json", paymentRequestSchema), (c) =>
+    coursesController.createPaymentRequest(c, c.req.param("id"), c.req.valid("json")),
   );
 
 // Mounted at "/" in src/index.ts — paths span several prefixes

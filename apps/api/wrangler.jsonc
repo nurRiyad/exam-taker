@@ -8,6 +8,12 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
+  // CORS allow-list (ADR-0064): comma-separated origins, no shared cookie
+  // domain since frontend/API are on different registrable domains.
+  // Update once the real Vercel production URL is known.
+  "vars": {
+    "FRONTEND_ORIGIN": "http://localhost:3000"
+  },
   // Real Cloudflare resources are created in Step 2's "one-time setup" (docs/build-plan.md).
   // Local dev works against `--local` D1/KV simulation without these IDs being real.
   "d1_databases": [

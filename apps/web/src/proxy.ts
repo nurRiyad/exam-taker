@@ -1,17 +1,19 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Role } from "api/src/types";
+import { SESSION_TOKEN_COOKIE } from "@/lib/session-token";
 
 // Server components/proxy talk to the API's real origin directly, bypassing
 // next.config.ts's /api/* rewrite (that rewrite is for browser requests only,
 // see docs/technical-design.md's Local Development section).
 const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? "http://localhost:8787";
 
-// ADR-0054: JWT claims are a UI convenience only — authorization always hits
-// the DB. Route groups like (teacher)/(admin) are purely organizational and
-// don't affect the URL, so role gating here is keyed by literal path, not by
-// route-group prefix (see docs/implementation-plan.md Step 3's frontend note
-// on /reset-codes being one page shared by two roles).
+// ADR-0054/ADR-0064: JWT claims are a UI convenience only — authorization
+// always hits the DB, and this redirect is a UI convenience too, not a real
+// authorization check. Route groups like (teacher)/(admin) are purely
+// organizational and don't affect the URL, so role gating here is keyed by
+// literal path, not by route-group prefix (see docs/implementation-plan.md
+// Step 3's frontend note on /reset-codes being one page shared by two roles).
 const ROUTE_ROLES: Record<string, Role[]> = {
   "/reset-codes": ["teacher", "admin"],
 };
@@ -21,9 +23,9 @@ export async function proxy(request: NextRequest) {
   const allowedRoles = ROUTE_ROLES[pathname];
   if (!allowedRoles) return NextResponse.next();
 
-  const cookie = request.headers.get("cookie");
+  const token = request.cookies.get(SESSION_TOKEN_COOKIE)?.value;
   const meResponse = await fetch(`${API_INTERNAL_URL}/auth/me`, {
-    headers: cookie ? { cookie } : undefined,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   if (!meResponse.ok) {

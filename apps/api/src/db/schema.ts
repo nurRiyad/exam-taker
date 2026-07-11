@@ -171,13 +171,9 @@ export const exams = sqliteTable("exams", {
   endsAt: text("ends_at").notNull(),
   durationMinutes: integer("duration_minutes").notNull().default(50),
   totalMarks: real("total_marks"),
-  negativeMarkingEnabled: integer("negative_marking_enabled", { mode: "boolean" })
-    .notNull()
-    .default(false),
+  negativeMarkingEnabled: integer("negative_marking_enabled", { mode: "boolean" }).notNull().default(false),
   negativeMarkPerWrong: real("negative_mark_per_wrong").notNull().default(0),
-  answerChangeAllowed: integer("answer_change_allowed", { mode: "boolean" })
-    .notNull()
-    .default(true),
+  answerChangeAllowed: integer("answer_change_allowed", { mode: "boolean" }).notNull().default(true),
   autosaveEnabled: integer("autosave_enabled", { mode: "boolean" }).notNull().default(true),
   mockEnabled: integer("mock_enabled", { mode: "boolean" }).notNull().default(false),
   mockRetryLimit: integer("mock_retry_limit"),
@@ -253,9 +249,7 @@ export const examAttempts = sqliteTable("exam_attempts", {
   durationSeconds: integer("duration_seconds"),
   score: real("score"),
   rank: integer("rank"),
-  mockAnalyticsConsent: integer("mock_analytics_consent", { mode: "boolean" })
-    .notNull()
-    .default(false),
+  mockAnalyticsConsent: integer("mock_analytics_consent", { mode: "boolean" }).notNull().default(false),
   status: text("status").notNull().default("in_progress"),
 });
 

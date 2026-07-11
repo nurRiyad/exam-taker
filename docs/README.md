@@ -30,6 +30,8 @@ Currently superseded or partially superseded:
 - `0001` — per-teacher template deployments → superseded by `0052` (single shared multi-tenant deployment).
 - `0006` — exam-pack pricing *unit* → superseded by `0053` (per-course negotiated student-count invoicing). The student-facing pricing rules in `0006` (course-level pricing, discounts, free courses) still stand.
 - `0023` — the exam-pack billing clause → superseded by `0053`. Exam duplication itself is still allowed.
+- `0060` — frontend hosting on Cloudflare → superseded by `0063` (frontend on Vercel) and `0064` (cookie-domain topology → bearer token, since the project shipped on free default domains instead of a shared custom domain).
+- `0054` — JWT stored in an httpOnly cookie → the cookie-transport piece is superseded by `0064` (bearer token). Hashing, signing, and expiry are unchanged.
 
 Most consequential ADRs to read before touching related code:
 
@@ -37,7 +39,7 @@ Most consequential ADRs to read before touching related code:
 |---|---|
 | Tenancy / deployment | `0052` |
 | Billing / invoicing | `0053` |
-| Auth (JWT, password hashing) | `0054` |
+| Auth (JWT, password hashing, bearer-token transport) | `0054`, `0064` |
 | Question bank / reuse | `0055`, `0024` |
 | Exam publish lock | `0056` |
 | Print/PDF | `0027`, `0057` |
@@ -49,7 +51,7 @@ Most consequential ADRs to read before touching related code:
 | Budget guardrail | `0051` |
 | Data access / ORM / validation | `0059` |
 | Backend code layering (routes/controllers/services/repositories) | `0062` |
-| Frontend hosting / cookie domain | `0060` |
+| Frontend hosting / domain topology | `0063` (supersedes `0060`) |
 | Design system / mobile-first scope | `0061`, `0002` |
 
 For the full list, browse `adr/` in numeric order — each file name describes its own decision.

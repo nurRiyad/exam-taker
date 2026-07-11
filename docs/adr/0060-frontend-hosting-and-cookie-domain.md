@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted. Resolves the open follow-up in [ADR-0054](0054-jwt-auth-with-pbkdf2-password-hashing.md).
+Superseded by [ADR-0063](0063-frontend-on-vercel-api-on-cloudflare.md) for the frontend-hosting choice (frontend moved to Vercel) and by [ADR-0064](0064-bearer-token-auth-default-domains.md) for the cookie-domain/cross-subdomain-cookie topology below (the project shipped on free default domains instead of a shared custom domain, so auth moved to a bearer token). The CORS reasoning below (different subdomains are different origins) is still correct and carried forward. Originally: Accepted, resolving the open follow-up in [ADR-0054](0054-jwt-auth-with-pbkdf2-password-hashing.md).
 
 ## Context
 

@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { apiClient } from "@/lib/api-client";
 import { extractApiError, type FieldErrors } from "@/lib/api-error";
+import { setSessionToken } from "@/lib/session-token";
 import { validateEmail, validatePassword, validatePhone, validateUsername } from "@/lib/validation";
 
 type FormValues = {
@@ -103,6 +104,8 @@ export default function SignupPage() {
         if (fields) setFieldErrors(fields);
         return;
       }
+      const { token } = await res.json();
+      setSessionToken(token);
       router.push("/");
     } catch {
       setGeneralError("Network error — check your connection and try again.");

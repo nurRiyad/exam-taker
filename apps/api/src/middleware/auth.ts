@@ -1,15 +1,14 @@
-// ADR-0054: JWT claims are a UI convenience only. Every real authorization
-// check re-loads the user from the DB — a revoked/deactivated account or a
-// stale role in an old token must never grant access just because the cookie
-// still verifies.
+// ADR-0054/ADR-0064: JWT claims are a UI convenience only. Every real
+// authorization check re-loads the user from the DB — a revoked/deactivated
+// account or a stale role in an old token must never grant access just
+// because the bearer token still verifies.
 import { eq } from "drizzle-orm";
 import type { Context } from "hono";
-import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import { getDb } from "../db/client";
 import { users } from "../db/schema";
-import { SESSION_COOKIE_NAME, verifySession } from "../utils/jwt";
+import { verifySession } from "../utils/jwt";
 import { toPublicUser, type PublicUser } from "../utils/user";
 import type { Role } from "../types";
 
@@ -20,8 +19,11 @@ export type AuthEnv = {
   };
 };
 
+const BEARER_PREFIX = "Bearer ";
+
 async function authenticate(c: Context<AuthEnv>): Promise<PublicUser> {
-  const token = getCookie(c, SESSION_COOKIE_NAME);
+  const authHeader = c.req.header("Authorization");
+  const token = authHeader?.startsWith(BEARER_PREFIX) ? authHeader.slice(BEARER_PREFIX.length) : undefined;
   if (!token) throw new HTTPException(401, { message: "Not authenticated" });
 
   const session = await verifySession(token, c.env.JWT_SECRET);

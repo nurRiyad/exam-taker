@@ -1,12 +1,11 @@
-// JWT session handling (ADR-0054): HS256, 30-day flat expiry, no refresh flow.
-// JWT claims are a UI convenience only — every real authorization check must
-// still hit the DB (see src/middleware/auth.ts), never trust these claims alone.
-import type { Context } from "hono";
-import { deleteCookie, setCookie } from "hono/cookie";
+// JWT session handling (ADR-0054, ADR-0064): HS256, 30-day flat expiry, no
+// refresh flow. Sent as an Authorization: Bearer header, not a cookie — the
+// frontend and API live on different registrable domains. JWT claims are a
+// UI convenience only — every real authorization check must still hit the DB
+// (see src/middleware/auth.ts), never trust these claims alone.
 import { sign, verify } from "hono/jwt";
 import type { Role } from "../types";
 
-export const SESSION_COOKIE_NAME = "session";
 const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days, per ADR-0054
 
 export type SessionPayload = {
@@ -34,20 +33,4 @@ export async function verifySession(token: string, secret: string): Promise<Sess
     // only needs to know "not a valid session", not why.
     return null;
   }
-}
-
-// No `Domain` attribute yet: no real domain exists until the Step 2 deferred
-// domain/hosting setup lands. Add `Domain=.<domain>` then, per ADR-0060.
-export function setSessionCookie(c: Context, token: string): void {
-  setCookie(c, SESSION_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: new URL(c.req.url).protocol === "https:",
-    sameSite: "Lax",
-    path: "/",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-  });
-}
-
-export function clearSessionCookie(c: Context): void {
-  deleteCookie(c, SESSION_COOKIE_NAME, { path: "/" });
 }

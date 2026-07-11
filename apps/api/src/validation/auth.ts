@@ -8,7 +8,10 @@ import { BD_LOCAL_PHONE_REGEX } from "../utils/phone";
 export const usernameSchema = z
   .string()
   .min(3, "Username must be at least 3 characters")
-  .regex(/^[A-Za-z][A-Za-z0-9_]*$/, "Username must start with a letter and contain only letters, numbers, and underscores");
+  .regex(
+    /^[A-Za-z][A-Za-z0-9_]*$/,
+    "Username must start with a letter and contain only letters, numbers, and underscores",
+  );
 
 export const phoneLocalSchema = z
   .string()

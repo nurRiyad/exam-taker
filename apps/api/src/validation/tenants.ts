@@ -5,10 +5,7 @@ import { z } from "zod";
 export const tenantSlugSchema = z
   .string()
   .min(3, "Slug must be at least 3 characters")
-  .regex(
-    /^[a-z][a-z0-9-]*$/,
-    "Slug must start with a letter and contain only lowercase letters, numbers, and hyphens",
-  );
+  .regex(/^[a-z][a-z0-9-]*$/, "Slug must start with a letter and contain only lowercase letters, numbers, and hyphens");
 
 export const createTenantSchema = z.object({
   name: z.string().min(1, "Name is required"),
