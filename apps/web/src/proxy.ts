@@ -12,15 +12,26 @@ const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? "http://localhost:8787"
 // always hits the DB, and this redirect is a UI convenience too, not a real
 // authorization check. Route groups like (teacher)/(admin) are purely
 // organizational and don't affect the URL, so role gating here is keyed by
-// literal path, not by route-group prefix (see docs/implementation-plan.md
-// Step 3's frontend note on /reset-codes being one page shared by two roles).
+// URL path prefixes rather than route-group names.
 const ROUTE_ROLES: Record<string, Role[]> = {
+  "/dashboard": ["student", "teacher", "admin"],
+  "/student": ["student"],
+  "/teacher": ["teacher"],
+  "/admin": ["admin"],
   "/reset-codes": ["teacher", "admin"],
 };
 
+function getAllowedRoles(pathname: string) {
+  const route = Object.entries(ROUTE_ROLES).find(
+    ([path]) => pathname === path || (path !== "/" && pathname.startsWith(`${path}/`)),
+  );
+
+  return route?.[1];
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const allowedRoles = ROUTE_ROLES[pathname];
+  const allowedRoles = getAllowedRoles(pathname);
   if (!allowedRoles) return NextResponse.next();
 
   const token = request.cookies.get(SESSION_TOKEN_COOKIE)?.value;
@@ -46,5 +57,5 @@ export async function proxy(request: NextRequest) {
 // array, not a computed expression like `Object.keys(ROUTE_ROLES)` (the
 // latter is silently ignored). Keep this in sync with ROUTE_ROLES' keys.
 export const config = {
-  matcher: ["/reset-codes"],
+  matcher: ["/dashboard", "/student/:path*", "/teacher/:path*", "/admin/:path*", "/reset-codes"],
 };

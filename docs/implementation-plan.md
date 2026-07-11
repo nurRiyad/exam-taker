@@ -6,7 +6,7 @@ This doc elaborates `docs/build-plan.md`'s Steps 3–13 into concrete backend en
 
 Status legend: ✅ Done · 🚧 Partial · ⬜ Not started.
 
-**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3 — plus Step 4's Backend track done.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, Vercel/Cloudflare account access, prod `JWT_SECRET`) needs the project owner's own account access, and is being done now (ahead of Step 13) alongside the CI/CD + hosting setup — see ADR-0063/ADR-0064. Step 3's auth is being revised in place from an httpOnly cookie to a bearer token (ADR-0064) since frontend/API now live on different registrable domains (`*.vercel.app` / `*.workers.dev`). Step 4's Frontend track and Steps 5–13 are not started.
+**Progress: 4 of 14 steps (0–13) done — Steps 0, 1, 2, 3 — plus Step 4's Backend track done.** Step 2's local-dev scope is fully done; its one remaining item (real Cloudflare D1/KV resources, Vercel/Cloudflare account access, prod `JWT_SECRET`) needs the project owner's own account access, and is being done now (ahead of Step 13) alongside the CI/CD + hosting setup — see ADR-0063/ADR-0064. Step 3's auth is being revised in place from an httpOnly cookie to a bearer token (ADR-0064) since frontend/API now live on different registrable domains (`*.vercel.app` / `*.workers.dev`). Step 4's Frontend track and Steps 5–13 are not started beyond a placeholder route-shell scaffold.
 
 Every table/field name below is taken directly from the current `apps/api/src/db/schema.ts` / `docs/data-model.md` — the schema already covers the entire MVP, so **no step below is expected to need a new migration** unless an implementation surfaces a genuine gap (none known today). If one does, follow `.claude/skills/d1-schema` and note the new migration number here.
 
@@ -116,7 +116,9 @@ Verification: create a tenant + course via API, publish it, join as a student, s
 
 **Done** — exercised live end to end against a local dev server (`run`/`verify`): admin creates a tenant (owner promoted `student`→`teacher`, a second tenant for the same owner is rejected), teacher brands the tenant, creates a course, adds an exam topic, publish is rejected until the topic is marked `title`+`short_description`+`scheduled_at`+`status: 'published'`, a student joins the published paid course, submits a payment request, teacher approves it and `course_enrollments.access_status` flips to `approved`. Also confirmed: cross-tenant access returns 404 without leaking existence; a draft exam topic is hidden from non-owning viewers; a blocked enrollment can't self-rejoin (403) while a removed one can; approving a payment request no longer reinstates a since-blocked/removed enrollment; and the tightened `/auth/reset-codes` check rejects a teacher generating a code for a student outside their courses. `/code-review` ran at high effort and every finding it surfaced was fixed before this was marked done.
 
-### Frontend
+### Frontend — 🚧 Route shells only; data-backed UI not started
+Canonical client routes are scaffolded with placeholder pages so navigation and guard shape can settle before real content lands. Public discovery routes stay top-level (`/`, `/courses`, `/courses/[courseId]`, `/teachers`, `/teachers/[teacherId]`, `/exams/[examId]/results`). Authenticated workspaces are role-prefixed (`/student/*`, `/teacher/*`, `/admin/*`), and `/dashboard` is a protected redirect-only entry point to the verified role dashboard. Teacher exam and exam-topic management routes are nested under `/teacher/courses/[courseId]/*` because exams cannot exist outside a course. These placeholders do **not** satisfy Step 4's browser exit criteria yet.
+
 New shadcn components: `dialog`, `select`, `textarea`, `badge`, `table`, `tabs`.
 
 Pages:
@@ -200,8 +202,8 @@ Pages:
 | `(teacher)/questions/page.tsx` | Browse/search/filter bank | data-table, `select` (subject/tag filter) | `GET /questions` |
 | `(teacher)/questions/new/page.tsx` | Fast manual entry (mobile/keyboard-friendly, ADR-0003) | `form` | `POST /questions` |
 | `(teacher)/questions/import/page.tsx` | CSV upload + template download + row-error display | file input, `table` for errors | `GET .../template`, `POST /questions/import` |
-| `(teacher)/exams/page.tsx`, `.../new/page.tsx` | List / create exam | `table`, `form` | `GET/POST /exams` |
-| `(teacher)/exams/[id]/build/page.tsx` | Link questions, reorder, publish, duplicate | combobox picker, `alert-dialog` | `POST/DELETE .../questions`, `POST .../publish`, `POST .../duplicate` |
+| `(teacher)/courses/[courseId]/exams/page.tsx`, `.../new/page.tsx` | List / create exams inside a course | `table`, `form` | `GET/POST /exams` |
+| `(teacher)/courses/[courseId]/exams/[id]/build/page.tsx` | Link questions, reorder, publish, duplicate | combobox picker, `alert-dialog` | `POST/DELETE .../questions`, `POST .../publish`, `POST .../duplicate` |
 
 Verification: same as backend exit criteria, driven through the browser end to end.
 
@@ -262,7 +264,7 @@ Pages:
 | Route | Purpose | Key components | API calls |
 |---|---|---|---|
 | `(student)/exams/[id]/result/page.tsx` | Score, rank, per-question answer review | `card`, `badge` | `GET /exams/:id/results`, `GET /attempts/:id/result` |
-| `(student)/exams/[id]/leaderboard/page.tsx`, `(teacher)/exams/[id]/leaderboard/page.tsx` | Full leaderboard | `table`, `avatar` | `GET /exams/:id/leaderboard` |
+| `(student)/exams/[id]/leaderboard/page.tsx`, `(teacher)/courses/[courseId]/exams/[id]/leaderboard/page.tsx` | Full leaderboard | `table`, `avatar` | `GET /exams/:id/leaderboard` |
 
 Verification: after an exam ends, confirm results release on schedule and the leaderboard renders correctly for a tied-score scenario (build-plan Step 8 exit criteria).
 
@@ -319,7 +321,7 @@ Verification: export a real Bangla-heavy exam to PDF and visually confirm layout
 Pages/additions:
 | Route | Purpose | API calls |
 |---|---|---|
-| `(teacher)/exams/[id]/export/page.tsx` (or a section on `.../build/page.tsx`) | Download links/buttons for question paper and answer key | `GET .../export/question-paper.pdf`, `GET .../export/answer-key.pdf` |
+| `(teacher)/courses/[courseId]/exams/[id]/export/page.tsx` (or a section on `.../build/page.tsx`) | Download links/buttons for question paper and answer key | `GET .../export/question-paper.pdf`, `GET .../export/answer-key.pdf` |
 | Button on `(teacher)/questions/page.tsx` | Export bank as CSV | `GET /questions/export.csv` |
 
 ---
