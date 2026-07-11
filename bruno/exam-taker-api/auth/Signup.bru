@@ -12,10 +12,9 @@ post {
 
 body:json {
   {
-    "name": "Test Teacher",
     "username": "testteacher",
     "phone": "01730238192",
-    "email": "riyad@example1.com",
+    "role": "teacher",
     "password": "password123",
     "passwordConfirmation": "password123"
   }
@@ -28,12 +27,14 @@ script:post-response {
 }
 
 docs {
-  Creates a new account (ADR-0049 one-screen signup) and stores the returned
+  Creates a new account (ADR-0065 one-screen signup) and stores the returned
   bearer token into a runtime `token` variable via bru.setVar (ADR-0064) —
   not written to disk — so subsequent requests in this environment are
   authenticated automatically.
   
   phone must match BD local mobile format: 01[3-9]XXXXXXXX.
-  Change the username/phone/email before re-running — signup fails on
+  role can be `student` or `teacher`; teacher signup also creates the initial
+  tenant and owner membership.
+  Change the username/phone before re-running — signup fails on
   duplicates.
 }

@@ -7,25 +7,26 @@ import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { apiClient } from "@/lib/api-client";
 import { extractApiError, type FieldErrors } from "@/lib/api-error";
 import { setSessionToken } from "@/lib/session-token";
-import { validateEmail, validatePassword, validatePhone, validateUsername } from "@/lib/validation";
+import { validatePassword, validatePhone, validateUsername } from "@/lib/validation";
+
+type AccountRole = "student" | "teacher";
 
 type FormValues = {
-  name: string;
   username: string;
   phone: string;
-  email: string;
+  role: AccountRole;
   password: string;
   passwordConfirmation: string;
 };
 
 const EMPTY_FORM: FormValues = {
-  name: "",
   username: "",
   phone: "",
-  email: "",
+  role: "student",
   password: "",
   passwordConfirmation: "",
 };
@@ -72,14 +73,12 @@ export default function SignupPage() {
 
   function validate(): FieldErrors {
     const errors: FieldErrors = {};
-    if (!form.name.trim()) errors.name = "Name is required";
     const usernameError = validateUsername(form.username);
     if (usernameError) errors.username = usernameError;
     else if (availability === "taken") errors.username = "Username is already taken";
     const phoneError = validatePhone(form.phone);
     if (phoneError) errors.phone = phoneError;
-    const emailError = validateEmail(form.email);
-    if (emailError) errors.email = emailError;
+    if (form.role !== "student" && form.role !== "teacher") errors.role = "Choose an account type";
     const passwordError = validatePassword(form.password);
     if (passwordError) errors.password = passwordError;
     if (form.password !== form.passwordConfirmation) {
@@ -115,14 +114,8 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthCard title="Create your account" description="One screen, that's it.">
+    <AuthCard title="Create your account" description="Use your profile settings later for name and email.">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Full name</Label>
-          <Input id="name" value={form.name} onChange={(e) => update("name", e.target.value)} autoComplete="name" />
-          <FieldError message={fieldErrors.name} />
-        </div>
-
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="username">Username</Label>
           <Input
@@ -153,17 +146,30 @@ export default function SignupPage() {
           <FieldError message={fieldErrors.phone} />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={(e) => update("email", e.target.value)}
-            autoComplete="email"
-          />
-          <FieldError message={fieldErrors.email} />
-        </div>
+        <fieldset className="flex flex-col gap-2">
+          <legend className="text-sm font-medium">Account type</legend>
+          <RadioGroup
+            value={form.role}
+            onValueChange={(value) => update("role", value as AccountRole)}
+            className="grid grid-cols-2 gap-2"
+          >
+            {(["student", "teacher"] as const).map((role) => (
+              <Label
+                key={role}
+                htmlFor={`role-${role}`}
+                className="flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm has-data-[checked]:border-primary has-data-[checked]:bg-primary/5"
+              >
+                <RadioGroupItem
+                  id={`role-${role}`}
+                  value={role}
+                  aria-invalid={Boolean(fieldErrors.role) || undefined}
+                />
+                <span className="capitalize">{role}</span>
+              </Label>
+            ))}
+          </RadioGroup>
+          <FieldError message={fieldErrors.role} />
+        </fieldset>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>

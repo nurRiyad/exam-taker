@@ -47,16 +47,10 @@ export function PublicTeacherCard({ teacher }: { teacher: PublicTeacher }) {
             <p className="font-medium">{teacher.courseCount}</p>
           </div>
         </div>
-        <div className="rounded-lg border p-3 text-sm">
-          <p className="text-xs text-muted-foreground">Popular course</p>
-          <Link href={`/courses/${teacher.popularCourseId}`} className="font-medium underline-offset-4 hover:underline">
-            {teacher.popularCourseTitle}
-          </Link>
-        </div>
       </CardContent>
       <CardFooter>
         <Link href={`/teachers/${teacher.id}`} className={cn(buttonVariants({ variant: "outline" }), "w-full")}>
-          View teacher
+          View all courses by this teacher
         </Link>
       </CardFooter>
     </Card>

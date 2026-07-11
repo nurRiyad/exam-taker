@@ -1,4 +1,4 @@
-// ADR-0017 / ADR-0049: username/phone/email rules, password rules, one-screen
+// ADR-0017 / ADR-0049 / ADR-0065: username/phone rules, password rules, one-screen
 // signup. The DB's CHECK constraint on `users.username` only enforces min
 // length + first-char-is-letter (SQLite GLOB can't express charset rules), so
 // the letters/numbers/underscores-only rule must be enforced here too.
@@ -24,10 +24,9 @@ export const passwordSchema = z.string().min(6, "Password must be at least 6 cha
 
 export const signupSchema = z
   .object({
-    name: z.string().min(1, "Name is required"),
     username: usernameSchema,
     phone: phoneLocalSchema,
-    email: emailSchema,
+    role: z.enum(["student", "teacher"]).default("student"),
     password: passwordSchema,
     passwordConfirmation: z.string(),
   })
@@ -39,7 +38,7 @@ export const signupSchema = z
 export type SignupInput = z.infer<typeof signupSchema>;
 
 export const loginSchema = z.object({
-  identifier: z.string().min(1, "Enter your username, phone, or email"),
+  identifier: z.string().min(1, "Enter your username or phone"),
   password: z.string().min(1, "Enter your password"),
 });
 
@@ -53,7 +52,7 @@ export type GenerateResetCodeInput = z.infer<typeof generateResetCodeSchema>;
 
 export const redeemResetCodeSchema = z
   .object({
-    identifier: z.string().min(1, "Enter your username, phone, or email"),
+    identifier: z.string().min(1, "Enter your username or phone"),
     code: z.string().length(6, "Enter the 6-digit reset code"),
     newPassword: passwordSchema,
     newPasswordConfirmation: z.string(),

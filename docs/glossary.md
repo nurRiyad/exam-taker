@@ -8,6 +8,8 @@ The overall software business that hosts teacher pages, courses, exams, students
 
 The paying or revenue-generating customer who creates courses, exam routes, exams, and questions. A teacher may be an individual teacher, coaching owner, or admin working for a coaching brand.
 
+Teachers can open a teacher account during signup; the platform creates their initial tenant and owner membership immediately (ADR-0065).
+
 ## Student
 
 The learner who joins a course and participates in scheduled MCQ exams from a mobile-first interface.
@@ -27,6 +29,8 @@ Superseded. Early plan to generate separate per-teacher code deployments from a 
 ## Tenant
 
 A logically separated teacher/coaching space inside one shared multi-tenant deployment (ADR-0052). Each tenant has its own courses, students, exams, results, and branding, scoped by `tenant_id` within the same app and database.
+
+For self-serve teacher signup, the initial tenant name and slug are derived from the teacher's username and can be branded later (ADR-0065).
 
 ## Course
 
@@ -62,15 +66,15 @@ Required globally unique public student handle used in public top-score and rank
 
 ## Fast Signup
 
-Signup design guardrail: required identity fields remain unique, but signup should stay one-screen and avoid optional fields during first signup.
+Signup design guardrail: username and phone remain unique, but signup should stay one-screen and avoid profile-later fields during first signup.
 
 ## Skippable Profile Completion
 
-Post-signup prompt for optional fields such as city and institution. MVP allows students to skip it, and teachers cannot require these fields.
+Post-signup prompt for fields such as name, email, city, and institution. MVP allows students to skip it initially, and teachers cannot require city/institution.
 
 ## Exam Identity Requirement
 
-Exam-start rule that username, phone, and email must be present before a student can start an exam.
+Superseded by ADR-0065. Exam start no longer depends on email being collected at signup; future profile-completion prompts may still ask for name/email.
 
 ## Bangladesh-only Phone
 
@@ -86,7 +90,7 @@ Skippable prompt for optional fields such as city and institution, shown after j
 
 ## Profile Completion Requirement
 
-Product rule that required identity fields must be complete before starting any exam. Optional city/institution remain free-text profile fields in MVP.
+Product rule for completing profile-later fields such as name and email. City/institution remain free-text profile fields in MVP.
 
 ## Teacher Email Communication
 
@@ -102,7 +106,7 @@ Signup behavior where username availability is checked while the student types.
 
 ## Vague Login Error
 
-Login error style that avoids revealing whether a username, phone, or email exists.
+Login error style that avoids revealing whether a username or phone exists.
 
 ## Login-required Join
 

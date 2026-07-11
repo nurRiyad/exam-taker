@@ -12,7 +12,7 @@ This is the detailed engineering reference: exact stack, project structure, loca
 | Migrations | `drizzle-kit generate` → SQL files → `wrangler d1 migrations apply` | ADR-0059, `.claude/skills/d1-schema` |
 | Validation | Zod, with `drizzle-zod` deriving schemas from DB tables where shapes overlap | ADR-0059 |
 | Cache / ephemeral data | Cloudflare KV (never source of truth for submissions/payments) | ADR-0004 |
-| Auth | JWT as a bearer token (`Authorization: Bearer`, stored client-side in a non-httpOnly cookie), PBKDF2-SHA256 password hashing via Web Crypto | ADR-0054, ADR-0064 |
+| Auth | JWT as a bearer token (`Authorization: Bearer`, stored client-side in a non-httpOnly cookie), PBKDF2-SHA256 password hashing via Web Crypto, username/phone login | ADR-0054, ADR-0064, ADR-0065 |
 | Tenancy | One shared multi-tenant deployment, scoped by `tenant_id` | ADR-0052 |
 | Frontend framework | Next.js (App Router) | ADR-0005 |
 | Frontend hosting | Vercel (native Next.js build, no adapter) | ADR-0063 (supersedes ADR-0060) |

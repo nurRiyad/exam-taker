@@ -60,7 +60,7 @@ Migration files live in `apps/api/migrations/`, numbered sequentially (`0001_ini
 | Table | Purpose | Key relationships |
 |---|---|---|
 | `tenants` | One row per teacher/coaching brand | — |
-| `users` | Global accounts (student/teacher/admin), globally unique username/phone/email | — |
+| `users` | Global accounts (student/teacher/admin), globally unique username/phone; email is profile-later and currently stored with an internal placeholder until completed | — |
 | `teacher_memberships` | Links a user to a tenant with owner/staff role | `tenants`, `users` |
 | `courses` | Teacher-created course, student-facing price/discount | `tenants` |
 | `course_enrollments` | Student's join + access state for a course | `courses`, `users` |

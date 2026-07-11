@@ -28,15 +28,15 @@ Deliberately deferred (not needed for local dev, tracked here so they aren't for
 
 ## Step 3 — Auth vertical slice
 
-- Signup (one screen, username/phone/email/password + confirmation), PBKDF2 hashing, JWT issued as a bearer token (ADR-0054, ADR-0064).
-- Login (username/phone/email + password), vague error messages (ADR-0020).
+- Signup (one screen, username/phone/password + confirmation, student/teacher role), PBKDF2 hashing, JWT issued as a bearer token (ADR-0054, ADR-0064, ADR-0065).
+- Login (username/phone + password), vague error messages (ADR-0020, ADR-0065).
 - Manual reset-code flow: teacher/admin generates a code, student redeems it (ADR-0025).
 - Role-based route guards (student/teacher/admin) enforced server-side against the DB, not JWT claims alone.
 - Exit criteria: a student can sign up, log out, log back in, and recover via a reset code end to end in the browser.
 
 ## Step 4 — Tenant, course, and access workflow
 
-- Teacher/tenant creation (admin-created in MVP), teacher branding fields (logo/banner/color/picture).
+- Teacher/tenant creation (self-serve teacher signup creates the initial tenant; admin tenant creation remains available for support), teacher branding fields (logo/banner/color/picture).
 - Course CRUD, course publish validation (ADR-0058).
 - Course join flow (login-required, ADR-0048), payment access requests, one-by-one teacher approval (ADR-0011, ADR-0026).
 - Exit criteria: a teacher creates a course and publishes a route with at least one dated exam topic; a student joins, requests access, and a teacher approves it.

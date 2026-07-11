@@ -34,7 +34,7 @@ function LoginForm() {
     event.preventDefault();
     setError(undefined);
     if (!identifier.trim() || !password) {
-      setError("Enter your username, phone, or email and your password");
+      setError("Enter your username or phone and your password");
       return;
     }
 
@@ -43,7 +43,7 @@ function LoginForm() {
       const res = await apiClient.auth.login.$post({ json: { identifier, password } });
       if (!res.ok) {
         // Deliberately vague — never reveals which field was wrong (ADR-0020).
-        const { message } = await extractApiError(res, "Incorrect username/phone/email or password");
+        const { message } = await extractApiError(res, "Incorrect username/phone or password");
         setError(message);
         return;
       }
@@ -61,7 +61,7 @@ function LoginForm() {
     <AuthCard title="Log in">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="identifier">Username, phone, or email</Label>
+          <Label htmlFor="identifier">Username or phone</Label>
           <Input
             id="identifier"
             value={identifier}

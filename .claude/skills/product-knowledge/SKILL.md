@@ -26,7 +26,7 @@ A mobile-first exam platform that lets Bangladesh coaching teachers publish bran
 
 - **One shared multi-tenant deployment.** Not separate deployments per teacher. Every teacher-or-student-scoped query must filter by `tenant_id`/course membership — this is a hard security requirement (ADR-0052, ADR-0032).
 - **Stack**: Hono on Cloudflare Workers + D1 (relational) + KV (cache/session-adjacent, never source of truth for submissions/payments), Next.js frontend (ADR-0004, ADR-0005).
-- **Auth**: JWT in an httpOnly cookie, PBKDF2-SHA256 password hashing (not bcrypt — Workers CPU limits). JWT claims are a UI convenience; real authorization checks hit the DB (ADR-0054).
+- **Auth**: JWT returned as a bearer token, PBKDF2-SHA256 password hashing (not bcrypt — Workers CPU limits). Signup is username/BD phone/password + student-or-teacher role; name/email are profile-later fields. Login/reset identifiers are username or phone only. JWT claims are a UI convenience; real authorization checks hit the DB (ADR-0054, ADR-0064, ADR-0065).
 - **Data access**: Drizzle ORM over D1 (not Prisma, not raw-only), migrations generated from a Drizzle schema but always applied via Wrangler. Zod + `drizzle-zod` for validation. Frontend gets API types via Hono's RPC client, no separate shared-types package (ADR-0059).
 - **Frontend**: Next.js + Tailwind + shadcn/ui, hosted on Cloudflare via OpenNext, on an apex/`api.` subdomain split with a shared cookie domain (ADR-0060). Mobile-first is a whole-product default, not just the exam page — 99% of users are on mobile (ADR-0061).
 - **Budget guardrail**: stay under 2,000 BDT/month during early validation; upgrade Cloudflare limits rather than let a live exam fail (ADR-0051).
@@ -59,7 +59,7 @@ Questions are a shared, reusable bank (`Question`), not owned 1:1 by an exam. An
 
 ## Identity, Signup, Language
 
-- One-screen signup: name, username (immutable, unique, letter-first), phone (BD-only, `01...` shown / `+880...` stored), email, password (min 6 chars) + confirmation. City/institution optional forever, never teacher-required (ADR-0017, ADR-0049).
+- One-screen signup: username (immutable, unique, letter-first), phone (BD-only, `01...` shown / `+880...` stored), student-or-teacher role, password (min 6 chars) + confirmation. Name, email, city, and institution are profile-later fields; email is not a login identifier. Teacher signup creates the initial tenant and owner membership (ADR-0065).
 - English-first UI, i18n structure from day one with empty Bangla placeholders; Bangla required for question/answer/explanation content and PDF output regardless (ADR-0047).
 - BDT-only currency.
 
