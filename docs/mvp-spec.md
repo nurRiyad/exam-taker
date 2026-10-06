@@ -137,16 +137,16 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 ## Technical Direction
 
 - Backend: Hono on Cloudflare.
-- Database: D1, accessed via Drizzle ORM (not Prisma or raw-only), migrations authored via `drizzle-kit generate` and applied via Wrangler (ADR-0059).
-- Validation: Zod, with `drizzle-zod` deriving schemas from DB tables (ADR-0059).
+- Database: D1, accessed via Drizzle ORM (not Prisma or raw-only), migrations authored via `drizzle-kit generate` and applied via Wrangler.
+- Validation: Zod, with `drizzle-zod` deriving schemas from DB tables.
 - KV for low-cost cache/session/ephemeral data where appropriate.
 - Storage only if needed for branding assets/PDF artifacts.
-- Frontend: Next.js, Tailwind CSS + shadcn/ui, mobile-first as the default design posture across the whole product, not just the exam page (ADR-0061).
-- Hosting: frontend on Vercel, API as a Cloudflare Worker, each on its platform's free default domain for now — no custom domain yet (ADR-0063, supersedes ADR-0060's Cloudflare-only hosting).
-- Auth transport: JWT as a bearer token (`Authorization: Bearer`), not an httpOnly cookie, since frontend and API are on different registrable domains (ADR-0064, supersedes ADR-0054/0060's cookie transport).
+- Frontend: Next.js, Tailwind CSS + shadcn/ui, mobile-first as the default design posture across the whole product, not just the exam page.
+- Hosting: frontend on Vercel, API as a Cloudflare Worker, each on its platform's free default domain for now — no custom domain yet.
+- Auth transport: JWT as a bearer token (`Authorization: Bearer`), not an httpOnly cookie, since frontend and API are on different registrable domains.
 - Budget guardrail: stay under 2,000 BDT/month during early validation.
 - Upgrade Cloudflare paid limits if free limits fail during pilot.
-- Full detail: `docs/technical-design.md`.
+- Full detail: `docs/ARCHITECTURE.md`.
 
 ## Launch Validation
 

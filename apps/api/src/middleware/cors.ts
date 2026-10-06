@@ -7,8 +7,7 @@ const resolveAllowedOrigin: NonNullable<CorsOptions["origin"]> = (origin, c) => 
   return allowedOrigins.includes(origin) ? origin : undefined;
 };
 
-// Frontend and API are cross-origin by default (ADR-0063/ADR-0064: separate
-// `*.vercel.app` / `*.workers.dev` domains). No credentialed cookies, so no
+// Frontend and API are cross-origin by default. No credentialed cookies, so no
 // `Access-Control-Allow-Credentials` is needed — the bearer token is attached
 // explicitly by application code, not sent as an ambient cookie.
 export const corsMiddleware = cors({

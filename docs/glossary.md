@@ -8,7 +8,7 @@ The overall software business that hosts teacher pages, courses, exams, students
 
 The paying or revenue-generating customer who creates courses, exam routes, exams, and questions. A teacher may be an individual teacher, coaching owner, or admin working for a coaching brand.
 
-Teachers can open a teacher account during signup; the platform creates their initial tenant and owner membership immediately (ADR-0065).
+Teachers can open a teacher account during signup; the platform creates their initial tenant and owner membership immediately ().
 
 ## Student
 
@@ -24,13 +24,13 @@ Teacher page customization using logo, banner, color, and teacher/user picture.
 
 ## Teacher Template Deployment
 
-Superseded. Early plan to generate separate per-teacher code deployments from a shared template; replaced by a single shared multi-tenant deployment from day one (see Tenant, and ADR-0052).
+Superseded. Early plan to generate separate per-teacher code deployments from a shared template; replaced by a single shared multi-tenant deployment from day one (see Tenant, and ).
 
 ## Tenant
 
-A logically separated teacher/coaching space inside one shared multi-tenant deployment (ADR-0052). Each tenant has its own courses, students, exams, results, and branding, scoped by `tenant_id` within the same app and database.
+A logically separated teacher/coaching space inside one shared multi-tenant deployment (). Each tenant has its own courses, students, exams, results, and branding, scoped by `tenant_id` within the same app and database.
 
-For self-serve teacher signup, the initial tenant name and slug are derived from the teacher's username and can be branded later (ADR-0065).
+For self-serve teacher signup, the initial tenant name and slug are derived from the teacher's username and can be branded later ().
 
 ## Course
 
@@ -74,7 +74,7 @@ Post-signup prompt for fields such as name, email, city, and institution. MVP al
 
 ## Exam Identity Requirement
 
-Superseded by ADR-0065. Exam start no longer depends on email being collected at signup; future profile-completion prompts may still ask for name/email.
+Superseded by. Exam start no longer depends on email being collected at signup; future profile-completion prompts may still ask for name/email.
 
 ## Bangladesh-only Phone
 
@@ -194,7 +194,7 @@ Multiple-choice question. MVP supports one correct answer per question.
 
 ## Question Bank
 
-The shared collection of reusable `Question` records, decoupled from any single exam. An exam includes bank questions through an `Exam Question Link` rather than owning its own copy of the text. See ADR-0055.
+The shared collection of reusable `Question` records, decoupled from any single exam. An exam includes bank questions through an `Exam Question Link` rather than owning its own copy of the text. See.
 
 ## Exam Question Link
 
@@ -382,24 +382,24 @@ Plain-language agreement for the first paid teachers covering pricing, included 
 
 ## Active Student
 
-Resolved (ADR-0053): the billing unit is the count of approved/enrolled students in a specific course at the moment an invoice is generated, not a cross-course or time-window concept.
+Resolved (): the billing unit is the count of approved/enrolled students in a specific course at the moment an invoice is generated, not a cross-course or time-window concept.
 
 ## Course Billing Rate
 
-The platform's private negotiated per-student rate charged to a teacher for a specific course (`price_per_student_bdt`). Distinct from the course's student-facing price. See ADR-0053.
+The platform's private negotiated per-student rate charged to a teacher for a specific course (`price_per_student_bdt`). Distinct from the course's student-facing price. See.
 
 ## Invoice
 
-A per-course bill generated manually by admin, computed from the course's approved-student-count snapshot times its negotiated `Course Billing Rate`, with an optional manual adjustment. Tracked through `draft -> sent -> paid`/`void`. Replaces exam-pack usage billing. See ADR-0053.
+A per-course bill generated manually by admin, computed from the course's approved-student-count snapshot times its negotiated `Course Billing Rate`, with an optional manual adjustment. Tracked through `draft -> sent -> paid`/`void`. Replaces exam-pack usage billing. See.
 
 ## Exam Pack
 
-Historical MVP pricing framing (500 BDT for 5 exams), used for the first pilot offer language in `docs/pilot-terms.md`. Superseded as the actual platform-to-teacher billing mechanism by per-course `Invoice`s (ADR-0053).
+Historical MVP pricing framing (500 BDT for 5 exams), used for the first pilot offer language in `docs/pilot-terms.md`. Superseded as the actual platform-to-teacher billing mechanism by per-course `Invoice`s ().
 
 ## Exam Duplication
 
-Teacher workflow for copying an old exam to create a new one faster. Duplication itself is unrestricted; it no longer counts against any exam-pack billing limit, since billing is per-course/student-count (ADR-0053).
+Teacher workflow for copying an old exam to create a new one faster. Duplication itself is unrestricted; it no longer counts against any exam-pack billing limit, since billing is per-course/student-count ().
 
 ## JWT Session
 
-The signed token (HS256) issued at login, returned in the response body and sent back as an `Authorization: Bearer` header on every request (stored client-side in a non-httpOnly cookie so both the browser and Next.js Server Components can read it), containing user id, role, and tenant/course-membership hints. A convenience for identity and UI gating; server-side authorization still checks real DB relationships. See ADR-0054, ADR-0064.
+The signed token (HS256) issued at login, returned in the response body and sent back as an `Authorization: Bearer` header on every request (stored client-side in a non-httpOnly cookie so both the browser and Next.js Server Components can read it), containing user id, role, and tenant/course-membership hints. A convenience for identity and UI gating; server-side authorization still checks real DB relationships. See,.

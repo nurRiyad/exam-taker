@@ -1,4 +1,4 @@
-// ADR-0054/ADR-0064: JWT claims are a UI convenience only. Every real
+// /: JWT claims are a UI convenience only. Every real
 // authorization check re-loads the user from the DB — a revoked/deactivated
 // account or a stale role in an old token must never grant access just
 // because the bearer token still verifies.
@@ -6,11 +6,12 @@ import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
-import { getDb } from "../db/client";
-import { users } from "../db/schema";
+import { getDb } from "@exam-taker/db";
+import { users } from "@exam-taker/db/schema";
 import { verifySession } from "../utils/jwt";
 import { toPublicUser, type PublicUser } from "../utils/user";
 import type { Role } from "../types";
+import type { Env } from "../types/env";
 
 export type AuthEnv = {
   Bindings: Env;

@@ -21,8 +21,8 @@ body:json {
 }
 
 docs {
-  Teacher/admin only (ADR-0025). Returns the plaintext code once — copy it
+  Teacher/admin only. Returns the plaintext code once — copy it
   into the "Reset Password" request's `code` field. A teacher can only
   generate a code for a student enrolled in one of their own courses (see
-  docs/implementation-plan.md Step 4); admins have no such restriction.
+  docs/ARCHITECTURE.md); admins have no such restriction.
 }

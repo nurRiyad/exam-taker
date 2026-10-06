@@ -9,7 +9,7 @@ type CoursePricing = {
 
 /** Applies an active percentage discount window to a course's list price at
  * join time ("price_snapshot_bdt = current effective price incl. active
- * discount", docs/implementation-plan.md Step 4). A discount is active only
+ * discount. A discount is active only
  * while `now` falls within [discountStartAt, discountEndAt]; an unset bound
  * on either side leaves that side open-ended. Timestamps are compared as
  * SQLite's `YYYY-MM-DD HH:MM:SS` strings, which sort lexicographically in

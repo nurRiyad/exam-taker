@@ -42,7 +42,7 @@ function LoginForm() {
     try {
       const res = await apiClient.auth.login.$post({ json: { identifier, password } });
       if (!res.ok) {
-        // Deliberately vague — never reveals which field was wrong (ADR-0020).
+        // Deliberately vague — never reveals which field was wrong.
         const { message } = await extractApiError(res, "Incorrect username/phone or password");
         setError(message);
         return;

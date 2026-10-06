@@ -1,4 +1,4 @@
-// Manual teacher/admin-assisted password reset codes (ADR-0025): short-lived,
+// Manual teacher/admin-assisted password reset codes: short-lived,
 // single-use, delivered by hand outside the platform (e.g. WhatsApp). A plain
 // SHA-256 hash is sufficient here — unlike a password, this is a random,
 // short-lived, single-use secret, so PBKDF2's deliberate slowness isn't needed.

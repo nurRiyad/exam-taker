@@ -11,7 +11,7 @@ post {
 }
 
 docs {
-  No server-side session to revoke (ADR-0064, stateless bearer token) — this
+  No server-side session to revoke — this
   always returns 204. Logging out for real just means discarding {{token}}
   client-side; clear the environment's token var yourself if you want to
   simulate that here.

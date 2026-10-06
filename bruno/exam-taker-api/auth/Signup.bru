@@ -27,8 +27,8 @@ script:post-response {
 }
 
 docs {
-  Creates a new account (ADR-0065 one-screen signup) and stores the returned
-  bearer token into a runtime `token` variable via bru.setVar (ADR-0064) —
+  Creates a new account and stores the returned
+  bearer token into a runtime `token` variable via bru.setVar —
   not written to disk — so subsequent requests in this environment are
   authenticated automatically.
   

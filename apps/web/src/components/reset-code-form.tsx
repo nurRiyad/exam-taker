@@ -8,7 +8,7 @@ import { apiClient } from "@/lib/api-client";
 import { extractApiError } from "@/lib/api-error";
 import { FieldError } from "@/components/auth-card";
 
-// Shared by the teacher and admin reset-codes pages (ADR-0025). No student
+// Shared by the teacher and admin reset-codes pages. No student
 // lookup UI yet — that arrives in Step 12; for now the caller pastes the
 // student's user ID directly.
 export function ResetCodeForm() {

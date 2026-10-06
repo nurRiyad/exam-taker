@@ -89,7 +89,7 @@ Use this document as the running interrogation list. The goal is not to be harsh
 
 ## Current Working Answers
 
-Moved to avoid drift between duplicate copies — see `docs/product-brief.md` (market/business framing) and `docs/mvp-spec.md` (feature-area defaults), or the specific ADR under `docs/adr/` for anything decision-level.
+Moved to avoid drift between duplicate copies — see `docs/product-brief.md` for market/business framing and `docs/mvp-spec.md` for current feature-area defaults.
 
 ## Remaining Questions
 

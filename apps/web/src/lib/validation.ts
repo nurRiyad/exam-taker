@@ -1,6 +1,5 @@
-// Mirrors apps/api/src/validation/auth.ts's rules for instant client-side
-// feedback. Deliberately duplicated rather than shared (ADR-0059 rules out a
-// shared-types package for this) — the API always re-validates server-side.
+// Lightweight client-side feedback helpers. Request schemas shared with the
+// API live in @exam-taker/validation.
 export const BD_LOCAL_PHONE_REGEX = /^01[3-9]\d{8}$/;
 export const USERNAME_REGEX = /^[A-Za-z][A-Za-z0-9_]*$/;
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

@@ -30,10 +30,10 @@ This is a product-level model, not final database DDL.
 
 Rules:
 
-- `username` and `phone_e164` are globally unique at signup. Real completed emails are globally unique; initial signup may use an internal placeholder until profile completion (ADR-0065).
+- `username` and `phone_e164` are globally unique at signup. Real completed emails are globally unique; initial signup may use an internal placeholder until profile completion ().
 - Phone stores `+880...` and displays as local `01...`.
-- `password_hash` stores PBKDF2-SHA256 output encoded with its salt and iteration count, for example `pbkdf2$<iterations>$<salt>$<hash>`. See [ADR-0054](adr/0054-jwt-auth-with-pbkdf2-password-hashing.md).
-- Login accepts username or phone and issues a signed JWT stored as a bearer token client-side; JWT claims are a UI convenience only, not the source of truth for authorization checks (ADR-0064, ADR-0065).
+- `password_hash` stores PBKDF2-SHA256 output encoded with its salt and iteration count, for example `pbkdf2$<iterations>$<salt>$<hash>`. See [].
+- Login accepts username or phone and issues a signed JWT stored as a bearer token client-side; JWT claims are a UI convenience only, not the source of truth for authorization checks (, ).
 
 ## Teacher Membership
 
@@ -77,7 +77,7 @@ Access states:
 
 Rules:
 
-- `removed` only blocks future access (see [ADR-0011](adr/0011-locked-exams-before-payment-approval.md)); a removed student may call the join endpoint again, which resets their existing row back through the normal join flow rather than permanently locking them out.
+- `removed` only blocks future access (see []); a removed student may call the join endpoint again, which resets their existing row back through the normal join flow rather than permanently locking them out.
 - `blocked` does not allow the student to self-recover by rejoining — access can only be restored by the teacher. **Known gap**: no unblock endpoint exists yet as of Step 4; a blocked student stays blocked until a future step adds one or an admin edits the row directly.
 
 ## Payment Access Request
@@ -102,7 +102,7 @@ Rules:
 Rules:
 
 - This is the platform's private negotiated rate charged to the teacher for this course. It is unrelated to `Course.base_price_bdt`, which is the student-facing price.
-- See [ADR-0053](adr/0053-per-course-negotiated-student-invoicing.md).
+- See [].
 
 ## Invoice
 
@@ -131,7 +131,7 @@ Rules:
 - One invoice belongs to exactly one course and one tenant.
 - `amount_bdt` defaults to `student_count_snapshot x rate_snapshot_bdt`, adjustable via `manual_adjustment_bdt` for negotiated one-off changes.
 - Generated and transitioned manually by admin; no automated recurring billing in MVP.
-- See [ADR-0053](adr/0053-per-course-negotiated-student-invoicing.md).
+- See [].
 
 ## Exam Topic
 
@@ -146,7 +146,7 @@ Rules:
 
 Course route publish rule:
 
-- A course can be published once it has `title`, `short_description`, and a price/free status, plus at least one `Exam Topic` with `status = 'published'`, `title`, `short_description`, and `scheduled_at` set. See [ADR-0058](adr/0058-course-route-minimum-publish-fields.md).
+- A course can be published once it has `title`, `short_description`, and a price/free status, plus at least one `Exam Topic` with `status = 'published'`, `title`, `short_description`, and `scheduled_at` set. See [].
 - `status` also gates visibility: a topic still at `draft` is only visible to the owning tenant's teacher/admin (via `GET /courses/:id`); non-owning viewers, including students, only ever see `published` topics.
 
 ## Exam
@@ -185,11 +185,11 @@ Publish lock:
 
 - Once `status` becomes `published`, all fields above and all `Exam Question Link` rows are immutable.
 - Reverting to draft is only allowed if zero `Exam Attempt` rows exist for this exam. Once any attempt exists, the exam can never be edited or unpublished again; corrections require duplicating into a new exam.
-- See [ADR-0056](adr/0056-lock-exam-settings-after-publish.md).
+- See [].
 
 ## Question
 
-The reusable question-bank record. See [ADR-0055](adr/0055-shared-question-bank-with-exam-links.md).
+The reusable question-bank record. See [].
 
 - `id`
 - `tenant_id` (nullable; null means platform-owned/shared)
@@ -285,7 +285,7 @@ Rules:
 Purpose:
 
 - Stores stable shuffled question/order state per student attempt.
-- `*_snapshot` fields freeze the question content as shown at attempt time, so a later edit to the bank `Question` row (for exams that still allow it pre-publish) never changes a historical attempt's record. Since exams are locked at publish (ADR-0056), this is primarily a safety net rather than an expected mutation path.
+- `*_snapshot` fields freeze the question content as shown at attempt time, so a later edit to the bank `Question` row (for exams that still allow it pre-publish) never changes a historical attempt's record. Since exams are locked at publish (), this is primarily a safety net rather than an expected mutation path.
 
 ## Weak Zone Snapshot
 
