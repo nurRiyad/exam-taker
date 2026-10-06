@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
-import { PublicCourseCard } from "@/components/public-course-card";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCoursesByTeacher, getPublicTeacher } from "@/lib/public-directory-data";
+import { TeacherProfileCourses } from "@/components/teacher-profile-courses";
+import { getCoursesByTeacher, getExamCategoryLabel, getPublicTeacher } from "@/lib/public-directory-data";
 
 type TeacherDetailsPageProps = {
   params: Promise<{ teacherId: string }>;
@@ -14,77 +13,74 @@ export default async function TeacherDetailsPage({ params }: TeacherDetailsPageP
   if (!teacher) notFound();
 
   const courses = getCoursesByTeacher(teacher.id);
+  const teacherName = teacher.id === "mahbub-hasan" ? "মাহবুব হাসান" : teacher.name;
+  const subjectLabel = teacher.subject === "Mathematics" ? "গণিত" : teacher.subject;
+  const locationLabel = teacher.location === "Chattogram" ? "চট্টগ্রাম" : teacher.location;
+  const institutionLabel = teacher.institution === "Exam Focus Academy" ? "এক্সাম ফোকাস একাডেমি" : teacher.institution;
+  const specialtyLabel = teacher.id === "mahbub-hasan" ? "সময় বাঁচানোর গণিত কৌশল" : teacher.specialty;
+  const descriptionLabel =
+    teacher.id === "mahbub-hasan"
+      ? "দ্রুত প্যাটার্ন চিনে সহজ পদ্ধতিতে অঙ্ক সমাধানের অনুশীলন করান, যাতে পরীক্ষায় সময়ের মধ্যে নির্ভুল উত্তর দেওয়া যায়।"
+      : teacher.description;
+  const localizedCourses = courses.map((course) => ({
+    ...course,
+    examCategory: getExamCategoryLabel(course.examCategory),
+    ...(course.id === "math-shortcut-practice"
+      ? {
+          title: "ব্যাংক নিয়োগ গণিত অনুশীলন",
+          description: "ব্যাংক ও সরকারি চাকরির পরীক্ষার জন্য দ্রুত পাটিগণিত, বীজগণিত ও সমস্যা সমাধানের MCQ অনুশীলন।",
+          priceLabel: "৳ ৫৯৯",
+        }
+      : {}),
+    teacherName,
+  }));
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
-      <section className="overflow-hidden rounded-xl border bg-card">
-        <div className="bg-secondary px-5 py-8 sm:px-8 sm:py-10">
-          <div className="grid gap-6 lg:grid-cols-[1fr_16rem] lg:items-center">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-2 text-xs font-medium">
-                <span className="rounded-lg bg-background px-2 py-1 text-foreground">{teacher.subject}</span>
-                <span className="rounded-lg bg-background px-2 py-1 text-foreground">{teacher.location}</span>
-                <span className="rounded-lg bg-background px-2 py-1 text-foreground">{teacher.institution}</span>
-              </div>
-              <div className="flex flex-col gap-3">
-                <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{teacher.name}</h1>
-                <p className="text-base font-medium text-muted-foreground">{teacher.specialty}</p>
-                <p className="max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">{teacher.description}</p>
-              </div>
-              <div className="grid gap-2 text-sm sm:grid-cols-2 lg:max-w-lg">
-                <div className="rounded-lg bg-background p-3">
-                  <p className="text-xs text-muted-foreground">Students</p>
-                  <p className="font-medium">{teacher.studentCount.toLocaleString("en")} learners</p>
-                </div>
-                <div className="rounded-lg bg-background p-3">
-                  <p className="text-xs text-muted-foreground">Courses</p>
-                  <p className="font-medium">{courses.length} public courses</p>
-                </div>
-              </div>
+      <section className="rounded-xl border bg-card p-5 shadow-sm shadow-indigo-950/[0.025] sm:p-7">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-8">
+          <div className="order-last flex min-w-0 flex-1 flex-col gap-4 sm:order-1 sm:py-2">
+            <div className="flex flex-wrap gap-1.5 text-xs font-medium">
+              <span className="rounded-md bg-secondary/80 px-2 py-1 text-secondary-foreground">{subjectLabel}</span>
+              {teacher.examCategories.map((category) => (
+                <span key={category} className="rounded-md bg-secondary/80 px-2 py-1 text-secondary-foreground">
+                  {category === "Govt Job" ? "সরকারি চাকরি" : category === "Bank" ? "ব্যাংক" : category}
+                </span>
+              ))}
             </div>
-            <div className="flex justify-start lg:justify-end">
-              <div className="flex size-36 items-center justify-center rounded-xl bg-background text-4xl font-semibold text-foreground ring-1 ring-border sm:size-44">
-                {teacher.name
-                  .split(" ")
-                  .map((part) => part[0])
-                  .join("")
-                  .slice(0, 2)}
-              </div>
+            <div className="flex flex-col gap-1.5">
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{teacherName}</h1>
+              <p className="text-sm font-medium text-muted-foreground">{specialtyLabel}</p>
+              <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{descriptionLabel}</p>
             </div>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border/70 pt-3 text-sm">
+              <p>
+                <span className="font-semibold">{teacher.studentCount.toLocaleString("bn-BD")}</span>{" "}
+                <span className="text-muted-foreground">শিক্ষার্থী</span>
+              </p>
+              <p>
+                <span className="font-semibold">{courses.length.toLocaleString("bn-BD")}</span>{" "}
+                <span className="text-muted-foreground">টি কোর্স</span>
+              </p>
+              <p className="text-muted-foreground">
+                {institutionLabel} · {locationLabel}
+              </p>
+            </div>
+          </div>
+          <div className="order-first flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-100 via-sky-50 to-indigo-100 text-xl font-semibold tracking-tight text-indigo-700 ring-1 ring-sky-200/70 sm:order-2 sm:mt-2 sm:size-36 sm:text-5xl">
+            {teacher.name
+              .split(" ")
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)}
           </div>
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
-        {teacher.teachingStyle.map((style) => (
-          <Card key={style} size="sm">
-            <CardHeader>
-              <CardDescription>Teaching focus</CardDescription>
-              <CardTitle>{style}</CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
-
-      <section className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight">Courses by {teacher.name}</h2>
-          <p className="text-sm leading-6 text-muted-foreground">
-            Browse all public course routes currently available from this teacher.
-          </p>
-        </div>
-        {courses.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {courses.map((course) => (
-              <PublicCourseCard key={course.id} course={course} />
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-lg border p-6 text-sm text-muted-foreground">
-            This teacher does not have public courses yet.
-          </div>
-        )}
-      </section>
+      <TeacherProfileCourses
+        courses={localizedCourses}
+        heading={teacher.id === "mahbub-hasan" ? "মাহবুব স্যারের কোর্সসমূহ" : `${teacherName}-এর কোর্সসমূহ`}
+      />
     </main>
   );
 }

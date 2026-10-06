@@ -7,6 +7,9 @@
 
 ## Setup
 
+Running `make` with no target runs `make precommit`. Use `make setup` explicitly
+when preparing a fresh local checkout and starting the development servers.
+
 ```bash
 make setup
 ```

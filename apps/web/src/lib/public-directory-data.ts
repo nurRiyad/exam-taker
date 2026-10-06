@@ -6,6 +6,7 @@ export type PublicCourse = {
   fullSyllabus: string;
   teacherId: string;
   teacherName: string;
+  examCategory: string;
   subject: string;
   level: string;
   priceLabel: string;
@@ -52,6 +53,7 @@ export type PublicTeacher = {
   institution: string;
   location: string;
   subject: string;
+  examCategories: string[];
   studentCount: number;
   courseCount: number;
   popularCourseId: string;
@@ -69,6 +71,7 @@ export const PUBLIC_COURSES: PublicCourse[] = [
     fullSyllabus: "Grammar, vocabulary, sentence correction, idioms, reading comprehension, and mixed English mocks.",
     teacherId: "farhana-akter",
     teacherName: "Farhana Akter",
+    examCategory: "BCS",
     subject: "English",
     level: "Foundation",
     priceLabel: "BDT 499",
@@ -203,6 +206,7 @@ export const PUBLIC_COURSES: PublicCourse[] = [
     fullSyllabus: "Arithmetic, percentage, ratio, algebra, number series, word problems, and full math mocks.",
     teacherId: "mahbub-hasan",
     teacherName: "Mahbub Hasan",
+    examCategory: "Bank",
     subject: "Mathematics",
     level: "Intermediate",
     priceLabel: "BDT 599",
@@ -263,6 +267,7 @@ export const PUBLIC_COURSES: PublicCourse[] = [
     fullSyllabus: "Liberation War, constitution, geography, economy, culture, and recent national affairs.",
     teacherId: "sadia-rahman",
     teacherName: "Sadia Rahman",
+    examCategory: "Govt Job",
     subject: "Bangladesh Affairs",
     level: "All levels",
     priceLabel: "Free",
@@ -327,6 +332,7 @@ export const PUBLIC_COURSES: PublicCourse[] = [
     fullSyllabus: "Analogy, series, coding-decoding, direction, blood relation, syllogism, and analytical puzzles.",
     teacherId: "tanvir-ahmed",
     teacherName: "Tanvir Ahmed",
+    examCategory: "Primary",
     subject: "Reasoning",
     level: "Advanced",
     priceLabel: "BDT 699",
@@ -384,6 +390,65 @@ export const PUBLIC_COURSES: PublicCourse[] = [
   },
 ];
 
+const MAHBUB_EXTRA_COURSES: PublicCourse[] = [
+  ["bank-percentage", "ব্যাংক নিয়োগ শতকরা", "শতকরা, লাভ-ক্ষতি ও ছাড়ের MCQ অনুশীলন।", "Bank", 40],
+  ["bank-ratio", "ব্যাংক নিয়োগ অনুপাত", "অনুপাত, সমানুপাত ও ভাগের দ্রুত সমাধান।", "Bank", 35],
+  ["bank-algebra", "ব্যাংক নিয়োগ বীজগণিত", "সমীকরণ, সূচক ও বীজগাণিতিক সূত্রের অনুশীলন।", "Bank", 30],
+  ["bank-number-series", "ব্যাংক নিয়োগ সংখ্যার ধারা", "সংখ্যার ধারা, প্যাটার্ন ও দ্রুত যুক্তির MCQ।", "Bank", 25],
+  ["govt-job-arithmetic", "সরকারি চাকরি পাটিগণিত", "সময়, কাজ, দূরত্ব ও গড়ের পরীক্ষাভিত্তিক অনুশীলন।", "Govt Job", 45],
+  ["govt-job-profit-loss", "সরকারি চাকরি লাভ-ক্ষতি", "ক্রয়মূল্য, বিক্রয়মূল্য ও লাভ-ক্ষতির MCQ।", "Govt Job", 30],
+  [
+    "primary-math-basics",
+    "প্রাথমিক শিক্ষক গণিত প্রস্তুতি",
+    "প্রাথমিক শিক্ষক নিয়োগ পরীক্ষার গণিতভিত্তিক MCQ।",
+    "Primary",
+    50,
+  ],
+  ["bcs-math-preliminary", "বিসিএস প্রিলিমিনারি গণিত", "বিসিএস প্রিলিমিনারি উপযোগী গণিতের মডেল টেস্ট।", "BCS", 60],
+  [
+    "bank-data-interpretation",
+    "ব্যাংক নিয়োগ উপাত্ত বিশ্লেষণ",
+    "চার্ট, সারণি ও উপাত্ত থেকে দ্রুত উত্তর বের করুন।",
+    "Bank",
+    25,
+  ],
+  [
+    "govt-job-mixed-math",
+    "চাকরি পরীক্ষার মিশ্র গণিত",
+    "বিভিন্ন নিয়োগ পরীক্ষার গুরুত্বপূর্ণ গণিত প্রশ্ন।",
+    "Govt Job",
+    50,
+  ],
+  [
+    "bank-full-mock",
+    "ব্যাংক নিয়োগ পূর্ণাঙ্গ মডেল টেস্ট",
+    "সময় ধরে পূর্ণাঙ্গ ব্যাংক নিয়োগ MCQ পরীক্ষা দিন।",
+    "Bank",
+    80,
+  ],
+].map(([slug, title, description, examCategory, examCount]) => ({
+  id: `mahbub-${slug}` as string,
+  title: title as string,
+  description: description as string,
+  fullDescription: description as string,
+  fullSyllabus: title as string,
+  teacherId: "mahbub-hasan",
+  teacherName: "Mahbub Hasan",
+  examCategory: examCategory as string,
+  subject: "Mathematics",
+  level: "Intermediate",
+  priceLabel: "৳ ৪৯৯",
+  nextExam: "পরবর্তী পরীক্ষা শিগগিরই",
+  examCount: examCount as number,
+  studentCount: 2300,
+  participantCount: 1480,
+  completionLabel: "শিক্ষার্থীদের অনুশীলন কোর্স",
+  outcomes: [],
+  recommendedResources: [],
+  examTopics: [],
+  pastExams: [],
+}));
+
 export const PUBLIC_TEACHERS: PublicTeacher[] = [
   {
     id: "farhana-akter",
@@ -395,6 +460,7 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
     institution: "Dhaka Competitive Coaching",
     location: "Dhaka",
     subject: "English",
+    examCategories: ["BCS", "Govt Job"],
     studentCount: 1840,
     courseCount: 6,
     popularCourseId: "bcs-english-foundation",
@@ -411,8 +477,9 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
     institution: "Exam Focus Academy",
     location: "Chattogram",
     subject: "Mathematics",
+    examCategories: ["Bank", "Govt Job"],
     studentCount: 2300,
-    courseCount: 8,
+    courseCount: 12,
     popularCourseId: "math-shortcut-practice",
     popularCourseTitle: "Math Shortcut Practice",
     teachingStyle: ["Shortcut drills", "Timed sets", "Pattern practice"],
@@ -427,6 +494,7 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
     institution: "Public Service Prep",
     location: "Rajshahi",
     subject: "Bangladesh Affairs",
+    examCategories: ["BCS", "Govt Job", "Bank", "Primary"],
     studentCount: 1260,
     courseCount: 4,
     popularCourseId: "bangladesh-affairs-mcq",
@@ -443,6 +511,7 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
     institution: "Independent Teacher",
     location: "Sylhet",
     subject: "Reasoning",
+    examCategories: ["BCS", "Bank", "Primary"],
     studentCount: 980,
     courseCount: 5,
     popularCourseId: "reasoning-masterclass",
@@ -451,14 +520,31 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
   },
 ];
 
-export const COURSE_FILTERS = ["All", ...Array.from(new Set(PUBLIC_COURSES.map((course) => course.subject)))] as const;
-export const TEACHER_FILTERS = [
+export const PUBLIC_COURSES_DIRECTORY = [...PUBLIC_COURSES, ...MAHBUB_EXTRA_COURSES];
+
+export const COURSE_FILTERS = [
   "All",
-  ...Array.from(new Set(PUBLIC_TEACHERS.map((teacher) => teacher.subject))),
+  ...Array.from(new Set(PUBLIC_COURSES_DIRECTORY.map((course) => course.examCategory))),
 ] as const;
+export const TEACHER_FILTERS = ["All", "Govt Job", "BCS", "Bank", "Primary"] as const;
+
+export function getExamCategoryLabel(category: string) {
+  switch (category) {
+    case "BCS":
+      return "বিসিএস";
+    case "Bank":
+      return "ব্যাংক";
+    case "Govt Job":
+      return "সরকারি চাকরি";
+    case "Primary":
+      return "প্রাথমিক";
+    default:
+      return category;
+  }
+}
 
 export function getPublicCourse(courseId: string) {
-  return PUBLIC_COURSES.find((course) => course.id === courseId);
+  return PUBLIC_COURSES_DIRECTORY.find((course) => course.id === courseId);
 }
 
 export function getPublicTeacher(teacherId: string) {
@@ -466,5 +552,5 @@ export function getPublicTeacher(teacherId: string) {
 }
 
 export function getCoursesByTeacher(teacherId: string) {
-  return PUBLIC_COURSES.filter((course) => course.teacherId === teacherId);
+  return PUBLIC_COURSES_DIRECTORY.filter((course) => course.teacherId === teacherId);
 }

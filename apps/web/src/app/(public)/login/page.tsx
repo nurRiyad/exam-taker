@@ -25,6 +25,7 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nextPath = searchParams.get("next");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
@@ -49,7 +50,7 @@ function LoginForm() {
       }
       const { token } = await res.json();
       setSessionToken(token);
-      router.push(searchParams.get("next") ?? "/dashboard");
+      router.push(nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard");
     } catch {
       setError("Network error — check your connection and try again.");
     } finally {
@@ -93,7 +94,10 @@ function LoginForm() {
           </Link>
           <p>
             New here?{" "}
-            <Link href="/signup" className="text-primary underline-offset-4 hover:underline">
+            <Link
+              href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"}
+              className="text-primary underline-offset-4 hover:underline"
+            >
               Sign up
             </Link>
           </p>

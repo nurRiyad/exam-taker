@@ -55,7 +55,7 @@ export function NavbarAccountAction() {
 
   return (
     <Link href="/login" className={cn(buttonVariants({ size: "sm" }), "shrink-0")}>
-      Login
+      লগইন
     </Link>
   );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PublicCourseCard } from "@/components/public-course-card";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { COURSE_FILTERS, PUBLIC_COURSES } from "@/lib/public-directory-data";
+import { COURSE_FILTERS, PUBLIC_COURSES_DIRECTORY } from "@/lib/public-directory-data";
 import { cn } from "@/lib/utils";
 
 export function PublicCoursesDirectory() {
@@ -12,9 +12,9 @@ export function PublicCoursesDirectory() {
   const [filter, setFilter] = useState<(typeof COURSE_FILTERS)[number]>("All");
 
   const normalizedQuery = query.trim().toLowerCase();
-  const courses = PUBLIC_COURSES.filter((course) => {
-    const matchesFilter = filter === "All" || course.subject === filter;
-    const matchesQuery = [course.title, course.description, course.teacherName, course.subject]
+  const courses = PUBLIC_COURSES_DIRECTORY.filter((course) => {
+    const matchesFilter = filter === "All" || course.examCategory === filter;
+    const matchesQuery = [course.title, course.description, course.teacherName, course.subject, course.examCategory]
       .join(" ")
       .toLowerCase()
       .includes(normalizedQuery);
@@ -24,13 +24,13 @@ export function PublicCoursesDirectory() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 sm:flex-row sm:items-center">
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search by course, teacher, or subject"
-          aria-label="Search courses"
-          className="sm:max-w-sm"
+          placeholder="কোর্স, শিক্ষক বা পরীক্ষার ধরন খুঁজুন"
+          aria-label="কোর্স খুঁজুন"
+          className="h-10 sm:max-w-sm"
         />
         <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
           {COURSE_FILTERS.map((item) => (
@@ -43,7 +43,15 @@ export function PublicCoursesDirectory() {
                 "shrink-0",
               )}
             >
-              {item}
+              {item === "All"
+                ? "সব"
+                : item === "Govt Job"
+                  ? "সরকারি চাকরি"
+                  : item === "Bank"
+                    ? "ব্যাংক"
+                    : item === "Primary"
+                      ? "প্রাথমিক"
+                      : item}
             </button>
           ))}
         </div>
@@ -52,11 +60,11 @@ export function PublicCoursesDirectory() {
       {courses.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {courses.map((course) => (
-            <PublicCourseCard key={course.id} course={course} />
+            <PublicCourseCard key={course.id} course={course} locale="bn" />
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border p-6 text-sm text-muted-foreground">No courses matched your search.</div>
+        <div className="rounded-xl border p-6 text-sm text-muted-foreground">কোনো কোর্স পাওয়া যায়নি।</div>
       )}
     </div>
   );
