@@ -1,5 +1,7 @@
 # Git Commit Instructions
 
+These rules apply whenever an agent creates a commit in this repository. The root `AGENTS.md` points here as the commit source of truth.
+
 When creating a commit message for this repository:
 
 - Start with one conventional type: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `ci`, `build`, or `perf`.
