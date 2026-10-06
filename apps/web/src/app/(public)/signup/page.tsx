@@ -105,7 +105,8 @@ export default function SignupPage() {
       }
       const { token } = await res.json();
       setSessionToken(token);
-      router.push("/dashboard");
+      const nextPath = new URLSearchParams(window.location.search).get("next");
+      router.push(nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard");
     } catch {
       setGeneralError("Network error — check your connection and try again.");
     } finally {

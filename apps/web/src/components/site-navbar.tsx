@@ -2,8 +2,8 @@ import Link from "next/link";
 import { NavbarAccountAction } from "@/components/navbar-account-action";
 
 const NAV_LINKS = [
-  { href: "/courses", label: "Courses" },
-  { href: "/teachers", label: "Teachers" },
+  { href: "/courses", label: "কোর্স" },
+  { href: "/teachers", label: "শিক্ষক" },
 ] as const;
 
 export function SiteNavbar() {
@@ -14,11 +14,11 @@ export function SiteNavbar() {
           href="/"
           className="min-w-0 shrink text-sm font-semibold tracking-tight underline-offset-4 hover:underline sm:text-base"
         >
-          Exam Taker
+          এক্সাম টেকার
         </Link>
 
         <nav
-          aria-label="Main navigation"
+          aria-label="প্রধান নেভিগেশন"
           className="flex flex-1 items-center justify-center gap-3 text-xs text-muted-foreground sm:gap-5 sm:text-sm"
         >
           {NAV_LINKS.map((link) => (

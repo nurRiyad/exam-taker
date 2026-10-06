@@ -1,6 +1,9 @@
 .SHELL := /bin/zsh
 
-.PHONY: setup dev precommit install generate migrate format lint typecheck test build
+.PHONY: precommit setup dev install generate migrate format lint typecheck test build
+
+# Default target: run the checks and builds used before committing.
+precommit: install generate migrate format lint typecheck test build
 
 # Prepare a fresh local checkout and start the web/API development servers.
 setup: install generate migrate
@@ -8,10 +11,6 @@ setup: install generate migrate
 
 dev:
 	pnpm dev
-
-# Run the local checks and builds that should pass before committing.
-# `make precommit` never applies migrations to the remote database.
-precommit: install generate migrate format lint typecheck test build
 
 install:
 	. "$$HOME/.nvm/nvm.sh" && nvm install && nvm use && pnpm install

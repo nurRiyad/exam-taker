@@ -13,8 +13,15 @@ export function PublicTeachersDirectory() {
 
   const normalizedQuery = query.trim().toLowerCase();
   const teachers = PUBLIC_TEACHERS.filter((teacher) => {
-    const matchesFilter = filter === "All" || teacher.subject === filter;
-    const matchesQuery = [teacher.name, teacher.specialty, teacher.bio, teacher.subject, teacher.institution]
+    const matchesFilter = filter === "All" || teacher.examCategories.includes(filter);
+    const matchesQuery = [
+      teacher.name,
+      teacher.specialty,
+      teacher.bio,
+      teacher.subject,
+      teacher.institution,
+      ...teacher.examCategories,
+    ]
       .join(" ")
       .toLowerCase()
       .includes(normalizedQuery);
@@ -24,13 +31,13 @@ export function PublicTeachersDirectory() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-xl border bg-card p-3 sm:flex-row sm:items-center">
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search by teacher, subject, or institution"
-          aria-label="Search teachers"
-          className="sm:max-w-sm"
+          placeholder="শিক্ষক বা পরীক্ষার ধরন খুঁজুন"
+          aria-label="শিক্ষক খুঁজুন"
+          className="h-10 sm:max-w-sm"
         />
         <div className="flex gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0">
           {TEACHER_FILTERS.map((item) => (
@@ -43,7 +50,7 @@ export function PublicTeachersDirectory() {
                 "shrink-0",
               )}
             >
-              {item}
+              {item === "All" ? "সব" : item === "Govt Job" ? "সরকারি চাকরি" : item}
             </button>
           ))}
         </div>
@@ -56,7 +63,7 @@ export function PublicTeachersDirectory() {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border p-6 text-sm text-muted-foreground">No teachers matched your search.</div>
+        <div className="rounded-xl border p-6 text-sm text-muted-foreground">কোনো শিক্ষক পাওয়া যায়নি।</div>
       )}
     </div>
   );
