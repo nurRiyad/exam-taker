@@ -1,5 +1,5 @@
 // apps/api's `AppType` (imported type-only in src/lib/api-client.ts, per
-// ADR-0059) references a couple of Cloudflare Workers ambient globals
+// ) references a couple of Cloudflare Workers ambient globals
 // (`Env`, `D1Database`) declared in apps/api/worker-configuration.d.ts.
 // That file also redefines the global `Response`/`fetch` to their
 // Workers-flavored shapes — including it here would leak those overrides

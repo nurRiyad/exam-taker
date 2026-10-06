@@ -1,4 +1,4 @@
-import type { users } from "../db/schema";
+import type { users } from "@exam-taker/db/schema";
 import { denormalizePhoneToLocal } from "./phone";
 
 type UserRow = typeof users.$inferSelect;
@@ -13,7 +13,7 @@ function isProfilePlaceholderEmail(email: string): boolean {
 }
 
 /** Shapes a DB user row for API responses — never leaks `passwordHash`, always
- * displays phone in local `01...` form (ADR-0049). */
+ * displays phone in local `01...` form. */
 export function toPublicUser(row: UserRow) {
   return {
     id: row.id,

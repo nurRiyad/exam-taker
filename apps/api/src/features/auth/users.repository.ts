@@ -1,0 +1,58 @@
+import { eq, or } from "drizzle-orm";
+import type { Database } from "@exam-taker/db";
+import { users } from "@exam-taker/db/schema";
+import { BD_LOCAL_PHONE_REGEX, normalizePhoneToE164 } from "../../utils/phone";
+
+type UserRow = typeof users.$inferSelect;
+type NewUser = typeof users.$inferInsert;
+
+/** Login/reset both accept a username or phone (local or E.164). */
+function byIdentifier(identifier: string) {
+  const candidateE164 = BD_LOCAL_PHONE_REGEX.test(identifier) ? normalizePhoneToE164(identifier) : undefined;
+  return or(
+    eq(users.username, identifier),
+    eq(users.phoneE164, identifier),
+    candidateE164 ? eq(users.phoneE164, candidateE164) : undefined,
+  );
+}
+
+export async function findByIdentifier(db: Database, identifier: string): Promise<UserRow | undefined> {
+  const [user] = await db.select().from(users).where(byIdentifier(identifier)).limit(1);
+  return user;
+}
+
+export async function findById(db: Database, id: string): Promise<UserRow | undefined> {
+  const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return user;
+}
+
+export async function findByUsername(db: Database, username: string): Promise<Pick<UserRow, "id"> | undefined> {
+  const [existing] = await db.select({ id: users.id }).from(users).where(eq(users.username, username)).limit(1);
+  return existing;
+}
+
+export async function findConflicts(
+  db: Database,
+  { username, phoneE164 }: { username: string; phoneE164: string },
+): Promise<Array<Pick<UserRow, "username" | "phoneE164" | "email">>> {
+  return db
+    .select({ username: users.username, phoneE164: users.phoneE164, email: users.email })
+    .from(users)
+    .where(or(eq(users.username, username), eq(users.phoneE164, phoneE164)));
+}
+
+export async function insert(db: Database, data: NewUser): Promise<UserRow> {
+  const [user] = await db.insert(users).values(data).returning();
+  return user;
+}
+
+/** Non-async: returns the unexecuted query so callers can compose it into a
+ * `db.batch([...])` alongside another table's statement (see
+ * `features/auth/auth.service.ts`'s `redeemResetCode`). */
+export function updatePasswordQuery(db: Database, userId: string, passwordHash: string) {
+  return db.update(users).set({ passwordHash }).where(eq(users.id, userId));
+}
+
+export async function updateRole(db: Database, id: string, role: UserRow["role"]): Promise<void> {
+  await db.update(users).set({ role }).where(eq(users.id, id));
+}

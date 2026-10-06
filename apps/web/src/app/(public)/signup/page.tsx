@@ -42,7 +42,7 @@ export default function SignupPage() {
   const [availability, setAvailability] = useState<Availability>("idle");
   const usernameCheckTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // Live username-availability check while typing (ADR-0049), debounced so we
+  // Live username-availability check while typing, debounced so we
   // don't fire one request per keystroke. Triggered from the input's own
   // change handler rather than an effect, since the check is a response to a
   // user action, not a value to keep synchronized with an external system.

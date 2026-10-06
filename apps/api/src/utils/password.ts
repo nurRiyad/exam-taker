@@ -1,7 +1,7 @@
-// PBKDF2-SHA256 password hashing via Web Crypto (ADR-0054) — bcrypt/argon2 need a WASM
+// PBKDF2-SHA256 password hashing via Web Crypto — bcrypt/argon2 need a WASM
 // dependency that doesn't fit Workers' CPU-time budget well; PBKDF2 is native here.
 //
-// Iteration count is a CPU-time-vs-security tradeoff for Workers, not an ADR-mandated
+// Iteration count is a CPU-time-vs-security tradeoff for Workers, not a
 // number. It travels with each hash, so raising it later never breaks existing hashes.
 import { timingSafeEqual } from "hono/utils/buffer";
 
@@ -36,7 +36,7 @@ async function deriveBits(password: string, salt: Uint8Array, iterations: number
   return new Uint8Array(bits);
 }
 
-/** Encoded as `pbkdf2$<iterations>$<saltHex>$<hashHex>` per ADR-0054. */
+/** Encoded as `pbkdf2$<iterations>$<saltHex>$<hashHex>` per . */
 export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(SALT_BYTES));
   const hash = await deriveBits(password, salt, PBKDF2_ITERATIONS);

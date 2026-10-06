@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import type { Role } from "api/src/types";
+import type { Role } from "@exam-taker/api/src/types";
 import { SESSION_TOKEN_COOKIE } from "@/lib/session-token";
 
 const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? "http://localhost:8787";

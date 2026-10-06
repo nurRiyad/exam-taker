@@ -1,4 +1,4 @@
-// JWT session handling (ADR-0054, ADR-0064): HS256, 30-day flat expiry, no
+// JWT session handling: HS256, 30-day flat expiry, no
 // refresh flow. Sent as an Authorization: Bearer header, not a cookie — the
 // frontend and API live on different registrable domains. JWT claims are a
 // UI convenience only — every real authorization check must still hit the DB
@@ -6,7 +6,7 @@
 import { sign, verify } from "hono/jwt";
 import type { Role } from "../types";
 
-const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days, per ADR-0054
+const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
 export type SessionPayload = {
   sub: string;

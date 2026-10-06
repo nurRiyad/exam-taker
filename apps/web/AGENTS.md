@@ -1,30 +1,14 @@
-<!-- BEGIN:nextjs-agent-rules -->
 # Web Agent Instructions
 
-## Next.js Version Warning
-
-This project uses Next.js `16.2.10`.
-
-Do not assume older Next.js behavior. Before implementing framework-level changes, read the relevant guide in `node_modules/next/dist/docs/` and heed deprecation notices.
-
-## Frontend Conventions
-
-- Mobile-first is mandatory across all surfaces (teacher/admin included).
-- Keep route protection in `src/proxy.ts` (this replaces older `middleware.ts` conventions).
-- Use App Router patterns under `src/app` and preserve existing route-group structure.
-- Use the shared API client in `src/lib/api-client.ts` (Hono RPC types from backend), not ad-hoc fetch wrappers.
-- Use `src/lib/session-token.ts` helpers for token persistence/reads.
-
-## Commands
-
-- `pnpm --filter web dev`
-- `pnpm --filter web build`
-- `pnpm --filter web lint`
-- `pnpm --filter web typecheck`
-
-## Related Docs
-
-- Project-wide rules: [../../AGENTS.md](../../AGENTS.md)
-- Canonical architecture and decisions: [../../CLAUDE.md](../../CLAUDE.md)
-- Full implementation details: [../../docs/technical-design.md](../../docs/technical-design.md)
-<!-- END:nextjs-agent-rules -->
+- Until the user explicitly says the frontend is ready for backend work, work only on UI in `apps/web`. Do not add or expand API calls, backend behavior, or database integration; use realistic feature-local mock data.
+- Complete the requested frontend flows and user interactions with mock data, including relevant loading, empty, error, success, and disabled states. The user decides when the frontend is ready for backend work.
+- Preserve existing routes and working interactions while restructuring.
+- Make Bangla the default for all user-facing copy and mock content; keep the UI straightforward to localize to English later.
+- Design mobile-first, then adapt for wider screens. Ensure touch-friendly controls, readable content, and no horizontal overflow at narrow widths.
+- Keep the interface minimal and space-efficient, with concise copy and clear feedback for user actions.
+- Prefer small, focused, reusable components. Check for and reuse suitable installed shadcn/ui components before creating primitives; follow this project's shadcn conventions.
+- Use React Hook Form with Zod validation for interactive forms. Provide accessible labels and concise Bangla field errors, and handle pending, success, and failure states.
+- Use restrained transitions for navigation and UI-state changes, while respecting `prefers-reduced-motion` and keeping interactions immediate.
+- Follow accessibility basics: semantic elements, keyboard support, visible focus, sufficient contrast, and accessible dialogs/menus.
+- Follow the existing Next.js App Router conventions and existing design tokens/components.
+- Use pnpm and the root commands in `docs/DEVELOPMENT.md`.

@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import type { Role } from "api/src/types";
+import type { Role } from "@exam-taker/api/src/types";
 import { SESSION_TOKEN_COOKIE } from "@/lib/session-token";
 
 // Server components/proxy talk to the API's real origin directly, bypassing
 // next.config.ts's /api/* rewrite (that rewrite is for browser requests only,
-// see docs/technical-design.md's Local Development section).
+// see docs/ARCHITECTURE.md's Local Development section).
 const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? "http://localhost:8787";
 
-// ADR-0054/ADR-0064: JWT claims are a UI convenience only — authorization
+// /: JWT claims are a UI convenience only — authorization
 // always hits the DB, and this redirect is a UI convenience too, not a real
 // authorization check. Route groups like (teacher)/(admin) are purely
 // organizational and don't affect the URL, so role gating here is keyed by

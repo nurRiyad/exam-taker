@@ -1,0 +1,28 @@
+{
+  "name": "@exam-taker/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts"
+  },
+  "scripts": {
+    "dev": "node scripts/start-studio.mjs",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate:local": "wrangler d1 migrations apply exam-taker-db --local --config ../../apps/api/wrangler.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply exam-taker-db --remote --config ../../apps/api/wrangler.jsonc",
+    "db:studio": "drizzle-kit studio --config drizzle.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "@types/node": "^26.1.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "better-sqlite3": "^12.11.1",
+    "drizzle-kit": "^0.31.10",
+    "wrangler": "^4.107.0"
+  }
+}

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Shared shell for the signup/login/reset screens: centered, narrow-first
-// (ADR-0002/0061 — author for ~360-390px width before wider breakpoints).
+//.
 export function AuthCard({
   title,
   description,

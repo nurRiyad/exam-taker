@@ -1,23 +1,23 @@
 {
-  "name": "api",
+  "name": "@exam-taker/api",
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "exports": {
+    "./src/*": "./src/*"
+  },
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "types": "wrangler types",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply exam-taker-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply exam-taker-db --remote",
     "db:seed:admin": "tsx scripts/seed.ts",
-    "predb:studio": "lsof -ti:4983 | xargs kill -9 >/dev/null 2>&1 || true",
-    "db:studio": "drizzle-kit studio",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@exam-taker/db": "workspace:*",
+    "@exam-taker/validation": "workspace:*",
     "@hono/zod-validator": "^0.8.0",
     "drizzle-orm": "^0.45.2",
     "drizzle-zod": "^0.8.3",
@@ -27,10 +27,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260702.1",
     "@eslint/js": "^9",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.1.0",
-    "better-sqlite3": "^12.11.1",
-    "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3",

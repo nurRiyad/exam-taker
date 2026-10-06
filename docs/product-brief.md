@@ -164,7 +164,7 @@ Option E: Exam pack pricing
 
 ## Current Lean Recommendation (Historical — Superseded)
 
-This section captured the original exam-pack pricing hypothesis (500 BDT/5 exams/100 students) explored during discovery. **The live billing mechanism is per-course, negotiated per-student rate, manually invoiced by admin — see [ADR-0053](adr/0053-per-course-negotiated-student-invoicing.md).** Kept here only for the reasoning trail; do not treat the exam-pack numbers below as current.
+This section captured the original exam-pack pricing hypothesis (500 BDT/5 exams/100 students) explored during discovery. The current billing mechanism is per-course, negotiated per-student rate, manually invoiced by admin. The old numbers are historical and should not be treated as current.
 
 - Offer an initial pilot pack around 500 BDT for 5 exams with up to 100 students.
 - Use 100 BDT per extra 50 students as an initial overage baseline, adjustable by teacher and exam.
@@ -215,4 +215,4 @@ The MVP discovery questions are sufficiently answered to start implementation pl
 
 ## Current Product Defaults
 
-Moved to avoid drift between duplicate copies: the full, current list of product defaults lives in `docs/mvp-spec.md` (organized by feature area) and, for anything decision-level, in the specific ADR under `docs/adr/`. `docs/README.md`'s ADR index is the fastest way to find the right one.
+Moved to avoid drift between duplicate copies: the current list of product defaults lives in `docs/mvp-spec.md`, organized by feature area.
