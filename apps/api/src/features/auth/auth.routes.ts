@@ -20,12 +20,12 @@ export const authRoutes = new Hono<AuthEnv>()
   })
   .post("/signup", zValidator("json", signupSchema), async (c) => {
     const user = await authService.signup(getDb(c.env.DB), c.req.valid("json"));
-    const token = await signSession({ sub: user.id, role: user.role }, c.env.JWT_SECRET);
+    const token = await signSession({ sub: user.id, role: user.role }, requireJwtSecret(c.env.JWT_SECRET));
     return c.json({ user, token }, 201);
   })
   .post("/login", zValidator("json", loginSchema), async (c) => {
     const user = await authService.login(getDb(c.env.DB), c.req.valid("json"));
-    const token = await signSession({ sub: user.id, role: user.role }, c.env.JWT_SECRET);
+    const token = await signSession({ sub: user.id, role: user.role }, requireJwtSecret(c.env.JWT_SECRET));
     return c.json({ user, token });
   })
   .post("/logout", (c) => c.body(null, 204))
@@ -38,3 +38,10 @@ export const authRoutes = new Hono<AuthEnv>()
     await authService.redeemResetCode(getDb(c.env.DB), c.req.valid("json"));
     return c.json({ ok: true });
   });
+
+function requireJwtSecret(secret: string | undefined): string {
+  if (!secret) {
+    throw new Error("JWT_SECRET is not configured. Set it in apps/api/.dev.vars for local development.");
+  }
+  return secret;
+}

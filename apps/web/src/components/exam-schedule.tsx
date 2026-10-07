@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { BookOpenText, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { formatBanglaDate } from "@/lib/course-batches";
+import { cn } from "@/lib/utils";
 
 type Exam = {
   id: string;
@@ -33,7 +35,7 @@ export function ExamSchedule({ exams }: { exams: Exam[] }) {
   return (
     <>
       <div className="flex flex-col gap-2">
-        {exams.map((exam, index) => (
+        {exams.map((exam) => (
           <article key={exam.id} className="rounded-lg bg-muted/50 p-3">
             <div className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-3">
@@ -50,17 +52,28 @@ export function ExamSchedule({ exams }: { exams: Exam[] }) {
                 <span>{indexBangla(exam.totalMarks)} নম্বর</span>
                 <span>{formatDuration(exam.durationMinutes)}</span>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => setSelectedExam(exam)}
-                aria-label={`${exam.title} — সিলেবাস দেখুন`}
-              >
-                <BookOpenText aria-hidden="true" data-icon="inline-start" />
-                সিলেবাস দেখুন
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full px-2 text-xs sm:text-sm"
+                  onClick={() => setSelectedExam(exam)}
+                  aria-label={`${exam.title} — সিলেবাস দেখুন`}
+                >
+                  <BookOpenText aria-hidden="true" data-icon="inline-start" />
+                  সিলেবাস
+                </Button>
+                <Link
+                  href={exam.stage === "শেষ" ? `/exams/${exam.id}/results` : `/exams/${exam.id}/attempt`}
+                  className={cn(
+                    buttonVariants({ variant: exam.stage === "শেষ" ? "secondary" : "default", size: "sm" }),
+                    "w-full px-2 text-xs sm:text-sm",
+                  )}
+                >
+                  {exam.stage === "শেষ" ? "ফলাফল দেখুন" : "পরীক্ষা শুরু করুন"}
+                </Link>
+              </div>
             </div>
           </article>
         ))}
