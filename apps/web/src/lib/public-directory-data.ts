@@ -47,6 +47,7 @@ export type PublicPastExam = {
 export type PublicTeacher = {
   id: string;
   name: string;
+  photoUrl?: string;
   specialty: string;
   bio: string;
   description: string;

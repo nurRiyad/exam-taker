@@ -18,7 +18,7 @@ type Exam = {
   syllabus: string[];
 };
 
-export function ExamSchedule({ exams }: { exams: Exam[] }) {
+export function ExamSchedule({ exams, examHrefPrefix }: { exams: Exam[]; examHrefPrefix?: string }) {
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -65,7 +65,13 @@ export function ExamSchedule({ exams }: { exams: Exam[] }) {
                   সিলেবাস
                 </Button>
                 <Link
-                  href={exam.stage === "শেষ" ? `/exams/${exam.id}/results` : `/exams/${exam.id}/attempt`}
+                  href={
+                    examHrefPrefix
+                      ? `${examHrefPrefix}/${exam.id}`
+                      : exam.stage === "শেষ"
+                        ? `/exams/${exam.id}/results`
+                        : `/exams/${exam.id}/attempt`
+                  }
                   className={cn(
                     buttonVariants({ variant: exam.stage === "শেষ" ? "secondary" : "default", size: "sm" }),
                     "w-full px-2 text-xs sm:text-sm",

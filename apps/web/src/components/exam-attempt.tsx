@@ -71,10 +71,30 @@ const baseQuestions: Question[] = [
   },
 ];
 
-const questions = baseQuestions.map((question, index) => ({ ...question, id: index + 1 }));
-const examDurationSeconds = 90 * 60;
-
-export function ExamAttempt({ examId }: { examId: string }) {
+export function ExamAttempt({
+  examId,
+  returnHref = "/student/exams",
+  examTitle,
+  courseTitle = "গণিত অনুশীলন",
+  durationMinutes = 90,
+  questionCount = baseQuestions.length,
+}: {
+  examId: string;
+  returnHref?: string;
+  examTitle?: string;
+  courseTitle?: string;
+  durationMinutes?: number;
+  questionCount?: number;
+}) {
+  const questions = useMemo(
+    () =>
+      Array.from({ length: questionCount }, (_, index) => ({
+        ...baseQuestions[index % baseQuestions.length],
+        id: index + 1,
+      })),
+    [questionCount],
+  );
+  const examDurationSeconds = durationMinutes * 60;
   const examNumber = Number(examId.match(/exam-(\d+)$/)?.[1] ?? 1);
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
@@ -131,8 +151,8 @@ export function ExamAttempt({ examId }: { examId: string }) {
               আপনার উত্তর সংরক্ষণ করা হয়েছে। ডেমো ফলাফল: {bn(score)} / {bn(questions.length)}।
             </p>
           </div>
-          <Link href="/student/exams" className={cn(buttonVariants(), "w-full")}>
-            আমার পরীক্ষায় ফিরুন
+          <Link href={returnHref} className={cn(buttonVariants(), "w-full")}>
+            পরীক্ষার তালিকায় ফিরুন
           </Link>
         </section>
       </main>
@@ -145,15 +165,17 @@ export function ExamAttempt({ examId }: { examId: string }) {
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-3 py-2 sm:px-6 sm:py-3">
           <div className="flex min-w-0 items-center gap-3">
             <Link
-              href="/student/exams"
+              href={returnHref}
               aria-label="পরীক্ষা ছেড়ে বের হন"
               className="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <ArrowLeft aria-hidden="true" className="size-4" />
             </Link>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold">ব্যাংক নিয়োগ · পরীক্ষা {bn(examNumber)}</p>
-              <p className="text-xs text-muted-foreground">গণিত অনুশীলন</p>
+              <p className="truncate text-sm font-semibold">
+                {examTitle ?? `ব্যাংক নিয়োগ · পরীক্ষা ${bn(examNumber)}`}
+              </p>
+              <p className="text-xs text-muted-foreground">{courseTitle}</p>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 tabular-nums" aria-live="off">
