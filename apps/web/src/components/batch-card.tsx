@@ -8,9 +8,10 @@ type BatchCardProps = {
   batch: CourseBatch;
   href: string;
   actionLabel?: string;
+  showAction?: boolean;
 };
 
-export function BatchCard({ batch, href, actionLabel = "ব্যাচ দেখুন" }: BatchCardProps) {
+export function BatchCard({ batch, href, actionLabel = "ব্যাচ দেখুন", showAction = true }: BatchCardProps) {
   const exams = getBatchExams(batch);
   const startDate = exams[0]?.date;
   const endDate = exams.at(-1)?.date;
@@ -20,16 +21,18 @@ export function BatchCard({ batch, href, actionLabel = "ব্যাচ দে�
       href={href}
       className="group block rounded-xl focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
-      <Card className="h-full gap-0 transition-colors group-hover:bg-muted/20">
+      <Card className="h-full gap-0 border border-border/70 shadow-sm shadow-indigo-950/[0.025] transition-[transform,border-color,box-shadow] group-hover:-translate-y-0.5 group-hover:border-primary/30 group-hover:shadow-md group-hover:shadow-indigo-950/[0.06] group-focus-visible:border-primary/50">
         <CardHeader className="gap-2">
           <div className="flex items-center justify-between gap-3">
             <span className="w-fit rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
               {batch.status}
             </span>
-            <ArrowUpRight
-              aria-hidden="true"
-              className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
+            {showAction ? (
+              <ArrowUpRight
+                aria-hidden="true"
+                className="size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            ) : null}
           </div>
           <CardTitle className="text-base leading-6">{batch.title}</CardTitle>
           <CardDescription className="line-clamp-2 leading-5">{batch.description}</CardDescription>
@@ -49,9 +52,11 @@ export function BatchCard({ batch, href, actionLabel = "ব্যাচ দে�
               </span>
             ) : null}
           </div>
-          <div className="border-t pt-3 text-sm font-medium text-primary group-hover:underline group-hover:underline-offset-4">
-            {actionLabel}
-          </div>
+          {showAction ? (
+            <div className="border-t pt-3 text-sm font-medium text-primary group-hover:underline group-hover:underline-offset-4">
+              {actionLabel}
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </Link>
