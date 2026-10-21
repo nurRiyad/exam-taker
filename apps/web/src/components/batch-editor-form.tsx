@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { CourseBatch } from "@/utils/course-batches";
 import { cn } from "@/utils/utils";
 
@@ -65,16 +66,26 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
           </div>
           <div className="grid gap-2">
             <Label htmlFor="batch-status">ভর্তি অবস্থা</Label>
-            <select
-              id="batch-status"
+            <Select
               name="status"
+              items={[
+                { value: "শিগগিরই", label: "শিগগিরই" },
+                { value: "চলমান", label: "চলমান" },
+                { value: "শেষ", label: "শেষ" },
+              ]}
               defaultValue={batch?.status ?? "শিগগিরই"}
-              className="h-9 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
             >
-              <option>শিগগিরই</option>
-              <option>চলমান</option>
-              <option>শেষ</option>
-            </select>
+              <SelectTrigger id="batch-status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="শিগগিরই">শিগগিরই</SelectItem>
+                  <SelectItem value="চলমান">চলমান</SelectItem>
+                  <SelectItem value="শেষ">শেষ</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="batch-students">আসন সংখ্যা</Label>

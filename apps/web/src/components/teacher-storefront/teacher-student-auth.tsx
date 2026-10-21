@@ -6,11 +6,13 @@ import { ArrowLeft, BookOpenCheck, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import type { PublicTeacher } from "@/utils/public-directory-data";
 import { validatePassword, validatePhone, validateUsername } from "@/utils/validation";
 import { getStorefrontBrand } from "./brand";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
+import { TeacherPageFooter } from "./teacher-page-footer";
 
 type AuthMode = "login" | "signup";
 
@@ -220,6 +222,7 @@ export function TeacherStudentAuth({
           </CardFooter>
         </Card>
       </main>
+      <TeacherPageFooter teacher={teacher} />
     </div>
   );
 }
@@ -234,7 +237,11 @@ function AuthField({
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>
-      <Input id={id} name={name} type={type} className="h-10 bg-background" {...props} />
+      {type === "password" ? (
+        <PasswordInput id={id} name={name} className="h-10 bg-background" {...props} />
+      ) : (
+        <Input id={id} name={name} type={type} className="h-10 bg-background" {...props} />
+      )}
     </div>
   );
 }

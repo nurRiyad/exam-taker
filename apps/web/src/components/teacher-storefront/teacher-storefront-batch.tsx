@@ -9,6 +9,7 @@ import { getCoursesByTeacher, getExamCategoryLabel, getPublicTeacher } from "@/u
 import { getStorefrontBrand } from "./brand";
 import { getStorefrontBatchTitle, getStorefrontCourseCopy } from "./content";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
+import { TeacherPageFooter } from "./teacher-page-footer";
 import { cn } from "@/utils/utils";
 
 export function TeacherStorefrontBatch({ teacherSlug, batchId }: { teacherSlug: string; batchId: string }) {
@@ -143,6 +144,7 @@ export function TeacherStorefrontBatch({ teacherSlug, batchId }: { teacherSlug: 
           </div>
         </div>
       </main>
+      <TeacherPageFooter teacher={teacher} />
     </div>
   );
 }

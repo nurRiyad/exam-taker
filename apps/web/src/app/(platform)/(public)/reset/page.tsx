@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { useResetPasswordMutation } from "@/features/auth/queries";
 import { type FieldErrors } from "@/utils/api-error";
@@ -89,9 +90,8 @@ export default function ResetPage() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="newPassword">New password</Label>
-          <Input
+          <PasswordInput
             id="newPassword"
-            type="password"
             value={form.newPassword}
             onChange={(e) => update("newPassword", e.target.value)}
             autoComplete="new-password"
@@ -101,9 +101,8 @@ export default function ResetPage() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="newPasswordConfirmation">Confirm new password</Label>
-          <Input
+          <PasswordInput
             id="newPasswordConfirmation"
-            type="password"
             value={form.newPasswordConfirmation}
             onChange={(e) => update("newPasswordConfirmation", e.target.value)}
             autoComplete="new-password"

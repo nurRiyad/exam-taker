@@ -10,8 +10,8 @@ function formatCount(count: number) {
 export function PublicTeacherCard({ teacher }: { teacher: PublicTeacher }) {
   return (
     <Link
-      href={`/teachers/${teacher.id}`}
-      aria-label={`${teacher.name} — প্রোফাইল দেখুন`}
+      href={`/t/${teacher.id}`}
+      aria-label={`${teacher.name} — পাবলিক প্রোফাইল দেখুন`}
       className="group block h-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
       <Card className="h-full gap-3 border border-border/70 p-4 shadow-sm shadow-indigo-950/[0.025] transition-all group-hover:-translate-y-0.5 group-hover:border-primary/30 group-hover:shadow-md group-hover:shadow-indigo-950/[0.06] group-focus-visible:border-primary/50">

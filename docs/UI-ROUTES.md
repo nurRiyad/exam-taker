@@ -40,16 +40,17 @@ Visibility rules to carry into navigation and route work:
 | Route | Purpose and behavior | Current UI state |
 | --- | --- | --- |
 | `/` | Bangla product landing page explaining the teacher value proposition and onboarding steps; links to signup and explainer content. | Implemented; content is loaded from the Hono `/home` demo endpoint. |
-| `/teachers` | Admin/support teacher directory for managing the platform's teacher tenants; not a public student discovery page. | Directory implemented with local data; admin-only access is intended and not currently enforced. |
+| `/teachers` | Admin/support teacher directory for managing the platform's teacher tenants; not a public student discovery page. | Directory implemented with local data; linked in the navbar for admin users. Admin-only access is intended and not currently enforced. |
 | `/teachers/[teacherId]` | Admin/support view of a teacher profile and their courses. Students use the teacher's own `/t/[slug]` storefront instead. | Profile implemented with local data; admin-only access is intended and not currently enforced. |
-| `/courses` | Admin/support course directory across tenants; not a public student marketplace. | Directory implemented with local data; admin-only access is intended and not currently enforced. |
+| `/courses` | Admin/support course directory across tenants; not a public student marketplace. | Directory implemented with local data; linked in the navbar for admin users. Admin-only access is intended and not currently enforced. |
 | `/courses/[courseId]` | Admin/support course overview and batches across tenants. | Implemented with local data; admin-only access is intended and not currently enforced. |
 | `/courses/[courseId]/batches/[batchId]` | Admin/support batch overview. Student enrollment should use the matching teacher storefront batch page. | Implemented with local data; admin-only access is intended and not currently enforced. |
 | `/login` | Sign in with username or phone and password; honors a safe same-site `next` path, otherwise sends the user to `/dashboard`. | Implemented; calls auth API and supports local JWT demo accounts (`admin/admin`, `kafi/kafi`) when demo auth is enabled. |
 | `/signup` | Create a teacher account; validates username, Bangladesh phone, password and confirmation, checks username availability, and honors a safe `next` path. Student signup happens through a teacher's storefront. | Implemented; still uses the existing database-backed auth API. Demo account creation is not required. |
 | `/reset` | Set a new password with the one-time code supplied by a teacher/admin; returns to login on success. | Implemented; currently calls auth API. |
 | `/reset-codes` | Compatibility entry for teachers/admins to generate a one-time code for a student. | Implemented shared form; route aliases the teacher reset-code screen. |
-| `/dashboard` | Resolve the authenticated user's role and route to the admin, teacher, or student dashboard; unauthenticated users go to login. | Implemented role redirect; currently calls auth API. |
+| `/dashboard` | Resolve the authenticated user's role and route to the admin, teacher, or student dashboard; unauthenticated users go to login. The signed-in navbar brand links here so it returns each user to their own home. | Implemented role redirect; currently calls auth API. |
+| `/settings` | Signed-in account profile with view and edit states for full name, phone, division, district, and address. | Implemented with authenticated demo profile API; changes are not persisted. |
 | `/exams/[examId]/attempt` | Legacy attempt entry for an authenticated student with access to that exam; renders the shared MCQ attempt component by exam ID. | Implemented shared component; inspect its data and demo behavior before expanding. Student-only access is intended; not currently enforced here. |
 | `/exams/[examId]/results` | Released public leaderboard/summary for the exam; private result details belong in the student route. | Placeholder. |
 
@@ -71,9 +72,10 @@ Visibility rules to carry into navigation and route work:
 
 | Route | Purpose and behavior | Current UI state |
 | --- | --- | --- |
-| `/teacher/dashboard` | Teacher-wide overview of courses, batches, batch student totals, upcoming exams, attention items, quick actions, compact course summaries, and priority batches. | Implemented with local mock attention items and local course/batch data; tenant scoping is intended. |
+| `/teacher/dashboard` | Lean overview with total courses, batches, students, and pending batch join requests; links to course management and the student roster, and provides paginated inline request approvals. | Implemented with local course/batch and demo request data; approval state is page-local and tenant scoping is intended. |
 | `/teacher/batches` | Cross-course batch directory with search, course/status filters, student totals, and next exam date; opens the existing batch management page. | Implemented with local data; tenant scoping is intended. |
 | `/teacher/courses` | Signed-in teacher's own courses with batch and student totals; start a new course or open one. | Implemented with local data; tenant scoping is intended. |
+| `/teacher/students` | Teacher's approved student roster with total student and course counts, course and batch filters, and a paginated list including each student's course and batch. | Implemented with local demo student data; tenant scoping is intended. |
 | `/teacher/courses/new` | Create a course with its course-level price and public description. | Placeholder. |
 | `/teacher/courses/[courseId]` | Own-course summary and batches; start a batch/route or manage an existing one. | Implemented with local data; ownership check is intended. |
 | `/teacher/courses/[courseId]/batches/new` | Create a batch schedule and syllabus under a course. | Implemented form; data is local/demo. |
@@ -97,7 +99,7 @@ Visibility rules to carry into navigation and route work:
 
 | Route | Purpose and behavior | Current UI state |
 | --- | --- | --- |
-| `/admin/dashboard` | Platform-wide usage and billing overview. Admin can see cross-tenant data. | Placeholder. |
+| `/admin/dashboard` | Platform-wide summary of teachers, courses, batches, and students, with links to the teacher and course directories. Admin can see cross-tenant data. | Implemented with local demo directory data; dashboard counts are read-only. |
 | `/admin/tenants` | Onboard/manage teacher tenants and teacher pages. | Placeholder. |
 | `/admin/invoices` | Prepare or track manual invoices based on negotiated per-student rates. | Placeholder. |
 | `/admin/support` | Read-only cross-tenant support lookup for helping teachers/students. | Placeholder. |

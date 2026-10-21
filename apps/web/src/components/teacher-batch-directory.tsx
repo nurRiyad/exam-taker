@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Search, UsersRound } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type BatchEntry = {
   id: string;
@@ -33,6 +34,16 @@ export function TeacherBatchDirectory({ batches, courses }: { batches: BatchEntr
         .sort((a, b) => (a.nextExamDate || "9999").localeCompare(b.nextExamDate || "9999")),
     [batches, courseFilter, query, statusFilter],
   );
+  const courseItems = [
+    { value: "all", label: "সব কোর্স" },
+    ...courses.map((course) => ({ value: course.id, label: course.title })),
+  ];
+  const statusItems = [
+    { value: "all", label: "সব অবস্থা" },
+    { value: "চলমান", label: "চলমান" },
+    { value: "শিগগিরই", label: "শিগগিরই" },
+    { value: "শেষ", label: "শেষ" },
+  ];
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-7 sm:px-6 sm:py-9">
@@ -60,31 +71,45 @@ export function TeacherBatchDirectory({ batches, courses }: { batches: BatchEntr
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
           কোর্স
-          <select
-            className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          <Select
+            items={courseItems}
             value={courseFilter}
-            onChange={(event) => setCourseFilter(event.target.value)}
+            onValueChange={(value: string | null) => setCourseFilter(value ?? "all")}
           >
-            <option value="all">সব কোর্স</option>
-            {courses.map((course) => (
-              <option key={course.id} value={course.id}>
-                {course.title}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger aria-label="কোর্স নির্বাচন">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {courseItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-muted-foreground">
           অবস্থা
-          <select
-            className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          <Select
+            items={statusItems}
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
+            onValueChange={(value: string | null) => setStatusFilter(value ?? "all")}
           >
-            <option value="all">সব অবস্থা</option>
-            <option value="চলমান">চলমান</option>
-            <option value="শিগগিরই">শিগগিরই</option>
-            <option value="শেষ">শেষ</option>
-          </select>
+            <SelectTrigger aria-label="অবস্থা নির্বাচন">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {statusItems.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </label>
       </section>
       <div className="flex items-center justify-between text-sm text-muted-foreground">

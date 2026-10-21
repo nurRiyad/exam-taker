@@ -13,9 +13,12 @@ import {
   UsersRound,
 } from "lucide-react";
 import type { HomePageContent } from "@exam-taker/api/src/features/home/home.data";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
-import { getHomeFromServer } from "@/utils/api-client";
+import { getCurrentUserFromServer, getHomeFromServer } from "@/utils/api-client";
+import { SESSION_TOKEN_COOKIE } from "@/utils/session-token";
 
 const BENEFIT_ICONS = { exam: BookOpenCheck, progress: ChartNoAxesCombined, target: Target } as const;
 const BENEFIT_COLORS = {
@@ -25,6 +28,14 @@ const BENEFIT_COLORS = {
 } as const;
 
 export default async function Home() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_TOKEN_COOKIE)?.value;
+
+  if (token) {
+    const session = await getCurrentUserFromServer(token).catch(() => undefined);
+    if (session) redirect("/dashboard");
+  }
+
   let content: HomePageContent | undefined;
   try {
     content = await getHomeFromServer<HomePageContent>();

@@ -14,6 +14,7 @@ import { getCurrentUserFromServer } from "@/utils/api-client";
 // URL path prefixes rather than route-group names.
 const ROUTE_ROLES: Record<string, Role[]> = {
   "/dashboard": ["student", "teacher", "admin"],
+  "/settings": ["student", "teacher", "admin"],
   "/student": ["student"],
   "/teacher": ["teacher"],
   "/admin": ["admin"],
@@ -53,5 +54,5 @@ export async function proxy(request: NextRequest) {
 // array, not a computed expression like `Object.keys(ROUTE_ROLES)` (the
 // latter is silently ignored). Keep this in sync with ROUTE_ROLES' keys.
 export const config = {
-  matcher: ["/dashboard", "/student/:path*", "/teacher/:path*", "/admin/:path*", "/reset-codes"],
+  matcher: ["/dashboard", "/settings", "/student/:path*", "/teacher/:path*", "/admin/:path*", "/reset-codes"],
 };

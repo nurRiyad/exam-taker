@@ -37,7 +37,10 @@ export const authRoutes = new Hono<AuthEnv>()
     return c.json({ user, token });
   })
   .post("/logout", (c) => c.body(null, 204))
-  .get("/me", requireAuth, (c) => c.json({ user: c.get("user") }))
+  .get("/me", requireAuth, (c) => {
+    const user = c.get("user");
+    return c.json({ user });
+  })
   .post("/reset-codes", requireRole("teacher", "admin"), zValidator("json", generateResetCodeSchema), async (c) => {
     const result = await authService.generateResetCode(getDb(c.env.DB), c.req.valid("json"), c.get("user"));
     return c.json(result, 201);

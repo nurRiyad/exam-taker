@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { useSignupMutation, useUsernameAvailabilityQuery } from "@/features/auth/queries";
 import { type FieldErrors } from "@/utils/api-error";
@@ -134,9 +135,8 @@ export default function SignupPage() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             value={form.password}
             onChange={(e) => update("password", e.target.value)}
             autoComplete="new-password"
@@ -146,9 +146,8 @@ export default function SignupPage() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="passwordConfirmation">Confirm password</Label>
-          <Input
+          <PasswordInput
             id="passwordConfirmation"
-            type="password"
             value={form.passwordConfirmation}
             onChange={(e) => update("passwordConfirmation", e.target.value)}
             autoComplete="new-password"

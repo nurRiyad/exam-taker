@@ -21,8 +21,20 @@ export function NavbarAccountAction() {
   const currentUser = useCurrentUserQuery(hasToken);
   const user = currentUser.data?.user;
 
+  if (hasToken && currentUser.isPending) {
+    return (
+      <span
+        role="status"
+        aria-label="অ্যাকাউন্ট লোড হচ্ছে"
+        className="block size-10 animate-pulse rounded-full border border-violet-100 bg-violet-50"
+      >
+        <span className="sr-only">অ্যাকাউন্ট লোড হচ্ছে…</span>
+      </span>
+    );
+  }
+
   if (hasToken) {
-    return <NavbarProfileDropdown label={user?.name ?? user?.username ?? "Account"} />;
+    return <NavbarProfileDropdown label={user?.name ?? user?.username ?? "অ্যাকাউন্ট"} />;
   }
 
   return (

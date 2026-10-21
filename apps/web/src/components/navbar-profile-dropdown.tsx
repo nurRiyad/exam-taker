@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOutIcon, UserCircleIcon } from "lucide-react";
+import { LogOutIcon, SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -33,19 +33,31 @@ export function NavbarProfileDropdown({ label }: { label: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button size="sm" variant="outline" className="max-w-32 justify-start sm:max-w-44" />}
+        aria-label={`${label} এর প্রোফাইল মেনু`}
+        render={
+          <Button
+            size="icon"
+            variant="outline"
+            className="size-10 rounded-full border-violet-200 bg-violet-50 p-0 text-sm font-semibold text-violet-800 hover:bg-violet-100"
+          />
+        }
       >
-        <UserCircleIcon data-icon="inline-start" />
-        <span className="truncate">{label}</span>
+        <span aria-hidden="true">{Array.from(label.trim())[0] ?? "অ"}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-44">
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="truncate">{label}</DropdownMenuLabel>
+          <DropdownMenuLabel className="px-2 py-2">
+            <span className="block truncate text-sm font-semibold text-foreground">{label}</span>
+            <span className="mt-0.5 block text-xs font-normal text-muted-foreground">আপনার অ্যাকাউন্ট</span>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem render={<Link href="/dashboard" />}>Dashboard</DropdownMenuItem>
-          <DropdownMenuItem render={<button type="button" />} onClick={handleLogout}>
+          <DropdownMenuItem className="w-full" render={<Link href="/settings" />}>
+            <SettingsIcon data-icon="inline-start" />
+            সেটিংস
+          </DropdownMenuItem>
+          <DropdownMenuItem className="w-full" nativeButton render={<button type="button" />} onClick={handleLogout}>
             <LogOutIcon data-icon="inline-start" />
-            Logout
+            লগআউট
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

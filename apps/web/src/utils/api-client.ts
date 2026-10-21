@@ -3,12 +3,11 @@ import type { AppType } from "@exam-taker/api/src/index";
 import { getSessionToken } from "./session-token";
 import type { Role } from "@exam-taker/api/src/types";
 
-// Frontend and API are cross-origin by default — falls back to the same-origin
-// "/api" path in local dev, which next.config.ts rewrites to the API Worker.
+// Frontend and API are cross-origin in both local development and production.
 // Every request explicitly attaches Authorization: Bearer <token>, read fresh
 // at call time (not baked in at client-construction time) since this is a
 // long-lived singleton shared across the app.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8787";
 
 export const apiClient = hc<AppType>(API_BASE_URL, {
   fetch: (input: RequestInfo | URL, init?: RequestInit) => {

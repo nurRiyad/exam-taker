@@ -8,11 +8,10 @@
     "enabled": true,
     "head_sampling_rate": 1
   },
-  // CORS allow-list: comma-separated allowed frontend origins.
-  // domain since frontend/API are on different registrable domains.
-  // Update once the real Vercel production URL is known.
+  // CORS allow-list: comma-separated browser UI origins. Add Vercel preview
+  // origins here (or configure them in the deployment environment) as needed.
   "vars": {
-    "FRONTEND_ORIGIN": "http://localhost:3000,https://exam-taker-bd.vercel.app"
+    "FRONTEND_ORIGIN": "http://localhost:3000,http://127.0.0.1:3000,https://exam-taker-bd.vercel.app"
   },
   // Cloudflare resources are configured here. Local dev works against `--local` D1/KV
   // simulation regardless of these IDs being real.

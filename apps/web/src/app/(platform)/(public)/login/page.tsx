@@ -6,6 +6,7 @@ import { Suspense, useState } from "react";
 import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import { useLoginMutation } from "@/features/auth/queries";
 import { setSessionToken } from "@/utils/session-token";
@@ -75,9 +76,8 @@ function LoginForm() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">পাসওয়ার্ড</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"

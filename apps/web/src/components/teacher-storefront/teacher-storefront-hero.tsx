@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowDown, GraduationCap, MapPin } from "lucide-react";
+import { ArrowDown, BookOpenCheck, GraduationCap, MapPin, UsersRound } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
 import type { PublicTeacher } from "@/utils/public-directory-data";
@@ -11,35 +11,42 @@ export function TeacherStorefrontHero({ teacher, brand }: { teacher: PublicTeach
   const categories = teacher.examCategories.map(getExamCategoryLabel).join(" · ");
 
   return (
-    <section id="home" className="relative overflow-hidden bg-white">
+    <section id="home" className="relative isolate overflow-hidden bg-white">
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-[var(--teacher-accent)]" />
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 sm:py-14 md:grid-cols-[1fr_auto] md:items-center md:gap-12">
-        <div className="flex flex-col items-start gap-5">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[var(--teacher-accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--teacher-accent)]">
+      <div
+        aria-hidden="true"
+        className="absolute -top-28 -right-20 size-80 rounded-full bg-[var(--teacher-accent-soft)]/70 blur-3xl"
+      />
+      <div className="relative mx-auto grid w-full max-w-6xl gap-7 px-4 py-8 sm:px-6 sm:py-12 md:grid-cols-[1fr_auto] md:items-center md:gap-12 md:py-14">
+        <div className="flex flex-col items-start gap-4 sm:gap-5">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--teacher-accent)]/10 bg-[var(--teacher-accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--teacher-accent)]">
             <GraduationCap aria-hidden="true" className="size-4" />
             {brand.tagline}
           </div>
           <div className="flex flex-col gap-3">
-            <h1 className="max-w-3xl text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+            <h1 className="max-w-3xl text-balance text-[2rem] font-bold leading-[1.2] tracking-tight text-foreground sm:text-4xl md:text-5xl">
               {teacher.name}-এর ক্লাসে প্রস্তুতি হোক আত্মবিশ্বাসের
             </h1>
             <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">{copy.description}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex w-full flex-col items-stretch gap-3 min-[420px]:w-auto min-[420px]:flex-row min-[420px]:items-center">
             <a
               href="#courses"
-              className={cn(buttonVariants(), "h-11 gap-2 bg-primary text-primary-foreground hover:opacity-90")}
+              className={cn(
+                buttonVariants(),
+                "h-11 justify-center gap-2 bg-[var(--teacher-accent)] px-5 text-primary-foreground shadow-sm shadow-[var(--teacher-accent)]/20 hover:opacity-90",
+              )}
             >
               কোর্স ও ব্যাচ দেখুন <ArrowDown aria-hidden="true" className="size-4" />
             </a>
-            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground min-[420px]:px-1">
               <MapPin aria-hidden="true" className="size-4" />
               {getLocationLabel(teacher.location)}
             </span>
           </div>
         </div>
 
-        <div className="relative isolate min-h-[320px] w-full overflow-hidden rounded-2xl border border-border bg-secondary/40 shadow-md shadow-foreground/[0.05] md:w-72">
+        <div className="relative isolate min-h-[250px] w-full overflow-hidden rounded-3xl border border-white/80 bg-secondary/40 shadow-xl shadow-[var(--teacher-accent)]/10 sm:min-h-[300px] md:w-[19rem]">
           {teacher.photoUrl ? (
             <Image
               src={teacher.photoUrl}
@@ -63,7 +70,7 @@ export function TeacherStorefrontHero({ teacher, brand }: { teacher: PublicTeach
                 aria-hidden="true"
                 className="absolute -bottom-10 -left-10 size-48 rounded-full bg-[var(--teacher-accent)]/15 blur-2xl"
               />
-              <span className="relative flex size-36 items-center justify-center rounded-[2rem] border border-white/70 bg-white/60 text-5xl font-bold text-[var(--teacher-accent)] shadow-lg shadow-[var(--teacher-accent)]/10 backdrop-blur-sm">
+              <span className="relative mt-5 flex size-32 items-center justify-center rounded-[2rem] border border-white/70 bg-white/60 text-5xl font-bold text-[var(--teacher-accent)] shadow-lg shadow-[var(--teacher-accent)]/10 backdrop-blur-sm sm:size-36">
                 {brand.initials}
               </span>
             </div>
@@ -72,12 +79,29 @@ export function TeacherStorefrontHero({ teacher, brand }: { teacher: PublicTeach
             <p className="text-lg font-semibold leading-tight tracking-tight">{teacher.name}</p>
             <p className="mt-0.5 text-xs text-background/80">{teacher.institution}</p>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-background/20 pt-3">
-              <span className="text-xs">
-                <span className="font-semibold">{teacher.studentCount.toLocaleString("bn-BD")}+</span> শিক্ষার্থী
+              <span className="inline-flex items-center gap-1.5 text-xs">
+                <UsersRound aria-hidden="true" className="size-3.5" />
+                <span>
+                  <span className="font-semibold">{teacher.studentCount.toLocaleString("bn-BD")}+</span> শিক্ষার্থী
+                </span>
               </span>
               <span className="text-right text-xs text-background/75">{categories}</span>
             </div>
           </div>
+        </div>
+      </div>
+      <div className="relative mx-auto grid w-full max-w-6xl grid-cols-2 gap-2 px-4 pb-6 sm:px-6 md:hidden">
+        <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-white/80 px-3 py-3 text-xs text-muted-foreground">
+          <UsersRound aria-hidden="true" className="size-4 shrink-0 text-[var(--teacher-accent)]" />
+          <span>
+            <strong className="text-foreground">{teacher.studentCount.toLocaleString("bn-BD")}+</strong> শিক্ষার্থী
+          </span>
+        </div>
+        <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-white/80 px-3 py-3 text-xs text-muted-foreground">
+          <BookOpenCheck aria-hidden="true" className="size-4 shrink-0 text-[var(--teacher-accent)]" />
+          <span>
+            <strong className="text-foreground">{categories}</strong>
+          </span>
         </div>
       </div>
     </section>
