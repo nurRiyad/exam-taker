@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOutIcon, SettingsIcon } from "lucide-react";
+import { LogOutIcon, SettingsIcon, UserRoundIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,10 @@ export function NavbarProfileDropdown({ label }: { label: string }) {
             <span className="mt-0.5 block text-xs font-normal text-muted-foreground">আপনার অ্যাকাউন্ট</span>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem className="w-full" render={<Link href="/teacher/profile" />}>
+            <UserRoundIcon data-icon="inline-start" />
+            শিক্ষক প্রোফাইল
+          </DropdownMenuItem>
           <DropdownMenuItem className="w-full" render={<Link href="/settings" />}>
             <SettingsIcon data-icon="inline-start" />
             সেটিংস

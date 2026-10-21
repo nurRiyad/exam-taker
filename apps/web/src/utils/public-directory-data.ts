@@ -205,8 +205,8 @@ export const PUBLIC_COURSES: PublicCourse[] = [
     fullDescription:
       "A focused math practice course built around speed, pattern recognition, and repeated timed sets. Students work through arithmetic, algebra, percentage, ratio, and word-problem shortcuts.",
     fullSyllabus: "Arithmetic, percentage, ratio, algebra, number series, word problems, and full math mocks.",
-    teacherId: "mahbub-hasan",
-    teacherName: "Mahbub Hasan",
+    teacherId: "kafi",
+    teacherName: "কাফি",
     examCategory: "Bank",
     subject: "Mathematics",
     level: "Intermediate",
@@ -433,8 +433,8 @@ const MAHBUB_EXTRA_COURSES: PublicCourse[] = [
   description: description as string,
   fullDescription: description as string,
   fullSyllabus: title as string,
-  teacherId: "mahbub-hasan",
-  teacherName: "Mahbub Hasan",
+  teacherId: "kafi",
+  teacherName: "কাফি",
   examCategory: examCategory as string,
   subject: "Mathematics",
   level: "Intermediate",
@@ -469,8 +469,8 @@ export const PUBLIC_TEACHERS: PublicTeacher[] = [
     teachingStyle: ["Grammar-first", "Weekly mocks", "Mistake review"],
   },
   {
-    id: "mahbub-hasan",
-    name: "Mahbub Hasan",
+    id: "kafi",
+    name: "কাফি",
     specialty: "Math shortcuts for timed exams",
     bio: "Focuses on practical shortcut methods, daily drills, and repeated exam-style practice.",
     description:

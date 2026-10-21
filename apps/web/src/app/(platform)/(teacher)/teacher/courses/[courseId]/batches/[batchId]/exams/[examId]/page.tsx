@@ -15,7 +15,14 @@ export default async function BatchExamPage({
     <ExamDetailsForm
       courseId={courseId}
       batch={batch}
-      exam={{ id: exam.id, title: exam.title, date: exam.date.toISOString().slice(0, 10) }}
+      exam={{
+        id: exam.id,
+        title: exam.title,
+        date: exam.date.toISOString().slice(0, 10),
+        syllabus: exam.syllabus,
+        durationMinutes: exam.durationMinutes,
+        questionCount: exam.questionCount,
+      }}
     />
   );
 }

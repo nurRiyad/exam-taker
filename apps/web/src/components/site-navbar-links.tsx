@@ -59,8 +59,8 @@ export function SiteNavbarLinks({ mobile = false }: { mobile?: boolean }) {
       : role === "teacher"
         ? [
             { href: "/dashboard", label: "ড্যাশবোর্ড" },
-            { href: "/t/kafi", label: "প্রোফাইল" },
-            { href: "/t/kafi#courses", label: "কোর্স" },
+            { href: "/teacher/profile", label: "প্রোফাইল" },
+            { href: "/teacher/courses", label: "কোর্স" },
           ]
         : [];
 

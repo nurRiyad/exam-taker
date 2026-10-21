@@ -4,3 +4,4 @@ export * from "./exam-topics";
 export * from "./tenants";
 export * from "./phone";
 export * from "./profile";
+export * from "./teacher-profile";

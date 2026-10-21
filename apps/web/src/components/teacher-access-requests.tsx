@@ -29,7 +29,7 @@ export function TeacherAccessRequests({ initialRequests }: { initialRequests: Ac
     setRequests((items) => items.map((item) => (item.id === id ? { ...item, status } : item)));
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-6 px-4 py-7 sm:px-6 sm:py-9">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-7 sm:px-6 sm:py-9">
       <Link
         href="/teacher/dashboard"
         className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"

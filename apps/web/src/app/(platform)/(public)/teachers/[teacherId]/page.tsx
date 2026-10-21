@@ -13,13 +13,13 @@ export default async function TeacherDetailsPage({ params }: TeacherDetailsPageP
   if (!teacher) notFound();
 
   const courses = getCoursesByTeacher(teacher.id);
-  const teacherName = teacher.id === "mahbub-hasan" ? "মাহবুব হাসান" : teacher.name;
+  const teacherName = teacher.name;
   const subjectLabel = teacher.subject === "Mathematics" ? "গণিত" : teacher.subject;
   const locationLabel = teacher.location === "Chattogram" ? "চট্টগ্রাম" : teacher.location;
   const institutionLabel = teacher.institution === "Exam Focus Academy" ? "এক্সাম ফোকাস একাডেমি" : teacher.institution;
-  const specialtyLabel = teacher.id === "mahbub-hasan" ? "সময় বাঁচানোর গণিত কৌশল" : teacher.specialty;
+  const specialtyLabel = teacher.id === "kafi" ? "সময় বাঁচানোর গণিত কৌশল" : teacher.specialty;
   const descriptionLabel =
-    teacher.id === "mahbub-hasan"
+    teacher.id === "kafi"
       ? "দ্রুত প্যাটার্ন চিনে সহজ পদ্ধতিতে অঙ্ক সমাধানের অনুশীলন করান, যাতে পরীক্ষায় সময়ের মধ্যে নির্ভুল উত্তর দেওয়া যায়।"
       : teacher.description;
   const localizedCourses = courses.map((course) => ({
@@ -77,10 +77,7 @@ export default async function TeacherDetailsPage({ params }: TeacherDetailsPageP
         </div>
       </section>
 
-      <TeacherProfileCourses
-        courses={localizedCourses}
-        heading={teacher.id === "mahbub-hasan" ? "মাহবুব স্যারের কোর্সসমূহ" : `${teacherName}-এর কোর্সসমূহ`}
-      />
+      <TeacherProfileCourses courses={localizedCourses} heading={`${teacherName}-এর কোর্সসমূহ`} />
     </main>
   );
 }

@@ -234,7 +234,7 @@ export function ExamAttempt({
             <h1 className="mb-5 text-lg font-semibold leading-8 tracking-tight sm:mb-8 sm:text-xl sm:leading-9">
               {question.prompt}
             </h1>
-            <fieldset className="flex flex-col gap-2.5 sm:gap-3">
+            <fieldset className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3">
               <legend className="sr-only">উত্তর বেছে নিন</legend>
               {question.options.map((option, index) => {
                 const isSelected = answers[activeIndex] === index;

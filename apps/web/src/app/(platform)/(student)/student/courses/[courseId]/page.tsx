@@ -13,7 +13,7 @@ export default async function StudentCoursePage({ params }: { params: Promise<{ 
     (batch) => batch.id === "bank-morning-2026" || batch.id === "bcs-preli-2026",
   );
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 py-8 sm:px-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-8 sm:px-6">
       <Link
         href="/student/courses"
         className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"

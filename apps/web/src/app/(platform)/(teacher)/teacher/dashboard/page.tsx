@@ -3,7 +3,7 @@ import { TeacherDashboard } from "@/components/teacher-dashboard";
 import { getCourseBatches, getTeacherCourses } from "@/utils/course-batches";
 import { getTeacherAccessRequests } from "@/utils/teacher-access-requests";
 
-const TEACHER_ID = "mahbub-hasan";
+const TEACHER_ID = "kafi";
 
 export default function TeacherDashboardPage() {
   const courses = getTeacherCourses(TEACHER_ID);
