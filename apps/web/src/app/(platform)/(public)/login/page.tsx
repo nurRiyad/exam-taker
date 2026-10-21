@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,6 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next");
   const [identifier, setIdentifier] = useState("");
@@ -44,7 +43,8 @@ function LoginForm() {
     try {
       const { token } = await login.mutateAsync({ identifier, password });
       setSessionToken(token);
-      router.push(nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard");
+      const destination = nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard";
+      window.location.assign(destination);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     }

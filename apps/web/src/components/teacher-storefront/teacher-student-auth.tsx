@@ -44,7 +44,6 @@ export function TeacherStudentAuth({
     const formData = new FormData(event.currentTarget);
     const identifier = String(formData.get("identifier") ?? "").trim();
     const password = String(formData.get("password") ?? "");
-    const username = String(formData.get("username") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
     const email = String(formData.get("email") ?? "").trim();
     const name = String(formData.get("name") ?? "").trim();
