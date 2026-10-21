@@ -1,5 +1,10 @@
 # Exam Taker Agent Instructions
 
+## Agent Response Language
+
+- Respond to the user in English by default, including plans, progress updates, and final answers. Use another language when the user explicitly requests it.
+- This applies to agent communication only. Keep the product UI Bangla-first as described below unless the user explicitly requests a different UI language.
+
 The UI-first phase is complete enough to begin API integration. For each requested page or flow, implement its Hono API endpoint and connect the UI to it. During this demo phase, endpoints return realistic hard-coded data from feature-local API service modules; do not add production business rules, database persistence, Drizzle schema, or migrations unless the user explicitly asks for them. Keep the current application code and migrate it incrementally into the structure below.
 
 ## Structure
