@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import type { Database } from "@exam-taker/db";
-import { courseEnrollments, courses } from "@exam-taker/db/schema";
+import { batches, batchMemberships, courses } from "@exam-taker/db/schema";
 
 type CourseRow = typeof courses.$inferSelect;
 type NewCourse = typeof courses.$inferInsert;
@@ -18,7 +18,10 @@ export async function findOwnedByTenant(db: Database, tenantId: string, id: stri
 }
 
 export async function findByTenant(db: Database, tenantId: string): Promise<CourseRow[]> {
-  return db.select().from(courses).where(eq(courses.tenantId, tenantId));
+  return db
+    .select()
+    .from(courses)
+    .where(and(eq(courses.tenantId, tenantId), ne(courses.status, "archived")));
 }
 
 export async function insert(db: Database, data: NewCourse): Promise<CourseRow> {
@@ -31,12 +34,13 @@ export async function update(db: Database, id: string, data: Partial<NewCourse>)
   return course;
 }
 
-/** Whether any student has ever enrolled — gates `base_price_bdt` immutability. */
-export async function hasEnrollments(db: Database, courseId: string): Promise<boolean> {
+/** Whether any student has joined one of this course's batches. */
+export async function hasBatchMemberships(db: Database, courseId: string): Promise<boolean> {
   const [row] = await db
-    .select({ id: courseEnrollments.id })
-    .from(courseEnrollments)
-    .where(eq(courseEnrollments.courseId, courseId))
+    .select({ id: batchMemberships.id })
+    .from(batchMemberships)
+    .innerJoin(batches, eq(batchMemberships.batchId, batches.id))
+    .where(eq(batches.courseId, courseId))
     .limit(1);
   return !!row;
 }

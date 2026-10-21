@@ -2,17 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { TeacherCourseEditor } from "@/components/teacher-course-editor";
-import { useTeacherCoursesQuery } from "@/features/courses/queries";
+import { useTeacherCourseQuery } from "@/features/courses/queries";
 
 export function TeacherCourseEditPage({ courseId }: { courseId: string }) {
-  const query = useTeacherCoursesQuery();
+  const query = useTeacherCourseQuery(courseId);
   if (query.isPending)
     return (
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8" role="status">
         কোর্স লোড হচ্ছে…
       </main>
     );
-  const course = query.data?.courses.find((item) => item.id === courseId);
+  const course = query.data?.course;
   if (query.isError || !course)
     return (
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">

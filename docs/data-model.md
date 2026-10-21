@@ -1,8 +1,11 @@
-# Data Model Draft
+# Data Model
 
-This is a product-level model, not final database DDL.
-
-The current UI groups a course's schedule and syllabus into batches/routes. This draft model still attaches student enrollment and exam topics directly to a course and does not define a persisted `Batch` entity. Treat batch routes as UI/demo structure for now; do not infer a database change from the route map. Before backend work, decide whether a batch is only a schedule grouping or also has its own enrollment/access roster. The current product rule is that a teacher can see students enrolled in their own course, and students can see only their own course access and results.
+This describes the fresh-start Drizzle schema in `packages/db/src/schema/index.ts`.
+The hierarchy is **teacher page → course → batch → exam → MCQs**. Students join only
+batches. Every course needs a batch; the application creates a default batch when needed.
+Batch syllabus/materials are simple text lists. Exam topics are text on each exam.
+Questions belong to one teacher tenant; teachers access their own questions and admins
+can access questions across tenants. Tenant-scoped API queries enforce this rule.
 
 ## Tenant
 
@@ -60,11 +63,17 @@ Rules:
 - `status`
 - `created_at`
 
-## Course Enrollment
+## Batch
+
+- `id`, `course_id`, `title`, `description`, `is_default`, `status`, `capacity`
+- `syllabus`, `materials` (simple text lists)
+- `first_exam_date`, `exam_time`, `exam_interval_days`, `created_at`
+
+## Batch Membership
 
 - `id`
-- `course_id`
-- `student_user_id`
+- `batch_id`
+- `student_id`
 - `price_snapshot_bdt`
 - `access_status`
 - `blocked_at`
@@ -82,11 +91,11 @@ Rules:
 - `removed` only blocks future access (see []); a removed student may call the join endpoint again, which resets their existing row back through the normal join flow rather than permanently locking them out.
 - `blocked` does not allow the student to self-recover by rejoining — access can only be restored by the teacher. **Known gap**: no unblock endpoint exists yet as of Step 4; a blocked student stays blocked until a future step adds one or an admin edits the row directly.
 
-## Payment Access Request
+## Batch Access Request
 
 - `id`
-- `course_id`
-- `student_user_id`
+- `batch_id`
+- `student_id`
 - `transaction_id`
 - `status`
 - `reviewed_by_user_id`
@@ -135,34 +144,20 @@ Rules:
 - Generated and transitioned manually by admin; no automated recurring billing in MVP.
 - See [].
 
-## Exam Topic
-
-- `id`
-- `course_id`
-- `title`
-- `short_description`
-- `scheduled_at`
-- `sort_order`
-- `status`
-- `created_at`
-
-Course route publish rule:
-
-- A course can be published once it has `title`, `short_description`, and a price/free status, plus at least one `Exam Topic` with `status = 'published'`, `title`, `short_description`, and `scheduled_at` set. See [].
-- `status` also gates visibility: a topic still at `draft` is only visible to the owning tenant's teacher/admin (via `GET /courses/:id`); non-owning viewers, including students, only ever see `published` topics.
-
 ## Exam
 
 - `id`
-- `exam_topic_id`
+- `batch_id`
 - `tenant_id`
 - `course_id`
 - `title`
 - `description`
+- `topic_text`
 - `starts_at`
 - `ends_at`
 - `duration_minutes`
 - `total_marks`
+- `mark_per_correct`
 - `negative_marking_enabled`
 - `negative_mark_per_wrong`
 - `answer_change_allowed`
@@ -191,16 +186,12 @@ Publish lock:
 
 ## Question
 
-The reusable question-bank record. See [].
+Questions are reusable within one teacher tenant. Admins can view questions across tenants; teachers can view only their own tenant records.
 
 - `id`
-- `tenant_id` (nullable; null means platform-owned/shared)
+- `tenant_id` (required)
 - `question_text`
-- `option_a`
-- `option_b`
-- `option_c`
-- `option_d`
-- `correct_option`
+- `status`
 - `explanation`
 - `subject`
 - `exam_name`
@@ -208,15 +199,9 @@ The reusable question-bank record. See [].
 - `post_name`
 - `institution`
 - `source`
-- `reuse_scope`
 - `created_at`
 
-Rules:
-
-- Correct answer is required before any exam linking this question can be published.
-- Explanation is optional.
-- No image field in MVP.
-- `reuse_scope` is `platform_reusable` or `teacher_private`. `teacher_private` questions may only be linked into exams owned by their `tenant_id`.
+Options are stored in `question_options` with option text, sort order, and an `is_correct` flag. The application validates the option count and exactly one correct answer before publishing. Explanation and source metadata are optional and can be surfaced in the UI incrementally.
 
 ## Exam Question Link
 
@@ -226,10 +211,12 @@ Rules:
 - `sort_order`
 - `created_at`
 
+Marks and negative marking are configured at the exam level.
+
 Rules:
 
 - Represents inclusion of a bank `Question` in a specific exam.
-- Duplicating an exam duplicates its links: `platform_reusable` questions are re-linked to the same `Question` row; `teacher_private` questions have their `Question` row copied first, then linked.
+- Duplicate an exam by linking questions from the same tenant-owned bank.
 - Locked (immutable) once the exam is published; see the Exam publish-lock rule above.
 
 ## Question Tag

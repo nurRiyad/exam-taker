@@ -9,12 +9,34 @@ import type { TeacherCourse } from "@/features/courses/api";
 import { useCreateTeacherCourseMutation, useUpdateTeacherCourseMutation } from "@/features/courses/queries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const EMPTY: CreateCourseInput = { title: "", shortDescription: "", fullSyllabus: "", basePriceBdt: 0, isFree: false };
+const EMPTY: CreateCourseInput = {
+  title: "",
+  shortDescription: "",
+  fullSyllabus: "",
+  basePriceBdt: 0,
+  isFree: false,
+  status: "draft",
+};
 
 export function TeacherCourseEditor({ course }: { course?: TeacherCourse }) {
   const router = useRouter();
-  const [draft, setDraft] = useState<CreateCourseInput>(course ?? EMPTY);
+  const [draft, setDraft] = useState<CreateCourseInput>(() =>
+    course
+      ? {
+          title: course.title,
+          shortDescription: course.shortDescription ?? "",
+          fullSyllabus: course.fullSyllabus ?? "",
+          basePriceBdt: course.basePriceBdt,
+          isFree: course.isFree,
+          status: course.status === "published" ? "published" : "draft",
+          discountPercent: course.discountPercent ?? undefined,
+          discountStartAt: course.discountStartAt ? new Date(course.discountStartAt) : undefined,
+          discountEndAt: course.discountEndAt ? new Date(course.discountEndAt) : undefined,
+        }
+      : EMPTY,
+  );
   const [errors, setErrors] = useState<Partial<Record<keyof CreateCourseInput, string>>>({});
   const create = useCreateTeacherCourseMutation();
   const update = useUpdateTeacherCourseMutation();
@@ -83,6 +105,21 @@ export function TeacherCourseEditor({ course }: { course?: TeacherCourse }) {
             aria-invalid={Boolean(errors.fullSyllabus)}
           />
         </Field>
+        {course ? (
+          <Field label="কোর্সের অবস্থা">
+            <Select value={draft.status} onValueChange={(value) => setField("status", value as "draft" | "published")}>
+              <SelectTrigger aria-label="কোর্সের অবস্থা">
+                <SelectValue>{draft.status === "published" ? "প্রকাশিত" : "খসড়া"}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="draft">খসড়া</SelectItem>
+                  <SelectItem value="published">প্রকাশিত</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
+        ) : null}
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"

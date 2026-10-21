@@ -3,17 +3,10 @@
   "dialect": "sqlite",
   "entries": [
     {
-      "idx": 2,
+      "idx": 0,
       "version": "6",
-      "when": 1783162387373,
-      "tag": "0002_drizzle_baseline",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1792581195811,
-      "tag": "0003_colorful_monster_badoon",
+      "when": 1792597008089,
+      "tag": "0000_bitter_infant_terrible",
       "breakpoints": true
     }
   ]

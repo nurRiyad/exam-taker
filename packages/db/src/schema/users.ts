@@ -1,5 +1,5 @@
+import { createdAt, id } from "./helpers";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { createdAt, id } from "./users-helper";
 
 export const users = sqliteTable("users", {
   id: id(),

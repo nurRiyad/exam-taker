@@ -1,14 +1,4 @@
--- drizzle-kit's first-ever `generate` run against schema.ts, establishing the
--- baseline snapshot in migrations/meta/ (Step 2's deferred item). All 17
--- tables here already exist — created by the hand-written 0001_init.sql,
--- which stays the source of truth for CHECK constraints and the partial
--- unique index on exam_attempts that schema.ts deliberately omits (see its
--- header comment and docs/DEVELOPMENT.md). Every statement
--- below is `IF NOT EXISTS` on purpose: this file's only real job is to give
--- drizzle-kit something to diff future schema.ts changes against, not to
--- execute against any database — it is expected to no-op on both the current
--- local D1 and any future fresh one, since 0001_init.sql always runs first.
-CREATE TABLE IF NOT EXISTS `attempt_items` (
+CREATE TABLE `attempt_items` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`attempt_id` text NOT NULL,
 	`exam_question_link_id` text NOT NULL,
@@ -25,7 +15,55 @@ CREATE TABLE IF NOT EXISTS `attempt_items` (
 	FOREIGN KEY (`exam_question_link_id`) REFERENCES `exam_question_links`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `course_billing_rates` (
+CREATE INDEX `idx_attempt_items_attempt` ON `attempt_items` (`attempt_id`);--> statement-breakpoint
+CREATE TABLE `batch_access_requests` (
+	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
+	`batch_id` text NOT NULL,
+	`student_id` text NOT NULL,
+	`transaction_id` text NOT NULL,
+	`status` text DEFAULT 'pending' NOT NULL,
+	`reviewed_by_user_id` text,
+	`reviewed_at` text,
+	`created_at` text DEFAULT (datetime('now')) NOT NULL,
+	FOREIGN KEY (`batch_id`) REFERENCES `batches`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `idx_batch_access_requests_batch_status` ON `batch_access_requests` (`batch_id`,`status`);--> statement-breakpoint
+CREATE TABLE `batch_memberships` (
+	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
+	`batch_id` text NOT NULL,
+	`student_id` text NOT NULL,
+	`price_snapshot_bdt` real NOT NULL,
+	`access_status` text DEFAULT 'joined_pending_payment' NOT NULL,
+	`blocked_at` text,
+	`created_at` text DEFAULT (datetime('now')) NOT NULL,
+	FOREIGN KEY (`batch_id`) REFERENCES `batches`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `idx_batch_memberships_student_batch` ON `batch_memberships` (`student_id`,`batch_id`);--> statement-breakpoint
+CREATE INDEX `idx_batch_memberships_batch_status` ON `batch_memberships` (`batch_id`,`access_status`);--> statement-breakpoint
+CREATE TABLE `batches` (
+	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
+	`course_id` text NOT NULL,
+	`title` text NOT NULL,
+	`description` text NOT NULL,
+	`is_default` integer DEFAULT false NOT NULL,
+	`status` text DEFAULT 'upcoming' NOT NULL,
+	`capacity` integer,
+	`syllabus` text,
+	`materials` text,
+	`first_exam_date` text,
+	`exam_time` text,
+	`exam_interval_days` integer,
+	`created_at` text DEFAULT (datetime('now')) NOT NULL,
+	FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `idx_batches_course` ON `batches` (`course_id`);--> statement-breakpoint
+CREATE TABLE `course_billing_rates` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`course_id` text NOT NULL,
 	`price_per_student_bdt` real NOT NULL,
@@ -35,19 +73,7 @@ CREATE TABLE IF NOT EXISTS `course_billing_rates` (
 	FOREIGN KEY (`set_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `course_enrollments` (
-	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
-	`course_id` text NOT NULL,
-	`student_user_id` text NOT NULL,
-	`price_snapshot_bdt` real NOT NULL,
-	`access_status` text DEFAULT 'joined_pending_payment' NOT NULL,
-	`blocked_at` text,
-	`created_at` text DEFAULT (datetime('now')) NOT NULL,
-	FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`student_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `courses` (
+CREATE TABLE `courses` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`tenant_id` text NOT NULL,
 	`title` text NOT NULL,
@@ -63,7 +89,8 @@ CREATE TABLE IF NOT EXISTS `courses` (
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `exam_attempts` (
+CREATE INDEX `idx_courses_tenant` ON `courses` (`tenant_id`);--> statement-breakpoint
+CREATE TABLE `exam_attempts` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`exam_id` text NOT NULL,
 	`student_user_id` text NOT NULL,
@@ -81,7 +108,9 @@ CREATE TABLE IF NOT EXISTS `exam_attempts` (
 	FOREIGN KEY (`student_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `exam_question_links` (
+CREATE INDEX `idx_attempts_exam` ON `exam_attempts` (`exam_id`);--> statement-breakpoint
+CREATE INDEX `idx_attempts_student` ON `exam_attempts` (`student_user_id`);--> statement-breakpoint
+CREATE TABLE `exam_question_links` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`exam_id` text NOT NULL,
 	`question_id` text NOT NULL,
@@ -91,29 +120,21 @@ CREATE TABLE IF NOT EXISTS `exam_question_links` (
 	FOREIGN KEY (`question_id`) REFERENCES `questions`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `exam_topics` (
+CREATE UNIQUE INDEX `idx_exam_question_links_exam_question` ON `exam_question_links` (`exam_id`,`question_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `idx_exam_question_links_exam_order` ON `exam_question_links` (`exam_id`,`sort_order`);--> statement-breakpoint
+CREATE TABLE `exams` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
-	`course_id` text NOT NULL,
-	`title` text NOT NULL,
-	`short_description` text,
-	`scheduled_at` text,
-	`sort_order` integer DEFAULT 0 NOT NULL,
-	`status` text DEFAULT 'draft' NOT NULL,
-	`created_at` text DEFAULT (datetime('now')) NOT NULL,
-	FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `exams` (
-	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
-	`exam_topic_id` text NOT NULL,
+	`batch_id` text NOT NULL,
 	`tenant_id` text NOT NULL,
 	`course_id` text NOT NULL,
 	`title` text NOT NULL,
 	`description` text,
+	`topic_text` text,
 	`starts_at` text NOT NULL,
 	`ends_at` text NOT NULL,
 	`duration_minutes` integer DEFAULT 50 NOT NULL,
 	`total_marks` real,
+	`mark_per_correct` real DEFAULT 1 NOT NULL,
 	`negative_marking_enabled` integer DEFAULT false NOT NULL,
 	`negative_mark_per_wrong` real DEFAULT 0 NOT NULL,
 	`answer_change_allowed` integer DEFAULT true NOT NULL,
@@ -125,12 +146,15 @@ CREATE TABLE IF NOT EXISTS `exams` (
 	`status` text DEFAULT 'draft' NOT NULL,
 	`published_at` text,
 	`created_at` text DEFAULT (datetime('now')) NOT NULL,
-	FOREIGN KEY (`exam_topic_id`) REFERENCES `exam_topics`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`batch_id`) REFERENCES `batches`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `invoices` (
+CREATE INDEX `idx_exams_batch_schedule` ON `exams` (`batch_id`,`starts_at`);--> statement-breakpoint
+CREATE INDEX `idx_exams_tenant` ON `exams` (`tenant_id`);--> statement-breakpoint
+CREATE INDEX `idx_exams_course` ON `exams` (`course_id`);--> statement-breakpoint
+CREATE TABLE `invoices` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`course_id` text NOT NULL,
 	`tenant_id` text NOT NULL,
@@ -148,36 +172,31 @@ CREATE TABLE IF NOT EXISTS `invoices` (
 	FOREIGN KEY (`generated_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `payment_access_requests` (
+CREATE TABLE `question_options` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
-	`course_id` text NOT NULL,
-	`student_user_id` text NOT NULL,
-	`transaction_id` text NOT NULL,
-	`status` text DEFAULT 'pending' NOT NULL,
-	`reviewed_by_user_id` text,
-	`reviewed_at` text,
+	`question_id` text NOT NULL,
+	`option_text` text NOT NULL,
+	`sort_order` integer NOT NULL,
+	`is_correct` integer DEFAULT false NOT NULL,
 	`created_at` text DEFAULT (datetime('now')) NOT NULL,
-	FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`student_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`reviewed_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`question_id`) REFERENCES `questions`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `question_tags` (
+CREATE UNIQUE INDEX `idx_question_options_question_order` ON `question_options` (`question_id`,`sort_order`);--> statement-breakpoint
+CREATE TABLE `question_tags` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`question_id` text NOT NULL,
 	`tag` text NOT NULL,
 	FOREIGN KEY (`question_id`) REFERENCES `questions`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `questions` (
+CREATE UNIQUE INDEX `idx_question_tags_question_tag` ON `question_tags` (`question_id`,`tag`);--> statement-breakpoint
+CREATE INDEX `idx_question_tags_tag_question` ON `question_tags` (`tag`,`question_id`);--> statement-breakpoint
+CREATE TABLE `questions` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
-	`tenant_id` text,
+	`tenant_id` text NOT NULL,
 	`question_text` text NOT NULL,
-	`option_a` text NOT NULL,
-	`option_b` text NOT NULL,
-	`option_c` text NOT NULL,
-	`option_d` text NOT NULL,
-	`correct_option` text NOT NULL,
+	`status` text DEFAULT 'draft' NOT NULL,
 	`explanation` text,
 	`subject` text,
 	`exam_name` text,
@@ -185,12 +204,12 @@ CREATE TABLE IF NOT EXISTS `questions` (
 	`post_name` text,
 	`institution` text,
 	`source` text,
-	`reuse_scope` text DEFAULT 'platform_reusable' NOT NULL,
 	`created_at` text DEFAULT (datetime('now')) NOT NULL,
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `reset_codes` (
+CREATE INDEX `idx_questions_tenant_status_created` ON `questions` (`tenant_id`,`status`,`created_at`);--> statement-breakpoint
+CREATE TABLE `reset_codes` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`user_id` text NOT NULL,
 	`code_hash` text NOT NULL,
@@ -202,7 +221,22 @@ CREATE TABLE IF NOT EXISTS `reset_codes` (
 	FOREIGN KEY (`generated_by_user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `teacher_memberships` (
+CREATE INDEX `idx_reset_codes_user` ON `reset_codes` (`user_id`);--> statement-breakpoint
+CREATE TABLE `students` (
+	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
+	`tenant_id` text NOT NULL,
+	`name` text NOT NULL,
+	`email` text NOT NULL,
+	`phone_e164` text NOT NULL,
+	`password_hash` text NOT NULL,
+	`status` text DEFAULT 'active' NOT NULL,
+	`created_at` text DEFAULT (datetime('now')) NOT NULL,
+	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `idx_students_tenant_email` ON `students` (`tenant_id`,`email`);--> statement-breakpoint
+CREATE UNIQUE INDEX `idx_students_tenant_phone` ON `students` (`tenant_id`,`phone_e164`);--> statement-breakpoint
+CREATE TABLE `teacher_memberships` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`tenant_id` text NOT NULL,
 	`user_id` text NOT NULL,
@@ -212,7 +246,8 @@ CREATE TABLE IF NOT EXISTS `teacher_memberships` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `tenants` (
+CREATE UNIQUE INDEX `idx_teacher_memberships_user_unique` ON `teacher_memberships` (`user_id`);--> statement-breakpoint
+CREATE TABLE `tenants` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`name` text NOT NULL,
 	`slug` text NOT NULL,
@@ -220,12 +255,18 @@ CREATE TABLE IF NOT EXISTS `tenants` (
 	`banner_url` text,
 	`brand_color` text,
 	`teacher_picture_url` text,
+	`specialty` text,
+	`biography` text,
+	`teaching_subjects` text,
+	`institution` text,
+	`division` text,
+	`district` text,
 	`status` text DEFAULT 'active' NOT NULL,
 	`created_at` text DEFAULT (datetime('now')) NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS `tenants_slug_unique` ON `tenants` (`slug`);--> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE UNIQUE INDEX `tenants_slug_unique` ON `tenants` (`slug`);--> statement-breakpoint
+CREATE TABLE `users` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`name` text NOT NULL,
 	`username` text NOT NULL,
@@ -239,10 +280,10 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`created_at` text DEFAULT (datetime('now')) NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS `users_username_unique` ON `users` (`username`);--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS `users_phone_e164_unique` ON `users` (`phone_e164`);--> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS `users_email_unique` ON `users` (`email`);--> statement-breakpoint
-CREATE TABLE IF NOT EXISTS `weak_zone_snapshots` (
+CREATE UNIQUE INDEX `users_username_unique` ON `users` (`username`);--> statement-breakpoint
+CREATE UNIQUE INDEX `users_phone_e164_unique` ON `users` (`phone_e164`);--> statement-breakpoint
+CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint
+CREATE TABLE `weak_zone_snapshots` (
 	`id` text PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))) NOT NULL,
 	`student_user_id` text NOT NULL,
 	`tenant_id` text NOT NULL,
@@ -258,3 +299,8 @@ CREATE TABLE IF NOT EXISTS `weak_zone_snapshots` (
 	FOREIGN KEY (`tenant_id`) REFERENCES `tenants`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_id`) REFERENCES `courses`(`id`) ON UPDATE no action ON DELETE no action
 );
+--> statement-breakpoint
+CREATE INDEX `idx_weak_zone_student` ON `weak_zone_snapshots` (`student_user_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX idx_attempts_one_live_per_student
+ON exam_attempts(exam_id, student_user_id)
+WHERE attempt_type = 'live';

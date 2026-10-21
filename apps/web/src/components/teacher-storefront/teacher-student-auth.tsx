@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, BookOpenCheck, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,7 +28,6 @@ export function TeacherStudentAuth({
   nextPath?: string;
 }) {
   const isSignup = mode === "signup";
-  const router = useRouter();
   const login = useLoginMutation();
   const signup = useSignupMutation();
   const brand = getStorefrontBrand(teacher.id);
@@ -79,7 +77,7 @@ export function TeacherStudentAuth({
           })
         : await login.mutateAsync({ identifier, password, tenantSlug: teacher.id });
       setSessionToken(result.token);
-      router.push(safeNextPath);
+      window.location.assign(isSignup ? safeNextPath : `/t/${teacher.id}`);
     } catch (cause) {
       const error = cause as Error & { fields?: Record<string, string> };
       setFieldError(

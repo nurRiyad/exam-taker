@@ -24,7 +24,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get("next");
+  const signupNextPath = searchParams.get("next");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
@@ -43,8 +43,7 @@ function LoginForm() {
     try {
       const { token } = await login.mutateAsync({ identifier, password });
       setSessionToken(token);
-      const destination = nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard";
-      window.location.assign(destination);
+      window.location.assign("/");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     }
@@ -87,7 +86,7 @@ function LoginForm() {
           <p>
             নতুন ব্যবহারকারী?{" "}
             <Link
-              href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"}
+              href={signupNextPath ? `/signup?next=${encodeURIComponent(signupNextPath)}` : "/signup"}
               className="text-primary underline-offset-4 hover:underline"
             >
               অ্যাকাউন্ট খুলুন

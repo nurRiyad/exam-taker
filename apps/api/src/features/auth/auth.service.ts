@@ -8,7 +8,7 @@ import { normalizePhoneToE164 } from "../../utils/phone";
 import { generateResetCode as generateResetCodeValue, hashResetCode, verifyResetCode } from "../../utils/reset-code";
 import { formatSqliteTimestamp } from "../../utils/sqlite-time";
 import { toPublicStudent, toPublicUser, type PublicUser } from "../../utils/user";
-import * as courseEnrollmentsRepository from "../courses/course-enrollments.repository";
+import * as batchMembershipsRepository from "../courses/batch-memberships.repository";
 import * as resetCodesRepository from "./reset-codes.repository";
 import * as tenantsRepository from "../tenants/tenants.repository";
 import * as teacherMembershipsRepository from "../tenants/teacher-memberships.repository";
@@ -169,7 +169,7 @@ export async function generateResetCode(
   if (generatedBy.role === "teacher") {
     const membership = await teacherMembershipsRepository.findByUserId(db, generatedBy.id);
     const enrolled = membership
-      ? await courseEnrollmentsRepository.existsForTenantAndStudent(db, membership.tenantId, target.id)
+      ? await batchMembershipsRepository.existsForTenantAndStudent(db, membership.tenantId, target.id)
       : false;
     if (!enrolled) throw new ForbiddenError("Student is not enrolled in any of your courses");
   }

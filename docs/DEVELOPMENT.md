@@ -20,6 +20,12 @@ and starts the web and API development servers. Stop the servers with `Ctrl+C`.
 
 The web app runs at `http://localhost:3000`; the API Worker runs at `http://localhost:8787`; Drizzle Studio's local database bridge listens on port `4983` and its browser UI is at `https://local.drizzle.studio`. Studio reads Wrangler's local D1 SQLite database. Apply local migrations once before starting the full development stack. For each requested page or flow, connect the UI to a Hono endpoint that returns hard-coded data from a feature-local API service. Keep product business rules and database persistence out of these demo endpoints until requested.
 
+The database migration history currently starts from the fresh schema in
+`packages/db/migrations/0000_bitter_infant_terrible.sql`. Existing local or remote D1
+databases created from the previous migration history must be reset/recreated before
+applying this initial migration. Applying it over the old schema will fail; do not run
+the remote migration command against an existing database as a way to reset it.
+
 ## UI API pattern
 
 Use TanStack Query for browser-side server state. Place typed endpoint functions in `apps/web/src/features/<feature>/api.ts` and query keys/options/hooks in `queries.ts` alongside them. Client components consume hooks instead of calling `apiClient` or `fetch` directly. Use queries for reads and mutations for writes; update or invalidate related query data after successful mutations. The shared typed Hono client and API utilities live under `apps/web/src/utils/`.

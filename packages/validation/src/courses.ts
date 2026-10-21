@@ -6,6 +6,7 @@ export const createCourseSchema = z.object({
   fullSyllabus: z.string().min(1, "Full syllabus is required"),
   basePriceBdt: z.number().min(0),
   isFree: z.boolean(),
+  status: z.enum(["draft", "published"]).default("draft"),
   discountPercent: z.number().min(0).max(100).optional(),
   discountStartAt: z.coerce.date().optional(),
   discountEndAt: z.coerce.date().optional(),
@@ -13,10 +14,7 @@ export const createCourseSchema = z.object({
 
 export type CreateCourseInput = z.infer<typeof createCourseSchema>;
 
-// basePriceBdt's own immutability-once-enrolled rule is enforced in the
-// service layer (needs a DB lookup), not here — `status` is deliberately
-// excluded so the draft -> published transition only ever happens through
-// the dedicated `/courses/:id/publish` validation gate.
+// Price immutability and publish readiness are enforced in the service layer.
 export const updateCourseSchema = createCourseSchema
   .partial()
   .refine((data) => Object.keys(data).length > 0, { message: "Provide at least one field to update" });
