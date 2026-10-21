@@ -22,7 +22,7 @@ export type TeacherCourseBatch = {
   title: string;
   description: string;
   isDefault: boolean;
-  status: string;
+  status: "upcoming" | "active" | "completed";
   capacity: number | null;
   syllabus: string | null;
   materials: string | null;

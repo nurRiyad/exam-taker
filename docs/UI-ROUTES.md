@@ -79,13 +79,13 @@ Visibility rules to carry into navigation and route work:
 | `/teacher/students` | Teacher's approved student roster with total student and course counts, course and batch filters, and a paginated list including each student's course and batch. | Implemented with local demo student data; tenant scoping is intended. |
 | `/teacher/courses/new` | Create a course with its course-level price and public description; course creation also creates its default batch. | Implemented with authenticated tenant-scoped API. |
 | `/teacher/courses/[courseId]/edit` | Edit a course owned by the signed-in teacher. | Implemented with authenticated tenant-scoped API. |
-| `/teacher/courses/[courseId]` | Own-course summary and batches; start a batch/route or manage an existing one. | Implemented with authenticated tenant-scoped course and batch API data; batch detail/actions remain local/demo. |
-| `/teacher/courses/[courseId]/batches/new` | Create a batch schedule and syllabus under a course. | Implemented form; data is local/demo. |
-| `/teacher/courses/[courseId]/batches/[batchId]` | Minimal batch info card first, then an editable exam list with the add-exam action in its header. Batch edit form includes description, schedule, syllabus, and learning materials. | Implemented with local demo data; changes are page-local and tenant scoping is intended. |
-| `/teacher/courses/[courseId]/batches/[batchId]/edit` | Update batch schedule and syllabus. | Implemented form; data is local/demo. |
-| `/teacher/courses/[courseId]/batches/[batchId]/exams` | List, add, and edit exams for this batch. | Implemented with local demo data; changes are page-local. |
-| `/teacher/courses/[courseId]/batches/[batchId]/exams/new` | Create an MCQ exam in a batch, including schedule and exam rules. | Route exists; placeholder. |
-| `/teacher/courses/[courseId]/batches/[batchId]/exams/[examId]` | Edit public exam details and rules for an exam in the teacher's own course. | Implemented details form; data is local/demo. |
+| `/teacher/courses/[courseId]` | Own-course summary and batches; start a batch/route or manage an existing one. | Implemented with authenticated tenant-scoped course and batch API data; batch create, edit, status update, and delete use the batch API. |
+| `/teacher/courses/[courseId]/batches/new` | Create a batch schedule and syllabus under a course. | Implemented with authenticated tenant-scoped batch API. |
+| `/teacher/courses/[courseId]/batches/[batchId]` | Show the selected batch's exams with actions to add, edit, and delete an exam. | Implemented with authenticated tenant-scoped batch and exam API data. |
+| `/teacher/courses/[courseId]/batches/[batchId]/edit` | Update batch schedule and syllabus. | Implemented with authenticated tenant-scoped batch API. |
+| `/teacher/courses/[courseId]/batches/[batchId]/exams` | List, add, edit, and delete exams for this batch. | Implemented with authenticated tenant-scoped exam API data. |
+| `/teacher/courses/[courseId]/batches/[batchId]/exams/new` | Create an MCQ exam in a batch, including schedule and exam rules. | Implemented with authenticated tenant-scoped exam API. |
+| `/teacher/courses/[courseId]/batches/[batchId]/exams/[examId]` | Edit public exam details and rules for an exam in the teacher's own course. | Implemented with authenticated tenant-scoped exam API. |
 | `/teacher/courses/[courseId]/batches/[batchId]/exams/[examId]/questions` | Review, add, and edit the exam's MCQ questions and correct answers. | Implemented with seeded local demo questions; changes are page-local. |
 | `/teacher/courses/[courseId]/exams` | Earlier course-level exam list route; batch-based workflow is now the primary model. | Placeholder/legacy route. Preserve compatibility unless explicitly asked to remove it. |
 | `/teacher/courses/[courseId]/exams/new` | Earlier course-level exam creation route. | Placeholder/legacy route. |

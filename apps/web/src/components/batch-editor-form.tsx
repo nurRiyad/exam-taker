@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -8,16 +9,40 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { CourseBatch } from "@/utils/course-batches";
+import type { TeacherBatch } from "@/features/batches/api";
+import { useCreateTeacherBatchMutation, useUpdateTeacherBatchMutation } from "@/features/batches/queries";
 import { cn } from "@/utils/utils";
 
-export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?: CourseBatch }) {
-  const [saved, setSaved] = useState(false);
+export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?: TeacherBatch }) {
+  const router = useRouter();
+  const create = useCreateTeacherBatchMutation();
+  const update = useUpdateTeacherBatchMutation();
+  const mutation = batch ? update : create;
+  const [title, setTitle] = useState(batch?.title ?? "");
   const [interval, setInterval] = useState(batch?.examIntervalDays ?? 7);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSaved(true);
+    const data = new FormData(event.currentTarget);
+    const capacityValue = String(data.get("capacity") ?? "").trim();
+    const input = {
+      title: String(data.get("title") ?? "").trim(),
+      description: String(data.get("description") ?? "").trim(),
+      status: String(data.get("status") ?? "upcoming") as "upcoming" | "active" | "completed",
+      capacity: capacityValue ? Number(capacityValue) : null,
+      syllabus: String(data.get("syllabus") ?? "").trim() || null,
+      materials: String(data.get("materials") ?? "").trim() || null,
+      firstExamDate: String(data.get("firstExamDate") ?? "") || null,
+      examTime: String(data.get("examTime") ?? "") || null,
+      examIntervalDays: Number(data.get("examIntervalDays") ?? 7),
+    };
+    try {
+      if (batch) await update.mutateAsync({ courseId, batchId: batch.id, input });
+      else await create.mutateAsync({ courseId, input });
+      router.push(`/teacher/courses/${courseId}`);
+    } catch {
+      // Keep entered values available so the teacher can retry.
+    }
   }
 
   return (
@@ -47,7 +72,8 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
             <Input
               id="batch-title"
               name="title"
-              defaultValue={batch?.title}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
               placeholder="যেমন: ব্যাংক নিয়োগ · অক্টোবর ব্যাচ"
               required
             />
@@ -69,27 +95,27 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
             <Select
               name="status"
               items={[
-                { value: "শিগগিরই", label: "শিগগিরই" },
-                { value: "চলমান", label: "চলমান" },
-                { value: "শেষ", label: "শেষ" },
+                { value: "upcoming", label: "আসছে" },
+                { value: "active", label: "চলমান" },
+                { value: "completed", label: "শেষ" },
               ]}
-              defaultValue={batch?.status ?? "শিগগিরই"}
+              defaultValue={batch?.status ?? "upcoming"}
             >
               <SelectTrigger id="batch-status">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="শিগগিরই">শিগগিরই</SelectItem>
-                  <SelectItem value="চলমান">চলমান</SelectItem>
-                  <SelectItem value="শেষ">শেষ</SelectItem>
+                  <SelectItem value="upcoming">আসছে</SelectItem>
+                  <SelectItem value="active">চলমান</SelectItem>
+                  <SelectItem value="completed">শেষ</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="batch-students">আসন সংখ্যা</Label>
-            <Input id="batch-students" name="capacity" type="number" min="1" defaultValue="500" />
+            <Input id="batch-students" name="capacity" type="number" min="1" defaultValue={batch?.capacity ?? 500} />
           </div>
         </CardContent>
       </Card>
@@ -105,7 +131,7 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
             <textarea
               id="batch-syllabus"
               name="syllabus"
-              defaultValue={batch?.syllabus.join("\n")}
+              defaultValue={batch?.syllabus ?? ""}
               placeholder="শতকরা ও লাভ-ক্ষতি&#10;অনুপাত ও সমানুপাত&#10;সময় ও কাজ"
               required
               rows={4}
@@ -117,7 +143,7 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
             <textarea
               id="batch-materials"
               name="materials"
-              defaultValue={batch?.materials.join("\n")}
+              defaultValue={batch?.materials ?? ""}
               placeholder="ব্যাংক গণিত সংক্ষিপ্ত নোট&#10;বিগত বছরের প্রশ্ন সংকলন"
               rows={3}
               className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
@@ -168,17 +194,20 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
         </CardContent>
       </Card>
 
-      {saved ? (
-        <p role="status" className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm text-primary">
-          ব্যাচের তথ্য সংরক্ষিত হয়েছে। (ডেমো—এই পরিবর্তন ব্রাউজার রিফ্রেশের পর থাকবে না।)
+      {mutation.isError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+        >
+          ব্যাচের তথ্য সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।
         </p>
       ) : null}
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Link href={`/teacher/courses/${courseId}`} className={cn(buttonVariants({ variant: "outline" }))}>
           বাতিল
         </Link>
-        <Button type="submit">
-          <Save aria-hidden="true" data-icon="inline-start" /> তথ্য সংরক্ষণ
+        <Button type="submit" disabled={mutation.isPending}>
+          <Save aria-hidden="true" data-icon="inline-start" /> {mutation.isPending ? "সংরক্ষণ হচ্ছে…" : "তথ্য সংরক্ষণ"}
         </Button>
       </div>
     </form>

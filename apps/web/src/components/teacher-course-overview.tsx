@@ -1,16 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Pencil, Plus, RotateCw } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, ArrowRight, Pencil, Plus, RotateCw, Trash2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTeacherCourseQuery } from "@/features/courses/queries";
+import {
+  useDeleteTeacherBatchMutation,
+  useTeacherBatchesQuery,
+  useUpdateTeacherBatchMutation,
+} from "@/features/batches/queries";
+import type { TeacherBatch } from "@/features/batches/api";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/utils/utils";
 
 export function TeacherCourseOverview({ courseId }: { courseId: string }) {
   const query = useTeacherCourseQuery(courseId);
+  const batchesQuery = useTeacherBatchesQuery(courseId);
+  const update = useUpdateTeacherBatchMutation();
+  const remove = useDeleteTeacherBatchMutation();
+  const [statusBatch, setStatusBatch] = useState<TeacherBatch | null>(null);
+  const [nextStatus, setNextStatus] = useState<TeacherBatch["status"]>("upcoming");
 
-  if (query.isPending) {
+  async function saveStatus() {
+    if (!statusBatch) return;
+    try {
+      await update.mutateAsync({ courseId, batchId: statusBatch.id, input: { status: nextStatus } });
+      setStatusBatch(null);
+    } catch {
+      // Keep the dialog open so the teacher can retry.
+    }
+  }
+
+  function deleteBatch(batch: TeacherBatch) {
+    if (window.confirm(`“${batch.title}” ব্যাচটি মুছে ফেলতে চান?`)) remove.mutate({ courseId, batchId: batch.id });
+  }
+
+  if (query.isPending || batchesQuery.isPending) {
     return (
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6" role="status">
         কোর্স ও ব্যাচ লোড হচ্ছে…
@@ -18,7 +45,7 @@ export function TeacherCourseOverview({ courseId }: { courseId: string }) {
     );
   }
 
-  if (query.isError || !query.data) {
+  if (query.isError || !query.data || batchesQuery.isError || !batchesQuery.data) {
     return (
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col items-start gap-4 px-4 py-8 sm:px-6">
         <p role="alert" className="text-sm text-destructive">
@@ -31,7 +58,8 @@ export function TeacherCourseOverview({ courseId }: { courseId: string }) {
     );
   }
 
-  const { course, batches } = query.data;
+  const { course } = query.data;
+  const { batches } = batchesQuery.data;
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
@@ -87,23 +115,76 @@ export function TeacherCourseOverview({ courseId }: { courseId: string }) {
         {batches.length ? (
           <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
             {batches.map((batch, index) => (
-              <Link
+              <div
                 key={batch.id}
-                href={`/teacher/courses/${course.id}/batches/${batch.id}`}
                 className={cn(
-                  "flex items-center gap-3 p-3 focus-visible:outline-2 focus-visible:outline-ring sm:p-4",
+                  "grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-1 p-3 sm:gap-3 sm:p-4",
                   index ? "border-t" : "",
                 )}
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary px-2 text-center text-xs font-medium text-secondary-foreground">
-                  {batch.isDefault ? "ডিফল্ট" : batch.status === "upcoming" ? "আসছে" : batch.status}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold">{batch.title}</span>
-                  <span className="mt-1 block truncate text-xs text-muted-foreground">{batch.description}</span>
-                </span>
-                <ArrowRight aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-              </Link>
+                <Link
+                  href={`/teacher/courses/${course.id}/batches/${batch.id}`}
+                  className="group flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary px-2 text-center text-xs font-medium text-secondary-foreground">
+                    {batch.isDefault
+                      ? "ডিফল্ট"
+                      : batch.status === "upcoming"
+                        ? "আসছে"
+                        : batch.status === "active"
+                          ? "চলমান"
+                          : "শেষ"}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{batch.title}</span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">{batch.description}</span>
+                  </span>
+                </Link>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 px-2 text-xs"
+                  onClick={() => {
+                    update.reset();
+                    setStatusBatch(batch);
+                    setNextStatus(batch.status);
+                  }}
+                  aria-label={`${batch.title} ব্যাচের অবস্থা পরিবর্তন`}
+                >
+                  {batch.status === "upcoming" ? "আসছে" : batch.status === "active" ? "চলমান" : "শেষ"}
+                </Button>
+                <Link
+                  href={`/teacher/courses/${course.id}/batches/${batch.id}/edit`}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "shrink-0 gap-1 px-2 text-muted-foreground",
+                  )}
+                  aria-label={`${batch.title} সম্পাদনা`}
+                >
+                  <Pencil aria-hidden="true" className="size-4" />
+                  <span className="hidden sm:inline">সম্পাদনা</span>
+                </Link>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`${batch.title} মুছুন`}
+                    disabled={remove.isPending}
+                    onClick={() => deleteBatch(batch)}
+                  >
+                    <Trash2 aria-hidden="true" className="size-4 text-muted-foreground" />
+                  </Button>
+                  <Link
+                    href={`/teacher/courses/${course.id}/batches/${batch.id}`}
+                    aria-label={`${batch.title} খুলুন`}
+                    className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                  >
+                    <ArrowRight aria-hidden="true" className="size-4" />
+                  </Link>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
@@ -114,6 +195,68 @@ export function TeacherCourseOverview({ courseId }: { courseId: string }) {
           </Card>
         )}
       </section>
+      {remove.isError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+        >
+          ব্যাচটি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।
+        </p>
+      ) : null}
+      {statusBatch ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setStatusBatch(null);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="batch-status-title"
+            className="w-full max-w-md rounded-xl border bg-card p-5 shadow-lg"
+          >
+            <h2 id="batch-status-title" className="text-lg font-semibold">
+              ব্যাচের অবস্থা পরিবর্তন
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">{statusBatch.title}</p>
+            <label className="mt-5 grid gap-2 text-sm font-medium">
+              নতুন অবস্থা
+              <Select value={nextStatus} onValueChange={(value) => setNextStatus(value as TeacherBatch["status"])}>
+                <SelectTrigger aria-label="নতুন অবস্থা">
+                  <SelectValue>
+                    {nextStatus === "upcoming" ? "আসছে" : nextStatus === "active" ? "চলমান" : "শেষ"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="upcoming">আসছে</SelectItem>
+                    <SelectItem value="active">চলমান</SelectItem>
+                    <SelectItem value="completed">শেষ</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </label>
+            {update.isError ? (
+              <p role="alert" className="mt-3 text-sm text-destructive">
+                অবস্থা পরিবর্তন করা যায়নি। আবার চেষ্টা করুন।
+              </p>
+            ) : null}
+            <div className="mt-5 flex justify-end gap-2">
+              <Button type="button" variant="outline" disabled={update.isPending} onClick={() => setStatusBatch(null)}>
+                বাতিল
+              </Button>
+              <Button
+                type="button"
+                disabled={update.isPending || nextStatus === statusBatch.status}
+                onClick={saveStatus}
+              >
+                {update.isPending ? "সংরক্ষণ হচ্ছে…" : "সংরক্ষণ করুন"}
+              </Button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

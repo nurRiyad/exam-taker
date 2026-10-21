@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import { authRoutes } from "./auth/auth.routes";
+import { batchesRoutes } from "./batches/batches.routes";
+import { examsRoutes } from "./exams/exams.routes";
 import { courseAccessRoutes, coursesRoutes } from "./courses/courses.routes";
 import { healthRoutes } from "./health/health.routes";
 import { homeRoutes } from "./home/home.routes";
@@ -16,4 +18,6 @@ export const featureRoutes = new Hono<{ Bindings: Env }>()
   .route("/teacher-profile", teacherProfileRoutes)
   .route("/admin", tenantRoutes)
   .route("/", courseAccessRoutes)
-  .route("/", coursesRoutes);
+  .route("/", coursesRoutes)
+  .route("/", batchesRoutes)
+  .route("/", examsRoutes);

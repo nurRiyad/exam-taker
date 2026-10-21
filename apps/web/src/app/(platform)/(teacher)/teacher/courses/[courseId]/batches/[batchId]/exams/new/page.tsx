@@ -1,10 +1,6 @@
-import { notFound } from "next/navigation";
-import { NewBatchExamForm } from "@/components/new-batch-exam-form";
-import { getCourseBatch } from "@/utils/course-batches";
+import { TeacherExamEditorPage } from "@/components/teacher-exam-editor-page";
 
 export default async function NewBatchExamPage({ params }: { params: Promise<{ courseId: string; batchId: string }> }) {
   const { courseId, batchId } = await params;
-  const batch = getCourseBatch(courseId, batchId);
-  if (!batch) notFound();
-  return <NewBatchExamForm courseId={courseId} batch={batch} />;
+  return <TeacherExamEditorPage courseId={courseId} batchId={batchId} />;
 }
