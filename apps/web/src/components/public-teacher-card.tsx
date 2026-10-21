@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { PublicTeacher } from "@/lib/public-directory-data";
+import type { PublicTeacher } from "@/utils/public-directory-data";
 
 function formatCount(count: number) {
   return new Intl.NumberFormat("bn-BD").format(count);

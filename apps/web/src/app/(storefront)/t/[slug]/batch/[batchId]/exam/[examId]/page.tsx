@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { ExamAttempt } from "@/components/exam-attempt";
-import { getBatchExams, getCourseBatch } from "@/lib/course-batches";
-import { getCoursesByTeacher, getPublicTeacher } from "@/lib/public-directory-data";
+import { getBatchExams, getCourseBatch } from "@/utils/course-batches";
+import { getCoursesByTeacher, getPublicTeacher } from "@/utils/public-directory-data";
 import { getStorefrontCourseCopy } from "@/components/teacher-storefront/content";
 
 export default async function TeacherMcqPage({

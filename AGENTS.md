@@ -1,21 +1,21 @@
 # Exam Taker Agent Instructions
 
-This repository is being rebuilt with a UI-first workflow. Until the user explicitly says the frontend is ready for backend work, work only on the UI in `apps/web`. Keep the current application code and migrate it incrementally into the structure below.
+The UI-first phase is complete enough to begin API integration. For each requested page or flow, implement its Hono API endpoint and connect the UI to it. During this demo phase, endpoints return realistic hard-coded data from feature-local API service modules; do not add production business rules, database persistence, Drizzle schema, or migrations unless the user explicitly asks for them. Keep the current application code and migrate it incrementally into the structure below.
 
 ## Structure
 
 - `apps/web`: Next.js UI and product modules.
-- `apps/api`: Hono Worker API; do not build or expand backend behavior until the user explicitly says the frontend is ready for backend work.
+- `apps/api`: Hono Worker API; implement a route and service for each requested page or flow, returning hard-coded demo data until production business logic and persistence are separately authorized.
 - `packages/db`: Drizzle schema, database client, and D1 migrations.
 - `packages/validation`: shared Zod schemas and inferred types for UI and API.
 - `docs`: concise product, development, architecture, quality, and deployment guidance.
 
 ## Workflow
 
-1. Build complete, polished, responsive UI flows in `apps/web` using realistic local/mock data. Implement every visible user action and its UI state, including list filtering/sorting, empty/loading/error/success states, dialogs, and form submission feedback where relevant.
-2. Keep mock data and UI state near the relevant product feature. Avoid new API calls, backend changes, database changes, or backend-driven product behavior until the user explicitly gives the go-ahead to begin backend work.
-3. Treat UI readiness as a user decision. Do not switch to backend work just because a screen or feature appears complete; continue implementing the requested frontend scope with mock data until the user says the frontend is ready.
-4. Preserve working routes and functionality while restructuring; avoid speculative feature changes.
+1. For each requested page or flow, add or extend a Hono route and feature-local service that supplies hard-coded demo data, then connect the UI to that API. Include loading, empty, error, and success states where they apply. Keep database and production business logic out of scope unless explicitly requested.
+2. Use TanStack Query for browser-side server state. Put typed endpoint request functions in `apps/web/src/features/<feature>/api.ts` and query keys/options/hooks in `queries.ts` alongside them. Call hooks from client UI. Use queries for reads and mutations for writes; invalidate or update related queries after successful mutations. Keep API calls out of page/component event handlers.
+3. Keep the shared typed Hono client and cross-cutting API utilities in `apps/web/src/utils/`. Server Components, Next proxy code, and other server-only callers use feature request functions directly (with explicit token/cookie and cache handling); TanStack hooks are client-only.
+4. Keep UI-only state near the relevant product feature and implement every visible action. Preserve working routes and functionality while restructuring; avoid speculative feature changes.
 5. Use [docs/UI-ROUTES.md](docs/UI-ROUTES.md) as the route, UI behavior, and page-visibility map. Check it before changing a product flow and update it when routes, audiences, or user-visible behavior materially change. It records current implementation status separately from intended MVP behavior.
 6. Preserve the visibility model in that guide: admins have platform-wide views; teachers are limited to their own courses and enrolled students; students are limited to their own memberships and results; public pages use teacher-branded storefronts and explicitly published content. Navigation visibility does not replace authorization checks.
 

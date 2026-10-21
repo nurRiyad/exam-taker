@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { StudentTeacherDashboard } from "@/components/teacher-storefront/student-teacher-dashboard";
-import { getPublicTeacher } from "@/lib/public-directory-data";
+import { getPublicTeacher } from "@/utils/public-directory-data";
 
 type StudentDashboardPageProps = { params: Promise<{ slug: string; studentUsername: string }> };
 

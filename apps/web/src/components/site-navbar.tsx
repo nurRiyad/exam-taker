@@ -9,7 +9,7 @@ const NAV_LINKS = [
 
 export function SiteNavbar() {
   return (
-    <header className="border-b bg-background/95">
+    <header className="sticky top-0 z-50 border-b border-violet-100/80 bg-white/90 shadow-[0_4px_20px_-12px_rgba(49,46,129,0.22)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/80">
       <div className="mx-auto flex min-h-14 w-full max-w-6xl items-center gap-3 px-3 py-2 sm:px-6">
         <Link
           href="/"

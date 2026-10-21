@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, CalendarDays, ClipboardCheck, Plus, UsersRound } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { TeacherDashboard } from "@/components/teacher-dashboard";
-import { getBatchExams, getCourseBatches, getTeacherCourses, formatBanglaDate } from "@/lib/course-batches";
-import { cn } from "@/lib/utils";
+import { getBatchExams, getCourseBatches, getTeacherCourses, formatBanglaDate } from "@/utils/course-batches";
+import { cn } from "@/utils/utils";
 
 const TEACHER_ID = "mahbub-hasan";
 const demoAttention = [

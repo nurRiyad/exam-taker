@@ -1,4 +1,4 @@
-import { getCoursesByTeacher, getPublicCourse, type PublicCourse } from "@/lib/public-directory-data";
+import { getCoursesByTeacher, getPublicCourse, type PublicCourse } from "@/utils/public-directory-data";
 
 export type CourseBatch = {
   id: string;

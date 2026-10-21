@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { BatchCard } from "@/components/batch-card";
-import { getCourseBatches } from "@/lib/course-batches";
-import { getPublicCourse } from "@/lib/public-directory-data";
+import { getCourseBatches } from "@/utils/course-batches";
+import { getPublicCourse } from "@/utils/public-directory-data";
 
 export default async function StudentCoursePage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = await params;

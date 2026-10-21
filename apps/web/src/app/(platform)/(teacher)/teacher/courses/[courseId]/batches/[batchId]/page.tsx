@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, ClipboardList, Pencil, Plus, UsersRound } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getBatchExams, getCourseBatch, formatBanglaDate } from "@/lib/course-batches";
-import { getPublicCourse } from "@/lib/public-directory-data";
-import { cn } from "@/lib/utils";
+import { getBatchExams, getCourseBatch, formatBanglaDate } from "@/utils/course-batches";
+import { getPublicCourse } from "@/utils/public-directory-data";
+import { cn } from "@/utils/utils";
 
 export default async function TeacherBatchPage({ params }: { params: Promise<{ courseId: string; batchId: string }> }) {
   const { courseId, batchId } = await params;

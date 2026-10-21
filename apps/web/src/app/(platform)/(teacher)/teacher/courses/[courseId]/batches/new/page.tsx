@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { BatchEditorForm } from "@/components/batch-editor-form";
-import { getPublicCourse } from "@/lib/public-directory-data";
+import { getPublicCourse } from "@/utils/public-directory-data";
 
 export default async function NewBatchPage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = await params;

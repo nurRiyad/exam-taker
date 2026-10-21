@@ -4,6 +4,7 @@ import { LogOutIcon, UserCircleIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useLogoutMutation } from "@/features/auth/queries";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,15 +14,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { apiClient } from "@/lib/api-client";
-import { clearSessionToken } from "@/lib/session-token";
+import { clearSessionToken } from "@/utils/session-token";
 
 export function NavbarProfileDropdown({ label }: { label: string }) {
   const router = useRouter();
+  const logout = useLogoutMutation();
 
   async function handleLogout() {
     try {
-      await apiClient.auth.logout.$post();
+      await logout.mutateAsync();
     } finally {
       clearSessionToken();
       router.push("/login");

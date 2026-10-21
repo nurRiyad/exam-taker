@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { TeacherStudentAuth } from "@/components/teacher-storefront/teacher-student-auth";
-import { getPublicTeacher } from "@/lib/public-directory-data";
+import { getPublicTeacher } from "@/utils/public-directory-data";
 
 export default async function TeacherStudentLoginPage({
   params,

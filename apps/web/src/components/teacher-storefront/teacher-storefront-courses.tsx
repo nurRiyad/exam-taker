@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { getExamCategoryLabel } from "@/lib/public-directory-data";
+import { getExamCategoryLabel } from "@/utils/public-directory-data";
 import { StorefrontCourseCard } from "./storefront-course-card";
 import type { StorefrontCourse } from "./types";
 

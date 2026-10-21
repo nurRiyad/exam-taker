@@ -12,6 +12,8 @@ import {
   usernameSchema,
 } from "@exam-taker/validation/auth";
 import * as authService from "./auth.service";
+import { UnauthorizedError } from "../../utils/errors";
+import { findDemoUser, isDemoUsername } from "./demo-users";
 
 export const authRoutes = new Hono<AuthEnv>()
   .get("/username-availability", zValidator("query", z.object({ username: usernameSchema })), async (c) => {
@@ -24,7 +26,13 @@ export const authRoutes = new Hono<AuthEnv>()
     return c.json({ user, token }, 201);
   })
   .post("/login", zValidator("json", loginSchema), async (c) => {
-    const user = await authService.login(getDb(c.env.DB), c.req.valid("json"));
+    const input = c.req.valid("json");
+    const demoAuthEnabled = c.env.DEMO_AUTH_ENABLED === "true";
+    const demoUser = demoAuthEnabled ? findDemoUser(input.identifier, input.password) : undefined;
+    if (demoAuthEnabled && !demoUser && isDemoUsername(input.identifier)) {
+      throw new UnauthorizedError("Incorrect username/phone or password");
+    }
+    const user = demoUser ?? (await authService.login(getDb(c.env.DB), input));
     const token = await signSession({ sub: user.id, role: user.role }, requireJwtSecret(c.env.JWT_SECRET));
     return c.json({ user, token });
   })

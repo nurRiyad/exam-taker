@@ -1,4 +1,4 @@
-import type { PublicCourse, PublicTeacher } from "@/lib/public-directory-data";
+import type { PublicCourse, PublicTeacher } from "@/utils/public-directory-data";
 
 const TEACHER_COPY: Record<string, { description: string; biography: string }> = {
   "mahbub-hasan": {

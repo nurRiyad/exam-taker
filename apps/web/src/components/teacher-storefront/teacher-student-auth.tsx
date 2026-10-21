@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { PublicTeacher } from "@/lib/public-directory-data";
-import { validatePassword, validatePhone, validateUsername } from "@/lib/validation";
+import type { PublicTeacher } from "@/utils/public-directory-data";
+import { validatePassword, validatePhone, validateUsername } from "@/utils/validation";
 import { getStorefrontBrand } from "./brand";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
 

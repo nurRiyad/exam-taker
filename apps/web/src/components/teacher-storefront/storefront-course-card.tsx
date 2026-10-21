@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { CalendarDays, GraduationCap } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { formatBanglaDate } from "@/lib/course-batches";
-import { getExamCategoryLabel } from "@/lib/public-directory-data";
+import { formatBanglaDate } from "@/utils/course-batches";
+import { getExamCategoryLabel } from "@/utils/public-directory-data";
 import { getStorefrontCourseCopy } from "./content";
 import type { StorefrontCourse } from "./types";
 

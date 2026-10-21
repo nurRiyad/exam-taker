@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getCourseBatches } from "@/lib/course-batches";
-import { getExamCategoryLabel, type PublicCourse } from "@/lib/public-directory-data";
-import { cn } from "@/lib/utils";
+import { getCourseBatches } from "@/utils/course-batches";
+import { getExamCategoryLabel, type PublicCourse } from "@/utils/public-directory-data";
+import { cn } from "@/utils/utils";
 
 export function PublicCourseCard({ course, locale = "en" }: { course: PublicCourse; locale?: "en" | "bn" }) {
   const batchCount = getCourseBatches(course.id).length;

@@ -7,9 +7,9 @@ import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiClient } from "@/lib/api-client";
-import { extractApiError, type FieldErrors } from "@/lib/api-error";
-import { validatePassword } from "@/lib/validation";
+import { useResetPasswordMutation } from "@/features/auth/queries";
+import { type FieldErrors } from "@/utils/api-error";
+import { validatePassword } from "@/utils/validation";
 
 type FormValues = {
   identifier: string;
@@ -25,7 +25,8 @@ export default function ResetPage() {
   const [form, setForm] = useState<FormValues>(EMPTY_FORM);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [generalError, setGeneralError] = useState<string>();
-  const [submitting, setSubmitting] = useState(false);
+  const resetPassword = useResetPasswordMutation();
+  const submitting = resetPassword.isPending;
 
   function update<K extends keyof FormValues>(key: K, value: FormValues[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -50,20 +51,12 @@ export default function ResetPage() {
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
-    setSubmitting(true);
+    resetPassword.reset();
     try {
-      const res = await apiClient.auth.reset.$post({ json: form });
-      if (!res.ok) {
-        // Deliberately vague — mirrors login's "don't confirm which identifiers exist" rule.
-        const { message } = await extractApiError(res, "Invalid or expired reset code");
-        setGeneralError(message);
-        return;
-      }
+      await resetPassword.mutateAsync(form);
       router.push("/login");
-    } catch {
-      setGeneralError("Network error — check your connection and try again.");
-    } finally {
-      setSubmitting(false);
+    } catch (cause) {
+      setGeneralError(cause instanceof Error ? cause.message : "Network error — check your connection and try again.");
     }
   }
 

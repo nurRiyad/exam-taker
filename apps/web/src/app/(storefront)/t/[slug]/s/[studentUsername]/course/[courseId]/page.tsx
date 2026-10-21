@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { StudentCourseProgress } from "@/components/teacher-storefront/student-course-progress";
-import { getPublicCourse, getPublicTeacher } from "@/lib/public-directory-data";
+import { getPublicCourse, getPublicTeacher } from "@/utils/public-directory-data";
 
 type StudentCoursePageProps = { params: Promise<{ slug: string; studentUsername: string; courseId: string }> };
 

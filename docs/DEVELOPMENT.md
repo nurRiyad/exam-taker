@@ -18,7 +18,24 @@ make setup
 dependencies, generates pending Drizzle migrations, applies them to local D1,
 and starts the web and API development servers. Stop the servers with `Ctrl+C`.
 
-The web app runs at `http://localhost:3000`; the API Worker runs at `http://localhost:8787`; Drizzle Studio's local database bridge listens on port `4983` and its browser UI is at `https://local.drizzle.studio`. Studio reads Wrangler's local D1 SQLite database. Apply local migrations once before starting the full development stack. The UI-first workflow should keep screens usable with mock data when the API is unavailable.
+The web app runs at `http://localhost:3000`; the API Worker runs at `http://localhost:8787`; Drizzle Studio's local database bridge listens on port `4983` and its browser UI is at `https://local.drizzle.studio`. Studio reads Wrangler's local D1 SQLite database. Apply local migrations once before starting the full development stack. For each requested page or flow, connect the UI to a Hono endpoint that returns hard-coded data from a feature-local API service. Keep product business rules and database persistence out of these demo endpoints until requested.
+
+## UI API pattern
+
+Use TanStack Query for browser-side server state. Place typed endpoint functions in `apps/web/src/features/<feature>/api.ts` and query keys/options/hooks in `queries.ts` alongside them. Client components consume hooks instead of calling `apiClient` or `fetch` directly. Use queries for reads and mutations for writes; update or invalidate related query data after successful mutations. The shared typed Hono client and API utilities live under `apps/web/src/utils/`.
+
+Server Components, `proxy.ts`, and other server-only callers cannot use React hooks. They call the feature request functions directly and explicitly handle cookies/tokens and cache behavior.
+
+## Demo API login
+
+Local API development uses the JWT secret in the ignored `apps/api/.dev.vars` file. Add `DEMO_AUTH_ENABLED=true` there to enable the hard-coded walkthrough accounts; the repository's local file is configured for this. Do not add this flag to Wrangler's checked-in vars or enable it in a deployed environment.
+
+| Role | Username | Password |
+| --- | --- | --- |
+| Admin | `admin` | `admin` |
+| Teacher | `kafi` | `kafi` |
+
+`GET /home` returns the landing page's demo content. `POST /auth/login` issues a signed JWT for either walkthrough account, and `GET /auth/me` resolves that session without creating a D1 user. Signup remains on the existing database-backed flow and is not required for these demo accounts.
 
 ## Useful commands
 

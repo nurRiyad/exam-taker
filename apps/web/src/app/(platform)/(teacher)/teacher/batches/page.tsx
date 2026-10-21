@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { TeacherBatchDirectory } from "@/components/teacher-batch-directory";
-import { getBatchExams, getCourseBatches, getTeacherCourses, formatBanglaDate } from "@/lib/course-batches";
+import { getBatchExams, getCourseBatches, getTeacherCourses, formatBanglaDate } from "@/utils/course-batches";
 
 const TEACHER_ID = "mahbub-hasan";
 

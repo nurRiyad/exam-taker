@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { apiClient } from "@/lib/api-client";
-import { extractApiError } from "@/lib/api-error";
+import { useGenerateResetCodeMutation } from "@/features/auth/queries";
 import { FieldError } from "@/components/auth-card";
 
 // Shared by the teacher and admin reset-codes pages. No student
@@ -15,7 +14,8 @@ export function ResetCodeForm() {
   const [userId, setUserId] = useState("");
   const [code, setCode] = useState<string>();
   const [error, setError] = useState<string>();
-  const [submitting, setSubmitting] = useState(false);
+  const generateCode = useGenerateResetCodeMutation();
+  const submitting = generateCode.isPending;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -26,20 +26,12 @@ export function ResetCodeForm() {
       return;
     }
 
-    setSubmitting(true);
+    generateCode.reset();
     try {
-      const res = await apiClient.auth["reset-codes"].$post({ json: { userId: userId.trim() } });
-      if (!res.ok) {
-        const { message } = await extractApiError(res, "Could not generate a reset code.");
-        setError(message);
-        return;
-      }
-      const data = await res.json();
+      const data = await generateCode.mutateAsync(userId.trim());
       setCode(data.code);
-    } catch {
-      setError("Network error — check your connection and try again.");
-    } finally {
-      setSubmitting(false);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Network error — check your connection and try again.");
     }
   }
 

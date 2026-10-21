@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getBatchExams, getCourseBatch } from "@/lib/course-batches";
+import { getBatchExams, getCourseBatch } from "@/utils/course-batches";
 import { ExamDetailsForm } from "@/components/exam-details-form";
 
 export default async function BatchExamPage({

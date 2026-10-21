@@ -7,8 +7,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { CourseBatch } from "@/lib/course-batches";
-import { cn } from "@/lib/utils";
+import type { CourseBatch } from "@/utils/course-batches";
+import { cn } from "@/utils/utils";
 
 export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?: CourseBatch }) {
   const [saved, setSaved] = useState(false);

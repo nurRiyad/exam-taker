@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, Check, Medal, Target } from "lucide-react";
-import type { PublicCourse, PublicTeacher } from "@/lib/public-directory-data";
+import type { PublicCourse, PublicTeacher } from "@/utils/public-directory-data";
 import { getStorefrontBrand } from "./brand";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 const results = [
   { name: "কোর্স মডেল টেস্ট ০৬", date: "৫ অক্টোবর", score: 42, total: 50, rank: 12, participants: 142 },

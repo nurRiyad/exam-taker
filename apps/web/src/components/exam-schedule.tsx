@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BookOpenText, X } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { formatBanglaDate } from "@/lib/course-batches";
-import { cn } from "@/lib/utils";
+import { formatBanglaDate } from "@/utils/course-batches";
+import { cn } from "@/utils/utils";
 
 type Exam = {
   id: string;

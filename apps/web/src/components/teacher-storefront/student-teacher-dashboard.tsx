@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, CalendarDays, Check, Clock3, Target } from "lucide-react";
-import { getCoursesByTeacher, type PublicCourse, type PublicTeacher } from "@/lib/public-directory-data";
+import { getCoursesByTeacher, type PublicCourse, type PublicTeacher } from "@/utils/public-directory-data";
 import { getStorefrontBrand } from "./brand";
 
 const upcomingExams = [

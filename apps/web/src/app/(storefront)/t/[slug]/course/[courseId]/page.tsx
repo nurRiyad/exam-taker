@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { TeacherStorefrontCourse } from "@/components/teacher-storefront/teacher-storefront-course";
-import { getPublicCourse, getPublicTeacher } from "@/lib/public-directory-data";
+import { getPublicCourse, getPublicTeacher } from "@/utils/public-directory-data";
 
 export default async function TeacherCoursePage({ params }: { params: Promise<{ slug: string; courseId: string }> }) {
   const { slug, courseId } = await params;

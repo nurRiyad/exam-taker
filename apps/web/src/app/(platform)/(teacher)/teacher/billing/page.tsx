@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { TeacherAccessRequests } from "@/components/teacher-access-requests";
-import { getCourseBatches, getTeacherCourses } from "@/lib/course-batches";
+import { getCourseBatches, getTeacherCourses } from "@/utils/course-batches";
 
 export default function TeacherBillingPage() {
   const courses = getTeacherCourses("mahbub-hasan");

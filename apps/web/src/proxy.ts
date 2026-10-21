@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { Role } from "@exam-taker/api/src/types";
-import { SESSION_TOKEN_COOKIE } from "@/lib/session-token";
+import { SESSION_TOKEN_COOKIE } from "@/utils/session-token";
+import { getCurrentUserFromServer } from "@/utils/api-client";
 
 // Server components/proxy talk to the API's real origin directly, bypassing
 // next.config.ts's /api/* rewrite (that rewrite is for browser requests only,
 // see docs/ARCHITECTURE.md's Local Development section).
-const API_INTERNAL_URL = process.env.API_INTERNAL_URL ?? "http://localhost:8787";
-
 // /: JWT claims are a UI convenience only — authorization
 // always hits the DB, and this redirect is a UI convenience too, not a real
 // authorization check. Route groups like (teacher)/(admin) are purely
@@ -35,17 +34,14 @@ export async function proxy(request: NextRequest) {
   if (!allowedRoles) return NextResponse.next();
 
   const token = request.cookies.get(SESSION_TOKEN_COOKIE)?.value;
-  const meResponse = await fetch(`${API_INTERNAL_URL}/auth/me`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-
-  if (!meResponse.ok) {
+  const session = await getCurrentUserFromServer(token);
+  if (!session) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  const { user } = (await meResponse.json()) as { user: { role: Role } };
+  const { user } = session;
   if (!allowedRoles.includes(user.role)) {
     return NextResponse.redirect(new URL("/", request.url));
   }

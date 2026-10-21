@@ -39,14 +39,14 @@ Visibility rules to carry into navigation and route work:
 
 | Route | Purpose and behavior | Current UI state |
 | --- | --- | --- |
-| `/` | Bangla product landing page explaining the teacher value proposition and onboarding steps; links to signup and explainer content. | Implemented landing page. |
+| `/` | Bangla product landing page explaining the teacher value proposition and onboarding steps; links to signup and explainer content. | Implemented; content is loaded from the Hono `/home` demo endpoint. |
 | `/teachers` | Admin/support teacher directory for managing the platform's teacher tenants; not a public student discovery page. | Directory implemented with local data; admin-only access is intended and not currently enforced. |
 | `/teachers/[teacherId]` | Admin/support view of a teacher profile and their courses. Students use the teacher's own `/t/[slug]` storefront instead. | Profile implemented with local data; admin-only access is intended and not currently enforced. |
 | `/courses` | Admin/support course directory across tenants; not a public student marketplace. | Directory implemented with local data; admin-only access is intended and not currently enforced. |
 | `/courses/[courseId]` | Admin/support course overview and batches across tenants. | Implemented with local data; admin-only access is intended and not currently enforced. |
 | `/courses/[courseId]/batches/[batchId]` | Admin/support batch overview. Student enrollment should use the matching teacher storefront batch page. | Implemented with local data; admin-only access is intended and not currently enforced. |
-| `/login` | Sign in with username or phone and password; honors a safe same-site `next` path, otherwise sends the user to `/dashboard`. | Implemented; currently calls auth API. |
-| `/signup` | Create a student or teacher account; validates username, Bangladesh phone, password and confirmation, checks username availability, and honors a safe `next` path. | Implemented; currently calls auth API. |
+| `/login` | Sign in with username or phone and password; honors a safe same-site `next` path, otherwise sends the user to `/dashboard`. | Implemented; calls auth API and supports local JWT demo accounts (`admin/admin`, `kafi/kafi`) when demo auth is enabled. |
+| `/signup` | Create a teacher account; validates username, Bangladesh phone, password and confirmation, checks username availability, and honors a safe `next` path. Student signup happens through a teacher's storefront. | Implemented; still uses the existing database-backed auth API. Demo account creation is not required. |
 | `/reset` | Set a new password with the one-time code supplied by a teacher/admin; returns to login on success. | Implemented; currently calls auth API. |
 | `/reset-codes` | Compatibility entry for teachers/admins to generate a one-time code for a student. | Implemented shared form; route aliases the teacher reset-code screen. |
 | `/dashboard` | Resolve the authenticated user's role and route to the admin, teacher, or student dashboard; unauthenticated users go to login. | Implemented role redirect; currently calls auth API. |

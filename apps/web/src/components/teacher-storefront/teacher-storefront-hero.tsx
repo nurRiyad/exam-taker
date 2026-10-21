@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { ArrowDown, GraduationCap, MapPin } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { PublicTeacher } from "@/lib/public-directory-data";
+import { cn } from "@/utils/utils";
+import type { PublicTeacher } from "@/utils/public-directory-data";
 import type { StorefrontBrand } from "./types";
 import { getStorefrontTeacherCopy } from "./content";
 

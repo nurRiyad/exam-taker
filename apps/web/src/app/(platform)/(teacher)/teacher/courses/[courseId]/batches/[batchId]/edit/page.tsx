@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { BatchEditorForm } from "@/components/batch-editor-form";
-import { getCourseBatch } from "@/lib/course-batches";
+import { getCourseBatch } from "@/utils/course-batches";
 
 export default async function EditBatchPage({ params }: { params: Promise<{ courseId: string; batchId: string }> }) {
   const { courseId, batchId } = await params;

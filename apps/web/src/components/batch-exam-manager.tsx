@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { CourseBatch } from "@/lib/course-batches";
+import type { CourseBatch } from "@/utils/course-batches";
 
 type ExamItem = { id: string; title: string; date: Date };
 

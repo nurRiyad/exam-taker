@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, GraduationCap } from "lucide-react";
 import { CourseBatchDirectory } from "@/components/course-batch-directory";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCourseBatches } from "@/lib/course-batches";
-import { getExamCategoryLabel, getPublicCourse, getPublicTeacher } from "@/lib/public-directory-data";
+import { getCourseBatches } from "@/utils/course-batches";
+import { getExamCategoryLabel, getPublicCourse, getPublicTeacher } from "@/utils/public-directory-data";
 
 type CourseDetailsPageProps = { params: Promise<{ courseId: string }> };
 

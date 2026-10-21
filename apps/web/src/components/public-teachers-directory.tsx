@@ -4,8 +4,8 @@ import { useState } from "react";
 import { PublicTeacherCard } from "@/components/public-teacher-card";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PUBLIC_TEACHERS, TEACHER_FILTERS } from "@/lib/public-directory-data";
-import { cn } from "@/lib/utils";
+import { PUBLIC_TEACHERS, TEACHER_FILTERS } from "@/utils/public-directory-data";
+import { cn } from "@/utils/utils";
 
 export function PublicTeachersDirectory() {
   const [query, setQuery] = useState("");
