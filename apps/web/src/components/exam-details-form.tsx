@@ -16,7 +16,14 @@ export function ExamDetailsForm({
 }: {
   courseId: string;
   batch: CourseBatch;
-  exam: { id: string; title: string; date: string };
+  exam: {
+    id: string;
+    title: string;
+    date: string;
+    syllabus?: string[];
+    durationMinutes?: number;
+    questionCount?: number;
+  };
 }) {
   const [saved, setSaved] = useState(false);
 
@@ -26,7 +33,7 @@ export function ExamDetailsForm({
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-5 px-4 py-8 sm:px-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-8 sm:px-6">
       <Link
         href={`/teacher/courses/${courseId}/batches/${batch.id}/exams`}
         className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -56,6 +63,24 @@ export function ExamDetailsForm({
             <div className="grid gap-2">
               <Label htmlFor="exam-schedule-time">সময়</Label>
               <Input id="exam-schedule-time" defaultValue={batch.examTime} required />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exam-topics">পরীক্ষার টপিক</Label>
+              <textarea
+                id="exam-topics"
+                defaultValue={exam.syllabus?.join("\n") ?? ""}
+                rows={4}
+                placeholder="প্রতি লাইনে একটি বিষয়"
+                className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exam-duration">সময় (মিনিট)</Label>
+              <Input id="exam-duration" type="number" min="1" defaultValue={exam.durationMinutes ?? 90} required />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exam-question-count">প্রশ্ন সংখ্যা</Label>
+              <Input id="exam-question-count" type="number" min="1" defaultValue={exam.questionCount ?? 30} required />
             </div>
           </CardContent>
         </Card>

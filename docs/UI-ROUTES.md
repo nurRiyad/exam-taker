@@ -45,12 +45,13 @@ Visibility rules to carry into navigation and route work:
 | `/courses` | Admin/support course directory across tenants; not a public student marketplace. | Directory implemented with local data; linked in the navbar for admin users. Admin-only access is intended and not currently enforced. |
 | `/courses/[courseId]` | Admin/support course overview and batches across tenants. | Implemented with local data; admin-only access is intended and not currently enforced. |
 | `/courses/[courseId]/batches/[batchId]` | Admin/support batch overview. Student enrollment should use the matching teacher storefront batch page. | Implemented with local data; admin-only access is intended and not currently enforced. |
-| `/login` | Sign in with username or phone and password; honors a safe same-site `next` path, otherwise sends the user to `/dashboard`. | Implemented; calls auth API and supports local JWT demo accounts (`admin/admin`, `kafi/kafi`) when demo auth is enabled. |
-| `/signup` | Create a teacher account; validates username, Bangladesh phone, password and confirmation, checks username availability, and honors a safe `next` path. Student signup happens through a teacher's storefront. | Implemented; still uses the existing database-backed auth API. Demo account creation is not required. |
+| `/login` | Admins and teachers sign in with email or phone and password; honors a safe same-site `next` path, otherwise sends the user to `/dashboard`. | Implemented; uses global database-backed accounts and `/auth/me`. |
+| `/signup` | Create a teacher account with a unique page slug, email, Bangladesh phone, and password; teacher signup creates one page. Student signup happens through a teacher's storefront. | Implemented; calls the auth API and opens a teacher session. |
 | `/reset` | Set a new password with the one-time code supplied by a teacher/admin; returns to login on success. | Implemented; currently calls auth API. |
 | `/reset-codes` | Compatibility entry for teachers/admins to generate a one-time code for a student. | Implemented shared form; route aliases the teacher reset-code screen. |
 | `/dashboard` | Resolve the authenticated user's role and route to the admin, teacher, or student dashboard; unauthenticated users go to login. The signed-in navbar brand links here so it returns each user to their own home. | Implemented role redirect; currently calls auth API. |
 | `/settings` | Signed-in account profile with view and edit states for full name, phone, division, district, and address. | Implemented with authenticated demo profile API; changes are not persisted. |
+| `/teacher/profile` | Teacher-only editor for the public storefront profile. Shows profile sections first and provides a separate edit action for each section; private contact/address data stays in `/settings`. | Implemented with authenticated teacher-profile demo API; edits are validated and echoed, not persisted. |
 | `/exams/[examId]/attempt` | Legacy attempt entry for an authenticated student with access to that exam; renders the shared MCQ attempt component by exam ID. | Implemented shared component; inspect its data and demo behavior before expanding. Student-only access is intended; not currently enforced here. |
 | `/exams/[examId]/results` | Released public leaderboard/summary for the exam; private result details belong in the student route. | Placeholder. |
 
@@ -74,16 +75,18 @@ Visibility rules to carry into navigation and route work:
 | --- | --- | --- |
 | `/teacher/dashboard` | Lean overview with total courses, batches, students, and pending batch join requests; links to course management and the student roster, and provides paginated inline request approvals. | Implemented with local course/batch and demo request data; approval state is page-local and tenant scoping is intended. |
 | `/teacher/batches` | Cross-course batch directory with search, course/status filters, student totals, and next exam date; opens the existing batch management page. | Implemented with local data; tenant scoping is intended. |
-| `/teacher/courses` | Signed-in teacher's own courses with batch and student totals; start a new course or open one. | Implemented with local data; tenant scoping is intended. |
+| `/teacher/courses` | Simple list of the teacher's courses; opening one leads to its batch list, then each batch's exam list. Add/edit actions live at each level. | Implemented with local demo course/batch/exam data; tenant scoping is intended. |
 | `/teacher/students` | Teacher's approved student roster with total student and course counts, course and batch filters, and a paginated list including each student's course and batch. | Implemented with local demo student data; tenant scoping is intended. |
-| `/teacher/courses/new` | Create a course with its course-level price and public description. | Placeholder. |
+| `/teacher/courses/new` | Create a course with its course-level price and public description. | Implemented with authenticated demo API. |
+| `/teacher/courses/[courseId]/edit` | Edit a course owned by the signed-in teacher. | Implemented with authenticated demo API. |
 | `/teacher/courses/[courseId]` | Own-course summary and batches; start a batch/route or manage an existing one. | Implemented with local data; ownership check is intended. |
 | `/teacher/courses/[courseId]/batches/new` | Create a batch schedule and syllabus under a course. | Implemented form; data is local/demo. |
-| `/teacher/courses/[courseId]/batches/[batchId]` | Own batch dashboard with enrolled-student count, schedule, syllabus, materials, upcoming exams, edit action, and exam creation. | Implemented with local data; tenant scoping is intended. |
+| `/teacher/courses/[courseId]/batches/[batchId]` | Minimal batch info card first, then an editable exam list with the add-exam action in its header. Batch edit form includes description, schedule, syllabus, and learning materials. | Implemented with local demo data; changes are page-local and tenant scoping is intended. |
 | `/teacher/courses/[courseId]/batches/[batchId]/edit` | Update batch schedule and syllabus. | Implemented form; data is local/demo. |
-| `/teacher/courses/[courseId]/batches/[batchId]/exams` | List/manage exams for this batch. | Route exists; placeholder. |
+| `/teacher/courses/[courseId]/batches/[batchId]/exams` | List, add, and edit exams for this batch. | Implemented with local demo data; changes are page-local. |
 | `/teacher/courses/[courseId]/batches/[batchId]/exams/new` | Create an MCQ exam in a batch, including schedule and exam rules. | Route exists; placeholder. |
-| `/teacher/courses/[courseId]/batches/[batchId]/exams/[examId]` | Edit exam details and rules for an exam in the teacher's own course. | Implemented details form; data is local/demo. |
+| `/teacher/courses/[courseId]/batches/[batchId]/exams/[examId]` | Edit public exam details and rules for an exam in the teacher's own course. | Implemented details form; data is local/demo. |
+| `/teacher/courses/[courseId]/batches/[batchId]/exams/[examId]/questions` | Review, add, and edit the exam's MCQ questions and correct answers. | Implemented with seeded local demo questions; changes are page-local. |
 | `/teacher/courses/[courseId]/exams` | Earlier course-level exam list route; batch-based workflow is now the primary model. | Placeholder/legacy route. Preserve compatibility unless explicitly asked to remove it. |
 | `/teacher/courses/[courseId]/exams/new` | Earlier course-level exam creation route. | Placeholder/legacy route. |
 | `/teacher/courses/[courseId]/exams/[examId]` | Earlier course-level exam editor. | Placeholder/legacy route. |
@@ -93,6 +96,7 @@ Visibility rules to carry into navigation and route work:
 | `/teacher/questions/import` | Import MCQs using the official CSV template and validate rows before use. | Placeholder. |
 | `/teacher/billing` | Review student-submitted payment references and approve or reject course access requests. Payment itself remains outside the platform. | Implemented with local mock requests and page-local status changes; no real payment or membership changes occur. |
 | `/teacher/branding` | Configure teacher page identity and branding. | Placeholder. |
+| `/teacher/profile` | View and edit the teacher's public name, specialty, biography, teaching subjects, institution, and location. Each section has its own edit state. | Implemented with authenticated demo profile API; edits are not persisted. |
 | `/teacher/reset-codes` | Generate a one-time manual password reset code for a student in the teacher's own course(s). | Implemented form; confirm component behavior before changes. |
 
 ### Admin workspace
@@ -109,14 +113,14 @@ Visibility rules to carry into navigation and route work:
 
 | Route | Purpose and behavior | Current UI state |
 | --- | --- | --- |
-| `/t/[slug]` | Branded teacher home with profile, courses, batches, and enrollment calls to action. | Implemented with local teacher/course data. |
+| `/t/[slug]` | Branded teacher home with profile, courses, batches, and enrollment calls to action. A signed-in owner sees links to edit public profile and add a course; students and visitors see the read-only storefront. | Implemented with local teacher/course data and owner-only controls. |
 | `/t/[slug]/about` | Teacher profile, credentials, specialty, and public information. | Implemented with local data. |
-| `/t/[slug]/login?next=[path]` | Teacher-context student login and continuation into the intended course/batch action. | Implemented auth component; verify safe redirect behavior when changing. |
-| `/t/[slug]/signup?next=[path]` | Teacher-context student registration and continuation into enrollment. | Implemented auth component. |
+| `/t/[slug]/login?next=[path]` | Student signs into the account belonging to this teacher page with email or phone and password, then continues to the intended course/batch action. | Implemented; login is scoped to the page slug and establishes a page-bound student session. |
+| `/t/[slug]/signup?next=[path]` | Create a student account for this teacher page and continue into enrollment. The account is shared by all courses, batches, and exams on this page. | Implemented; student credentials are unique within the page and may be reused on another teacher page. |
 | `/t/[slug]/s/[studentUsername]` | Teacher-specific student dashboard showing a compact overview across this student's courses with the teacher, each joined course's summary, and the next three exams across those courses. Username is generated at signup; the route must resolve only the signed-in student's own identity and teacher memberships once authorization is implemented. | Implemented with local mock data; student identity and membership checks are not enforced. |
 | `/t/[slug]/s/[studentUsername]/course/[courseId]` | Student's course-specific progress page showing attendance, average and best score, course rank, recent exam results/ranks, subject accuracy, and the next exam. Course must belong to the teacher in the URL. | Implemented with local mock data; student identity and membership checks are not enforced. |
-| `/t/[slug]/course/[courseId]` | Branded course details for a course owned by this teacher; mismatched teacher/course pairs return not found. | Implemented with local data. |
-| `/t/[slug]/batch/[batchId]` | Branded batch schedule and enrollment view. | Implemented component; data is local/demo. |
+| `/t/[slug]/course/[courseId]` | Branded course details for a course owned by this teacher; mismatched teacher/course pairs return not found. | Implemented with local data; read-only for all storefront visitors. |
+| `/t/[slug]/batch/[batchId]` | Branded batch schedule and enrollment view. | Implemented component; data is local/demo and read-only for storefront visitors. |
 | `/t/[slug]/batch/[batchId]/exam` | Compatibility route that redirects to the batch page. | Redirect. |
 | `/t/[slug]/batch/[batchId]/exam/[examId]` | Student attempt entry for an exam in this teacher's batch; require student login and approved batch access before starting. | Implemented shared attempt component with demo exam data; access enforcement is intended. |
 

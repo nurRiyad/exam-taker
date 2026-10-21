@@ -1,7 +1,7 @@
 import type { PublicCourse, PublicTeacher } from "@/utils/public-directory-data";
 
 const TEACHER_COPY: Record<string, { description: string; biography: string }> = {
-  "mahbub-hasan": {
+  kafi: {
     description:
       "দ্রুত প্যাটার্ন চিনে সহজ পদ্ধতিতে অঙ্ক সমাধানের অনুশীলন করুন, যাতে পরীক্ষায় সময়ের মধ্যে নির্ভুল উত্তর দিতে পারেন।",
     biography: "ব্যবহারিক শর্টকাট পদ্ধতি, দৈনিক অনুশীলন ও বারবার পরীক্ষাভিত্তিক প্রশ্ন সমাধানের মাধ্যমে গণিত শেখান।",
@@ -26,7 +26,7 @@ export function getStorefrontTeacherCopy(teacher: PublicTeacher) {
 
 export function getStorefrontTeacherSpecialty(teacher: PublicTeacher) {
   const labels: Record<string, string> = {
-    "mahbub-hasan": "সময়বদ্ধ পরীক্ষার জন্য গণিতের শর্টকাট পদ্ধতি",
+    kafi: "সময়বদ্ধ পরীক্ষার জন্য গণিতের শর্টকাট পদ্ধতি",
     "farhana-akter": "বিসিএস ইংরেজি ও ভাষা দক্ষতা",
     "sadia-rahman": "বাংলাদেশ বিষয়াবলি ও সাম্প্রতিক ঘটনা",
     "tanvir-ahmed": "যুক্তি ও বিশ্লেষণী দক্ষতা",

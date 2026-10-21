@@ -84,26 +84,35 @@ const seededBatches: CourseBatch[] = [
 
 const seededCourseIds = new Set(seededBatches.map((batch) => batch.courseId));
 const generatedBatches: CourseBatch[] = [
-  ...getCoursesByTeacher("mahbub-hasan"),
+  ...getCoursesByTeacher("kafi"),
   getPublicCourse("bangladesh-affairs-mcq"),
   getPublicCourse("reasoning-masterclass"),
 ].flatMap((course, index) => {
   if (!course || seededCourseIds.has(course.id)) return [];
-  return [
-    {
-      id: `${course.id}-fall-2026`,
-      courseId: course.id,
-      title: `${course.title} · ২০২৬ ব্যাচ`,
-      description: `${course.examCategory} পরীক্ষার প্রস্তুতির জন্য স্বতন্ত্র পাঠ্যসূচি ও MCQ মূল্যায়ন।`,
-      status: "চলমান" as const,
-      studentCount: Math.max(86, Math.round(course.studentCount / (index + 3))),
-      firstExamDate: `2026-10-${String(20 + (index % 10)).padStart(2, "0")}`,
-      examIntervalDays: index % 2 ? 7 : 5,
-      examTime: "রাত ৮:০০",
-      syllabus: course.fullSyllabus.split(/,\s*/).slice(0, 5),
-      materials: course.recommendedResources.slice(0, 3),
-    },
-  ];
+  const primaryBatch: CourseBatch = {
+    id: `${course.id}-fall-2026`,
+    courseId: course.id,
+    title: `${course.title} · ২০২৬ ব্যাচ`,
+    description: `${course.examCategory} পরীক্ষার প্রস্তুতির জন্য স্বতন্ত্র পাঠ্যসূচি ও MCQ মূল্যায়ন।`,
+    status: "চলমান",
+    studentCount: Math.max(86, Math.round(course.studentCount / (index + 3))),
+    firstExamDate: `2026-10-${String(20 + (index % 10)).padStart(2, "0")}`,
+    examIntervalDays: index % 2 ? 7 : 5,
+    examTime: "রাত ৮:০০",
+    syllabus: course.fullSyllabus.split(/,\s*/).slice(0, 5),
+    materials: course.recommendedResources.slice(0, 3),
+  };
+  const foundationBatch: CourseBatch = {
+    ...primaryBatch,
+    id: `${course.id}-foundation-2026`,
+    title: `${course.title} · বেসিক ব্যাচ`,
+    description: `${course.title} কোর্সের ভিত্তি মজবুত করার জন্য ধাপে ধাপে অনুশীলন।`,
+    status: "শিগগিরই",
+    studentCount: Math.max(35, Math.round(primaryBatch.studentCount * 0.45)),
+    firstExamDate: `2026-11-${String(2 + (index % 10)).padStart(2, "0")}`,
+    examIntervalDays: 7,
+  };
+  return [primaryBatch, foundationBatch];
 });
 
 const mockBatches = [...seededBatches, ...generatedBatches];
@@ -129,17 +138,17 @@ export function getBatchExams(batch: CourseBatch) {
   const topics = batch.syllabus.filter(
     (item) => !item.includes("মডেল টেস্ট") && !item.includes("Full-length") && !item.includes("Mock"),
   );
-  return Array.from({ length: 6 }, (_, index) => {
+  return Array.from({ length: 3 }, (_, index) => {
     const date = new Date(start);
     date.setDate(start.getDate() + index * batch.examIntervalDays);
     return {
       id: `${batch.id}-exam-${index + 1}`,
-      title: index === 0 ? "প্রথম মূল্যায়ন পরীক্ষা" : `${batch.title.split("·")[0].trim()} · পরীক্ষা ${index + 1}`,
+      title: ["প্রাথমিক মূল্যায়ন", "বিষয়ভিত্তিক অনুশীলন", "পূর্ণাঙ্গ মডেল টেস্ট"][index],
       date,
       isPast: date.getTime() < new Date(new Date().toDateString()).getTime(),
-      questionCount: 20 + index * 5,
-      totalMarks: 20 + index * 5,
-      durationMinutes: index % 2 === 0 ? 90 : 120,
+      questionCount: [25, 40, 60][index],
+      totalMarks: [25, 40, 60][index],
+      durationMinutes: [45, 60, 90][index],
       stage:
         date.toDateString() === new Date().toDateString()
           ? ("চলমান" as const)
@@ -147,7 +156,7 @@ export function getBatchExams(batch: CourseBatch) {
             ? ("শেষ" as const)
             : ("আসন্ন" as const),
       syllabus:
-        index === 5
+        index === 2
           ? [
               ...topics,
               batch.syllabus.find(

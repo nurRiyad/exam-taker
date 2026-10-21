@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, BookOpenCheck, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
 import type { PublicTeacher } from "@/utils/public-directory-data";
-import { validatePassword, validatePhone, validateUsername } from "@/utils/validation";
+import { validateEmail, validatePassword, validatePhone } from "@/utils/validation";
+import { useLoginMutation, useSignupMutation } from "@/features/auth/queries";
+import { setSessionToken } from "@/utils/session-token";
 import { getStorefrontBrand } from "./brand";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
 import { TeacherPageFooter } from "./teacher-page-footer";
@@ -26,6 +29,9 @@ export function TeacherStudentAuth({
   nextPath?: string;
 }) {
   const isSignup = mode === "signup";
+  const router = useRouter();
+  const login = useLoginMutation();
+  const signup = useSignupMutation();
   const brand = getStorefrontBrand(teacher.id);
   const [feedback, setFeedback] = useState("");
   const [fieldError, setFieldError] = useState("");
@@ -33,17 +39,19 @@ export function TeacherStudentAuth({
   const loginHref = makeAuthHref(`/t/${teacher.id}/login`, nextPath);
   const signupHref = makeAuthHref(`/t/${teacher.id}/signup`, nextPath);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const identifier = String(formData.get("identifier") ?? "").trim();
     const password = String(formData.get("password") ?? "");
     const username = String(formData.get("username") ?? "").trim();
     const phone = String(formData.get("phone") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const name = String(formData.get("name") ?? "").trim();
     const confirmation = String(formData.get("confirmation") ?? "");
 
     const validationError = isSignup
-      ? (validateUsername(username) ??
+      ? (validateEmail(email) ??
         validatePhone(phone) ??
         validatePassword(password) ??
         (password !== confirmation ? "দুটি পাসওয়ার্ড মিলছে না।" : undefined))
@@ -58,7 +66,27 @@ export function TeacherStudentAuth({
     }
 
     setFieldError("");
-    setFeedback("এই ডেমোতে অ্যাকাউন্ট সেবা এখনো চালু হয়নি—আপনার তথ্য জমা হয়নি।");
+    setFeedback("");
+    try {
+      const result = isSignup
+        ? await signup.mutateAsync({
+            role: "student",
+            tenantSlug: teacher.id,
+            name,
+            email,
+            phone,
+            password,
+            passwordConfirmation: confirmation,
+          })
+        : await login.mutateAsync({ identifier, password, tenantSlug: teacher.id });
+      setSessionToken(result.token);
+      router.push(safeNextPath);
+    } catch (cause) {
+      const error = cause as Error & { fields?: Record<string, string> };
+      setFieldError(
+        error.fields ? Object.values(error.fields)[0] : error.message || "প্রবেশ করা যায়নি। আবার চেষ্টা করুন।",
+      );
+    }
   }
 
   return (
@@ -115,7 +143,8 @@ export function TeacherStudentAuth({
             <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
               {isSignup ? (
                 <>
-                  <AuthField id="username" name="username" label="ব্যবহারকারীর নাম" autoComplete="username" required />
+                  <AuthField id="name" name="name" label="আপনার নাম" autoComplete="name" />
+                  <AuthField id="email" name="email" label="ইমেইল" type="email" autoComplete="email" required />
                   <AuthField
                     id="phone"
                     name="phone"
@@ -148,7 +177,7 @@ export function TeacherStudentAuth({
                   <AuthField
                     id="identifier"
                     name="identifier"
-                    label="ব্যবহারকারীর নাম বা ফোন নম্বর"
+                    label="ইমেইল বা ফোন নম্বর"
                     autoComplete="username"
                     required
                   />
@@ -181,8 +210,12 @@ export function TeacherStudentAuth({
                   {feedback}
                 </p>
               ) : null}
-              <Button type="submit" className="w-full">
-                {isSignup ? "অ্যাকাউন্ট তৈরি করুন" : "লগইন করুন"}
+              <Button type="submit" className="w-full" disabled={login.isPending || signup.isPending}>
+                {login.isPending || signup.isPending
+                  ? "অপেক্ষা করুন…"
+                  : isSignup
+                    ? "অ্যাকাউন্ট তৈরি করুন"
+                    : "লগইন করুন"}
               </Button>
             </form>
 

@@ -7,13 +7,14 @@ import { hashPassword, verifyPassword } from "../../utils/password";
 import { normalizePhoneToE164 } from "../../utils/phone";
 import { generateResetCode as generateResetCodeValue, hashResetCode, verifyResetCode } from "../../utils/reset-code";
 import { formatSqliteTimestamp } from "../../utils/sqlite-time";
-import { makeProfilePlaceholderEmail, toPublicUser, type PublicUser } from "../../utils/user";
+import { toPublicStudent, toPublicUser, type PublicUser } from "../../utils/user";
 import * as courseEnrollmentsRepository from "../courses/course-enrollments.repository";
 import * as resetCodesRepository from "./reset-codes.repository";
 import * as tenantsRepository from "../tenants/tenants.repository";
 import * as teacherMembershipsRepository from "../tenants/teacher-memberships.repository";
 import * as usersRepository from "./users.repository";
 import * as tenantsService from "../tenants/tenants.service";
+import * as studentsRepository from "./students.repository";
 import type {
   GenerateResetCodeInput,
   LoginInput,
@@ -24,7 +25,7 @@ import type {
 // Same message regardless of *why* login/reset failed — user not found, wrong
 // password/code, expired code, inactive account — so neither endpoint leaks
 // which identifiers exist.
-const VAGUE_LOGIN_ERROR = "Incorrect username/phone or password";
+const VAGUE_LOGIN_ERROR = "Incorrect email/phone or password";
 const VAGUE_RESET_ERROR = "Invalid or expired reset code";
 const RESET_CODE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -37,16 +38,49 @@ export async function checkUsernameAvailability(db: Database, username: string):
   return !existing;
 }
 
-export async function signup(db: Database, input: SignupInput): Promise<PublicUser> {
+export async function signup(db: Database, input: SignupInput): Promise<{ user: PublicUser; tenantId?: string }> {
   const phoneE164 = normalizePhoneToE164(input.phone);
-  const tenantSlug = input.role === "teacher" ? tenantSlugFromUsername(input.username) : undefined;
+  const email = input.email.trim().toLowerCase();
+
+  if (input.role === "student") {
+    const page = await tenantsRepository.findPageBySlug(db, input.tenantSlug!);
+    if (!page || page.status !== "active") throw new NotFoundError("Teacher page not found");
+    const conflicts = await studentsRepository.findConflicts(db, page.id, email, phoneE164);
+    const fields: Record<string, string> = {};
+    if (conflicts.some((student) => student.email === email))
+      fields.email = "Email is already registered on this teacher page";
+    if (conflicts.some((student) => student.phoneE164 === phoneE164))
+      fields.phone = "Phone number is already registered on this teacher page";
+    if (Object.keys(fields).length) throw new ConflictError("Some fields are already taken", fields);
+
+    try {
+      const row = await studentsRepository.insert(db, {
+        tenantId: page.id,
+        name: input.name?.trim() || email.split("@")[0],
+        email,
+        phoneE164,
+        passwordHash: await hashPassword(input.password),
+      });
+      return { user: toPublicStudent(row, page.slug), tenantId: page.id };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      if (!message.includes("UNIQUE constraint failed")) throw err;
+      throw new ConflictError("Some fields are already taken", {
+        email: "Email or phone is already registered on this teacher page",
+      });
+    }
+  }
+
+  const username = input.username!;
+  const tenantSlug = tenantSlugFromUsername(username);
 
   // Explicit, field-level conflict errors on signup — the deliberate
   // opposite of login's vague errors.
-  const conflicts = await usersRepository.findConflicts(db, { username: input.username, phoneE164 });
+  const conflicts = await usersRepository.findConflicts(db, { username, phoneE164, email });
   const fields: Record<string, string> = {};
   if (conflicts.some((u) => u.username === input.username)) fields.username = "Username is already taken";
   if (conflicts.some((u) => u.phoneE164 === phoneE164)) fields.phone = "Phone number is already registered";
+  if (conflicts.some((u) => u.email === email)) fields.email = "Email is already registered";
   if (tenantSlug && (await tenantsRepository.findBySlug(db, tenantSlug))) {
     fields.username = "Username is already taken";
   }
@@ -58,17 +92,22 @@ export async function signup(db: Database, input: SignupInput): Promise<PublicUs
 
   try {
     const user = await usersRepository.insert(db, {
-      name: input.username,
-      username: input.username,
+      name: input.name?.trim() || username,
+      username,
       phoneE164,
-      email: makeProfilePlaceholderEmail(input.username),
+      email,
       passwordHash,
       role: input.role,
     });
     if (input.role === "teacher" && tenantSlug) {
-      await tenantsService.createTenant(db, { name: input.username, slug: tenantSlug, ownerUserId: user.id });
+      await tenantsService.createTenant(db, {
+        name: input.name?.trim() || username,
+        slug: tenantSlug,
+        ownerUserId: user.id,
+      });
     }
-    return toPublicUser(user);
+    const page = await tenantsRepository.findPageBySlug(db, tenantSlug);
+    return { user: toPublicUser(user, page), tenantId: page?.id };
   } catch (err) {
     // The conflict check above has a check-then-insert race: two concurrent
     // signups for the same identity can both pass it. Fall back to the DB's
@@ -80,6 +119,7 @@ export async function signup(db: Database, input: SignupInput): Promise<PublicUs
     const raceFields: Record<string, string> = {};
     if (message.includes("users.username")) raceFields.username = "Username is already taken";
     if (message.includes("users.phone_e164")) raceFields.phone = "Phone number is already registered";
+    if (message.includes("users.email")) raceFields.email = "Email is already registered";
     if (message.includes("tenants.slug")) raceFields.username = "Username is already taken";
     throw new ConflictError(
       "Some fields are already taken",
@@ -88,16 +128,30 @@ export async function signup(db: Database, input: SignupInput): Promise<PublicUs
   }
 }
 
-export async function login(db: Database, input: LoginInput): Promise<PublicUser> {
-  const user = await usersRepository.findByIdentifier(db, input.identifier);
-  if (!user) throw new UnauthorizedError(VAGUE_LOGIN_ERROR);
+export async function login(db: Database, input: LoginInput): Promise<{ user: PublicUser; tenantId?: string }> {
+  const identifier = input.identifier.trim();
+  if (input.tenantSlug) {
+    const page = await tenantsRepository.findPageBySlug(db, input.tenantSlug);
+    if (!page || page.status !== "active") throw new UnauthorizedError(VAGUE_LOGIN_ERROR);
+    const candidateE164 = /^01[3-9]\d{8}$/.test(identifier) ? normalizePhoneToE164(identifier) : undefined;
+    const student = await studentsRepository.findByTenantAndIdentifier(db, page.id, identifier, candidateE164);
+    if (!student || student.status !== "active" || !(await verifyPassword(input.password, student.passwordHash))) {
+      throw new UnauthorizedError(VAGUE_LOGIN_ERROR);
+    }
+    return { user: toPublicStudent(student, page.slug), tenantId: page.id };
+  }
+
+  const user = await usersRepository.findByIdentifier(db, identifier);
+  if (!user || (user.role !== "admin" && user.role !== "teacher")) throw new UnauthorizedError(VAGUE_LOGIN_ERROR);
 
   const passwordValid = await verifyPassword(input.password, user.passwordHash);
   if (!passwordValid || user.status !== "active") {
     throw new UnauthorizedError(VAGUE_LOGIN_ERROR);
   }
 
-  return toPublicUser(user);
+  const membership = user.role === "teacher" ? await teacherMembershipsRepository.findByUserId(db, user.id) : undefined;
+  const page = membership ? await tenantsRepository.findById(db, membership.tenantId) : undefined;
+  return { user: toPublicUser(user, page ? { id: page.id, slug: page.slug } : undefined), tenantId: page?.id };
 }
 
 export async function generateResetCode(

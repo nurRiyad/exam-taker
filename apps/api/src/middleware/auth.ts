@@ -7,12 +7,12 @@ import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
 import { HTTPException } from "hono/http-exception";
 import { getDb } from "@exam-taker/db";
-import { users } from "@exam-taker/db/schema";
+import { students, tenants, users } from "@exam-taker/db/schema";
 import { verifySession } from "../utils/jwt";
-import { toPublicUser, type PublicUser } from "../utils/user";
+import { toPublicStudent, toPublicUser, type PublicUser } from "../utils/user";
+import * as teacherMembershipsRepository from "../features/tenants/teacher-memberships.repository";
 import type { Role } from "../types";
 import type { Env } from "../types/env";
-import { findDemoUserById } from "../features/auth/demo-users";
 
 export type AuthEnv = {
   Bindings: Env;
@@ -31,17 +31,28 @@ async function authenticate(c: Context<AuthEnv>): Promise<PublicUser> {
   const session = await verifySession(token, c.env.JWT_SECRET);
   if (!session) throw new HTTPException(401, { message: "Not authenticated" });
 
-  if (c.env.DEMO_AUTH_ENABLED === "true") {
-    const demoUser = findDemoUserById(session.sub, session.role);
-    if (demoUser) return demoUser;
+  const db = getDb(c.env.DB);
+  if (session.role === "student" && session.tenantId) {
+    const [row] = await db.select().from(students).where(eq(students.id, session.sub)).limit(1);
+    const [page] = await db.select().from(tenants).where(eq(tenants.id, session.tenantId)).limit(1);
+    if (!row || row.tenantId !== session.tenantId || row.status !== "active" || !page || page.status !== "active") {
+      throw new HTTPException(401, { message: "Not authenticated" });
+    }
+    return toPublicStudent(row, page.slug);
   }
 
-  const db = getDb(c.env.DB);
   const [row] = await db.select().from(users).where(eq(users.id, session.sub)).limit(1);
   if (!row || row.status !== "active") {
     throw new HTTPException(401, { message: "Not authenticated" });
   }
 
+  if (row.role === "teacher") {
+    const membership = await teacherMembershipsRepository.findByUserId(db, row.id);
+    if (membership) {
+      const [page] = await db.select().from(tenants).where(eq(tenants.id, membership.tenantId)).limit(1);
+      if (page) return toPublicUser(row, { id: page.id, slug: page.slug });
+    }
+  }
   return toPublicUser(row);
 }
 

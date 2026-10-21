@@ -21,7 +21,7 @@ export function BatchEditorForm({ courseId, batch }: { courseId: string; batch?:
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+    <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-6xl flex-col gap-5">
       <header className="flex flex-col gap-2">
         <Link
           href={`/teacher/courses/${courseId}`}

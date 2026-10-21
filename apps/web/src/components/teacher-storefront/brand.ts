@@ -1,7 +1,7 @@
 import type { StorefrontBrand } from "./types";
 
 export const BRAND_BY_TEACHER: Record<string, StorefrontBrand> = {
-  "mahbub-hasan": {
+  kafi: {
     accent: "var(--primary)",
     accentSoft: "var(--secondary)",
     initials: "মহ",
@@ -28,5 +28,5 @@ export const BRAND_BY_TEACHER: Record<string, StorefrontBrand> = {
 };
 
 export function getStorefrontBrand(teacherId: string) {
-  return BRAND_BY_TEACHER[teacherId] ?? BRAND_BY_TEACHER["mahbub-hasan"];
+  return BRAND_BY_TEACHER[teacherId] ?? BRAND_BY_TEACHER["kafi"];
 }

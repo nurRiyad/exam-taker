@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { TeacherBatchDirectory } from "@/components/teacher-batch-directory";
 import { getBatchExams, getCourseBatches, getTeacherCourses, formatBanglaDate } from "@/utils/course-batches";
 
-const TEACHER_ID = "mahbub-hasan";
+const TEACHER_ID = "kafi";
 
 export default function TeacherBatchesPage() {
   const courses = getTeacherCourses(TEACHER_ID);

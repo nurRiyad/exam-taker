@@ -11,12 +11,18 @@ const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60; // 30 days
 export type SessionPayload = {
   sub: string;
   role: Role;
+  tenantId?: string;
 };
 
 function isSessionPayload(payload: unknown): payload is SessionPayload {
   if (typeof payload !== "object" || payload === null) return false;
-  const { sub, role } = payload as Record<string, unknown>;
-  return typeof sub === "string" && (role === "student" || role === "teacher" || role === "admin");
+  const { sub, role, tenantId } = payload as Record<string, unknown>;
+  return (
+    typeof sub === "string" &&
+    (role === "student" || role === "teacher" || role === "admin") &&
+    (tenantId === undefined || typeof tenantId === "string") &&
+    (role !== "student" || typeof tenantId === "string")
+  );
 }
 
 export async function signSession(payload: SessionPayload, secret: string): Promise<string> {
@@ -27,7 +33,9 @@ export async function signSession(payload: SessionPayload, secret: string): Prom
 export async function verifySession(token: string, secret: string): Promise<SessionPayload | null> {
   try {
     const payload = await verify(token, secret, "HS256");
-    return isSessionPayload(payload) ? { sub: payload.sub, role: payload.role } : null;
+    if (!isSessionPayload(payload)) return null;
+    const claims = payload as SessionPayload;
+    return { sub: claims.sub, role: claims.role, ...(claims.tenantId ? { tenantId: claims.tenantId } : {}) };
   } catch {
     // Covers expired/malformed/signature-mismatched tokens alike — the caller
     // only needs to know "not a valid session", not why.

@@ -15,7 +15,7 @@ export default async function StudentCourseJoinPage({
   if (!course) notFound();
   const batches = getCourseBatches(course.id);
   return (
-    <main className="mx-auto flex w-full flex-1 justify-center px-4 py-8 sm:px-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 justify-center px-4 py-8 sm:px-6">
       <BatchJoinPanel courseId={course.id} batches={batches} selectedBatchId={query.batchId} />
     </main>
   );

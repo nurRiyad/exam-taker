@@ -4,7 +4,7 @@ import { getTeacherCourses } from "@/utils/course-batches";
 import { getTeacherAccessRequests } from "@/utils/teacher-access-requests";
 
 export default function TeacherBillingPage() {
-  const courses = getTeacherCourses("mahbub-hasan");
+  const courses = getTeacherCourses("kafi");
   if (!courses.length) notFound();
-  return <TeacherAccessRequests initialRequests={getTeacherAccessRequests("mahbub-hasan")} />;
+  return <TeacherAccessRequests initialRequests={getTeacherAccessRequests("kafi")} />;
 }

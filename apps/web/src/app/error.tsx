@@ -6,7 +6,7 @@ import { cn } from "@/utils/utils";
 
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <main className="mx-auto flex min-h-[calc(100dvh-13rem)] w-full max-w-3xl flex-col justify-center gap-5 px-4 py-10 sm:px-6">
+    <main className="mx-auto flex min-h-[calc(100dvh-13rem)] w-full max-w-6xl flex-col justify-center gap-5 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-3">
         <p className="text-sm font-medium text-muted-foreground">Error</p>
         <h1 className="text-3xl font-semibold tracking-tight">Something went wrong</h1>

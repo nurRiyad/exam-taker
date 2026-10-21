@@ -45,7 +45,7 @@ export function BatchExamManager({
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
       <Link
         href={`/teacher/courses/${courseId}/batches/${batch.id}`}
         className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-foreground"

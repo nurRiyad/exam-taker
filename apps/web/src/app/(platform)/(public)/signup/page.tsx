@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { useSignupMutation, useUsernameAvailabilityQuery } from "@/features/auth/queries";
 import { type FieldErrors } from "@/utils/api-error";
 import { setSessionToken } from "@/utils/session-token";
-import { validatePassword, validatePhone, validateUsername } from "@/utils/validation";
+import { validateEmail, validatePassword, validatePhone, validateUsername } from "@/utils/validation";
 
 type FormValues = {
   username: string;
+  email: string;
   phone: string;
   role: "teacher";
   password: string;
@@ -23,6 +24,7 @@ type FormValues = {
 
 const EMPTY_FORM: FormValues = {
   username: "",
+  email: "",
   phone: "",
   role: "teacher",
   password: "",
@@ -70,6 +72,8 @@ export default function SignupPage() {
     else if (availability === "taken") errors.username = "Username is already taken";
     const phoneError = validatePhone(form.phone);
     if (phoneError) errors.phone = phoneError;
+    const emailError = validateEmail(form.email);
+    if (emailError) errors.email = emailError;
     const passwordError = validatePassword(form.password);
     if (passwordError) errors.password = passwordError;
     if (form.password !== form.passwordConfirmation) {
@@ -87,7 +91,7 @@ export default function SignupPage() {
 
     signup.reset();
     try {
-      const { token } = await signup.mutateAsync(form);
+      const { token } = await signup.mutateAsync({ ...form, name: form.username });
       setSessionToken(token);
       const nextPath = new URLSearchParams(window.location.search).get("next");
       router.push(nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard");
@@ -101,7 +105,7 @@ export default function SignupPage() {
   }
 
   return (
-    <AuthCard title="Create your account" description="Use your profile settings later for name and email.">
+    <AuthCard title="Create your account" description="Create your teacher account and page.">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="username">Username</Label>
@@ -118,6 +122,18 @@ export default function SignupPage() {
             <p className="text-xs text-emerald-600">Username is available</p>
           )}
           <FieldError message={fieldErrors.username} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
+            autoComplete="email"
+          />
+          <FieldError message={fieldErrors.email} />
         </div>
 
         <div className="flex flex-col gap-1.5">

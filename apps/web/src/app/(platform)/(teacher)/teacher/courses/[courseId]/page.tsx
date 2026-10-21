@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Pencil, Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { BatchCard } from "@/components/batch-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCourseBatches } from "@/utils/course-batches";
 import { getPublicCourse } from "@/utils/public-directory-data";
@@ -25,11 +24,21 @@ export default async function TeacherCoursePage({ params }: TeacherCoursePagePro
         <ArrowLeft aria-hidden="true" className="size-4" /> আমার কোর্সে ফিরুন
       </Link>
       <Card className="gap-0">
-        <CardHeader className="gap-2">
-          <span className="w-fit rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-            {course.examCategory}
-          </span>
-          <CardTitle className="text-xl sm:text-2xl">{course.title}</CardTitle>
+        <CardHeader className="gap-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-col gap-2">
+              <span className="w-fit rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                {course.examCategory}
+              </span>
+              <CardTitle className="text-xl sm:text-2xl">{course.title}</CardTitle>
+            </div>
+            <Link
+              href={`/teacher/courses/${course.id}/edit`}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "shrink-0")}
+            >
+              <Pencil aria-hidden="true" data-icon="inline-start" /> সম্পাদনা
+            </Link>
+          </div>
           <CardDescription className="max-w-3xl leading-6">{course.fullDescription}</CardDescription>
         </CardHeader>
         <CardContent className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t pt-4 text-sm text-muted-foreground">
@@ -51,14 +60,42 @@ export default async function TeacherCoursePage({ params }: TeacherCoursePagePro
           </Link>
         </div>
         {batches.length ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {batches.map((batch) => (
-              <BatchCard
+          <div className="overflow-hidden rounded-2xl border border-border/80 bg-card">
+            {batches.map((batch, index) => (
+              <div
                 key={batch.id}
-                batch={batch}
-                href={`/teacher/courses/${course.id}/batches/${batch.id}`}
-                actionLabel="ব্যাচ পরিচালনা করুন"
-              />
+                className={`grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2 p-3 sm:gap-4 sm:p-4 ${index ? "border-t" : ""}`}
+              >
+                <Link
+                  href={`/teacher/courses/${course.id}/batches/${batch.id}`}
+                  className="group flex min-w-0 items-center gap-3 rounded-md focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary px-2 text-center text-xs font-medium text-secondary-foreground">
+                    {batch.status}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{batch.title}</span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">{batch.description}</span>
+                  </span>
+                </Link>
+                <Link
+                  href={`/teacher/courses/${course.id}/batches/${batch.id}/edit`}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "sm" }),
+                    "shrink-0 gap-1.5 px-2.5 text-muted-foreground hover:text-foreground",
+                  )}
+                  aria-label={`${batch.title} সম্পাদনা`}
+                >
+                  <Pencil data-icon="inline-start" /> সম্পাদনা
+                </Link>
+                <Link
+                  href={`/teacher/courses/${course.id}/batches/${batch.id}`}
+                  aria-label={`${batch.title} খুলুন`}
+                  className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                >
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
             ))}
           </div>
         ) : (

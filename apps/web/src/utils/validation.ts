@@ -25,6 +25,7 @@ export function validateEmail(value: string): string | undefined {
 }
 
 export function validatePassword(value: string): string | undefined {
-  if (value.length < 6) return "Password must be at least 6 characters";
+  if (value.length < 5) return "Password must be at least 5 characters";
+  if (value.length > 20) return "Password must be at most 20 characters";
   return undefined;
 }
