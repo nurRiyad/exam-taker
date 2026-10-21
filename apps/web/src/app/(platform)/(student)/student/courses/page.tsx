@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, BookOpenCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCourseBatches } from "@/lib/course-batches";
-import { getPublicCourse } from "@/lib/public-directory-data";
+import { getCourseBatches } from "@/utils/course-batches";
+import { getPublicCourse } from "@/utils/public-directory-data";
 
 const enrolled = [
   { courseId: "math-shortcut-practice", batchId: "bank-morning-2026" },

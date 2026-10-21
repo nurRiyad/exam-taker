@@ -3,7 +3,10 @@ import { cors } from "hono/cors";
 type CorsOptions = NonNullable<Parameters<typeof cors>[0]>;
 
 const resolveAllowedOrigin: NonNullable<CorsOptions["origin"]> = (origin, c) => {
-  const allowedOrigins = c.env.FRONTEND_ORIGIN.split(",").map((allowed: string) => allowed.trim());
+  const allowedOrigins = (c.env.FRONTEND_ORIGIN ?? "")
+    .split(",")
+    .map((allowed: string) => allowed.trim())
+    .filter(Boolean);
   return allowedOrigins.includes(origin) ? origin : undefined;
 };
 
@@ -14,4 +17,5 @@ export const corsMiddleware = cors({
   origin: resolveAllowedOrigin,
   allowHeaders: ["Content-Type", "Authorization"],
   allowMethods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  maxAge: 86400,
 } satisfies CorsOptions);

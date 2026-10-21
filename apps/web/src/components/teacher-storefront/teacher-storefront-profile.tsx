@@ -2,11 +2,12 @@ import Link from "next/link";
 import { ArrowLeft, BookOpen, GraduationCap, MapPin, School, UsersRound } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import type { PublicTeacher } from "@/lib/public-directory-data";
+import { cn } from "@/utils/utils";
+import type { PublicTeacher } from "@/utils/public-directory-data";
 import { getStorefrontBrand } from "./brand";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
 import { getStorefrontTeacherCopy, getStorefrontTeacherSpecialty } from "./content";
+import { TeacherPageFooter } from "./teacher-page-footer";
 
 export function TeacherStorefrontProfile({ teacher }: { teacher: PublicTeacher }) {
   const brand = getStorefrontBrand(teacher.id);
@@ -103,14 +104,7 @@ export function TeacherStorefrontProfile({ teacher }: { teacher: PublicTeacher }
           </Card>
         </div>
       </main>
-      <footer className="mt-auto border-t border-border bg-background">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <span>
-            © {new Date().getFullYear()} {teacher.name}
-          </span>
-          <span>অনলাইন কোর্স ও পরীক্ষা</span>
-        </div>
-      </footer>
+      <TeacherPageFooter teacher={teacher} />
     </div>
   );
 }

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCourseBatches, getTeacherCourses } from "@/lib/course-batches";
-import { cn } from "@/lib/utils";
+import { getCourseBatches, getTeacherCourses } from "@/utils/course-batches";
+import { cn } from "@/utils/utils";
 
 export default function TeacherCoursesPage() {
   const courses = getTeacherCourses("mahbub-hasan");

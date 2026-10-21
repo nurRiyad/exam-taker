@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { NewBatchExamForm } from "@/components/new-batch-exam-form";
-import { getCourseBatch } from "@/lib/course-batches";
+import { getCourseBatch } from "@/utils/course-batches";
 
 export default async function NewBatchExamPage({ params }: { params: Promise<{ courseId: string; batchId: string }> }) {
   const { courseId, batchId } = await params;

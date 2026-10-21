@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { ArrowLeft, GraduationCap } from "lucide-react";
-import { BatchCard } from "@/components/batch-card";
+import { ArrowLeft, ArrowUpRight, CalendarDays, GraduationCap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCourseBatches } from "@/lib/course-batches";
-import type { PublicCourse, PublicTeacher } from "@/lib/public-directory-data";
-import { getExamCategoryLabel } from "@/lib/public-directory-data";
+import { formatBanglaDate, getBatchExams, getCourseBatches } from "@/utils/course-batches";
+import type { PublicCourse, PublicTeacher } from "@/utils/public-directory-data";
+import { getExamCategoryLabel } from "@/utils/public-directory-data";
 import { getStorefrontBrand } from "./brand";
 import { getStorefrontBatchTitle, getStorefrontCourseCopy } from "./content";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
+import { TeacherPageFooter } from "./teacher-page-footer";
 
 export function TeacherStorefrontCourse({ teacher, course }: { teacher: PublicTeacher; course: PublicCourse }) {
   const batches = getCourseBatches(course.id);
@@ -69,15 +69,64 @@ export function TeacherStorefrontCourse({ teacher, course }: { teacher: PublicTe
             <p className="text-sm text-muted-foreground">পছন্দের ব্যাচ বেছে নিয়ে সময়সূচি ও ভর্তি তথ্য দেখুন।</p>
           </div>
           {batches.length ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {batches.map((batch) => (
-                <BatchCard
-                  key={batch.id}
-                  batch={{ ...batch, title: getStorefrontBatchTitle(batch.title, course) }}
-                  href={`/t/${teacher.id}/batch/${batch.id}`}
-                  showAction={false}
-                />
-              ))}
+            <div className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm shadow-indigo-950/[0.025]">
+              <ul className="divide-y divide-border/70">
+                {batches.map((batch) => {
+                  const exams = getBatchExams(batch);
+                  const startDate = exams[0]?.date;
+                  const endDate = exams.at(-1)?.date;
+                  const statusTone =
+                    batch.status === "চলমান"
+                      ? "bg-emerald-50 text-emerald-700"
+                      : batch.status === "শিগগিরই"
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-muted text-muted-foreground";
+
+                  return (
+                    <li key={batch.id}>
+                      <Link
+                        href={`/t/${teacher.id}/batch/${batch.id}`}
+                        className="group flex min-w-0 flex-col gap-3 p-4 transition-colors hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:flex-row sm:items-center sm:gap-5 sm:px-5"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="hidden h-10 w-1 shrink-0 rounded-full bg-[var(--teacher-accent)]/70 sm:block"
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="truncate font-semibold text-foreground">
+                              {getStorefrontBatchTitle(batch.title, course)}
+                            </span>
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${statusTone}`}>
+                              {batch.status}
+                            </span>
+                          </span>
+                          <span className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground sm:text-sm">
+                            {startDate ? (
+                              <span className="inline-flex items-center gap-1.5">
+                                <CalendarDays aria-hidden="true" className="size-3.5" /> শুরু{" "}
+                                {formatBanglaDate(startDate)}
+                              </span>
+                            ) : null}
+                            {endDate ? (
+                              <span className="inline-flex items-center gap-1.5">
+                                <CalendarDays aria-hidden="true" className="size-3.5" /> শেষ {formatBanglaDate(endDate)}
+                              </span>
+                            ) : null}
+                          </span>
+                        </span>
+                        <span className="inline-flex items-center justify-end gap-1 text-sm font-medium text-primary sm:shrink-0">
+                          ব্যাচ দেখুন
+                          <ArrowUpRight
+                            aria-hidden="true"
+                            className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          />
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           ) : (
             <div className="rounded-xl border border-dashed bg-card px-5 py-10 text-center text-sm text-muted-foreground">
@@ -86,6 +135,7 @@ export function TeacherStorefrontCourse({ teacher, course }: { teacher: PublicTe
           )}
         </section>
       </main>
+      <TeacherPageFooter teacher={teacher} />
     </div>
   );
 }

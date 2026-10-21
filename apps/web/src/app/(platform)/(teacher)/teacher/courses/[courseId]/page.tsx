@@ -4,9 +4,9 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { BatchCard } from "@/components/batch-card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getCourseBatches } from "@/lib/course-batches";
-import { getPublicCourse } from "@/lib/public-directory-data";
-import { cn } from "@/lib/utils";
+import { getCourseBatches } from "@/utils/course-batches";
+import { getPublicCourse } from "@/utils/public-directory-data";
+import { cn } from "@/utils/utils";
 
 type TeacherCoursePageProps = { params: Promise<{ courseId: string }> };
 

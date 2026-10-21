@@ -4,12 +4,13 @@ import { ArrowLeft, BookOpen, CalendarDays, FileText, GraduationCap, UsersRound 
 import { buttonVariants } from "@/components/ui/button";
 import { ExamSchedule } from "@/components/exam-schedule";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getBatchExams, getCourseBatch, formatBanglaDate } from "@/lib/course-batches";
-import { getCoursesByTeacher, getExamCategoryLabel, getPublicTeacher } from "@/lib/public-directory-data";
+import { getBatchExams, getCourseBatch, formatBanglaDate } from "@/utils/course-batches";
+import { getCoursesByTeacher, getExamCategoryLabel, getPublicTeacher } from "@/utils/public-directory-data";
 import { getStorefrontBrand } from "./brand";
 import { getStorefrontBatchTitle, getStorefrontCourseCopy } from "./content";
 import { TeacherPageMasthead } from "./teacher-page-masthead";
-import { cn } from "@/lib/utils";
+import { TeacherPageFooter } from "./teacher-page-footer";
+import { cn } from "@/utils/utils";
 
 export function TeacherStorefrontBatch({ teacherSlug, batchId }: { teacherSlug: string; batchId: string }) {
   const teacher = getPublicTeacher(teacherSlug);
@@ -143,6 +144,7 @@ export function TeacherStorefrontBatch({ teacherSlug, batchId }: { teacherSlug: 
           </div>
         </div>
       </main>
+      <TeacherPageFooter teacher={teacher} />
     </div>
   );
 }

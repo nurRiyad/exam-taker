@@ -6,10 +6,10 @@ import { Suspense, useState } from "react";
 import { AuthCard, FieldError } from "@/components/auth-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { Label } from "@/components/ui/label";
-import { apiClient } from "@/lib/api-client";
-import { extractApiError } from "@/lib/api-error";
-import { setSessionToken } from "@/lib/session-token";
+import { useLoginMutation } from "@/features/auth/queries";
+import { setSessionToken } from "@/utils/session-token";
 
 // useSearchParams() opts the tree above it into client-side rendering, which
 // Next.js requires wrapping in Suspense (build otherwise errors on
@@ -29,40 +29,43 @@ function LoginForm() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>();
-  const [submitting, setSubmitting] = useState(false);
+  const login = useLoginMutation();
+  const submitting = login.isPending;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setError(undefined);
+    login.reset();
     if (!identifier.trim() || !password) {
       setError("Enter your username or phone and your password");
       return;
     }
 
-    setSubmitting(true);
     try {
-      const res = await apiClient.auth.login.$post({ json: { identifier, password } });
-      if (!res.ok) {
-        // Deliberately vague — never reveals which field was wrong.
-        const { message } = await extractApiError(res, "Incorrect username/phone or password");
-        setError(message);
-        return;
-      }
-      const { token } = await res.json();
+      const { token } = await login.mutateAsync({ identifier, password });
       setSessionToken(token);
       router.push(nextPath?.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/dashboard");
-    } catch {
-      setError("Network error — check your connection and try again.");
-    } finally {
-      setSubmitting(false);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "সংযোগে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     }
   }
 
   return (
-    <AuthCard title="Log in">
+    <AuthCard title="লগইন করুন">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
+        <aside
+          aria-label="ডেমো অ্যাকাউন্ট"
+          className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm text-violet-950"
+        >
+          <p className="font-semibold">ডেমো অ্যাকাউন্ট</p>
+          <p className="mt-1 text-xs leading-5">
+            অ্যাডমিন: admin / admin
+            <br />
+            শিক্ষক: kafi / kafi
+          </p>
+        </aside>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="identifier">Username or phone</Label>
+          <Label htmlFor="identifier">ব্যবহারকারীর নাম বা ফোন নম্বর</Label>
           <Input
             id="identifier"
             value={identifier}
@@ -72,10 +75,9 @@ function LoginForm() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="password">Password</Label>
-          <Input
+          <Label htmlFor="password">পাসওয়ার্ড</Label>
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
@@ -85,20 +87,20 @@ function LoginForm() {
         <FieldError message={error} />
 
         <Button type="submit" disabled={submitting} className="w-full">
-          {submitting ? "Logging in…" : "Log in"}
+          {submitting ? "লগইন হচ্ছে…" : "লগইন করুন"}
         </Button>
 
         <div className="flex flex-col gap-1 text-center text-sm text-muted-foreground">
           <Link href="/reset" className="text-primary underline-offset-4 hover:underline">
-            Forgot your password?
+            পাসওয়ার্ড ভুলে গেছেন?
           </Link>
           <p>
-            New here?{" "}
+            নতুন ব্যবহারকারী?{" "}
             <Link
               href={nextPath ? `/signup?next=${encodeURIComponent(nextPath)}` : "/signup"}
               className="text-primary underline-offset-4 hover:underline"
             >
-              Sign up
+              অ্যাকাউন্ট খুলুন
             </Link>
           </p>
         </div>

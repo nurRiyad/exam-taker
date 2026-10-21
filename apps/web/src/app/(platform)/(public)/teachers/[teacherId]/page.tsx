@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { TeacherProfileCourses } from "@/components/teacher-profile-courses";
-import { getCoursesByTeacher, getExamCategoryLabel, getPublicTeacher } from "@/lib/public-directory-data";
+import { getCoursesByTeacher, getExamCategoryLabel, getPublicTeacher } from "@/utils/public-directory-data";
 
 type TeacherDetailsPageProps = {
   params: Promise<{ teacherId: string }>;

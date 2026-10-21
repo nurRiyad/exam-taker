@@ -10,9 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@exam-taker/validation": "workspace:*",
     "@base-ui/react": "^1.6.0",
     "@exam-taker/api": "workspace:*",
+    "@exam-taker/validation": "workspace:*",
+    "@tanstack/react-query": "^5.104.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "hono": "^4.12.27",

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { CourseBatch } from "@/lib/course-batches";
-import { formatBanglaDate, getBatchExams } from "@/lib/course-batches";
+import type { CourseBatch } from "@/utils/course-batches";
+import { formatBanglaDate, getBatchExams } from "@/utils/course-batches";
 
 type BatchCardProps = {
   batch: CourseBatch;

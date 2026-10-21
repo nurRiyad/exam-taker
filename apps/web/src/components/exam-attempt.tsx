@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, CheckCircle2, Clock3, Flag, ListChecks, X } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 type Question = { prompt: string; options: string[]; answer: number };
 

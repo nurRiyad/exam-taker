@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { NavbarProfileDropdown } from "@/components/navbar-profile-dropdown";
 import { buttonVariants } from "@/components/ui/button";
-import { apiClient } from "@/lib/api-client";
-import { getSessionToken, subscribeSessionToken } from "@/lib/session-token";
-import { cn } from "@/lib/utils";
-
-type NavbarUser = {
-  name: string | null;
-  username: string;
-};
+import { useCurrentUserQuery } from "@/features/auth/queries";
+import { getSessionToken, subscribeSessionToken } from "@/utils/session-token";
+import { cn } from "@/utils/utils";
 
 function getSnapshot() {
   return Boolean(getSessionToken());
@@ -23,34 +18,23 @@ function getServerSnapshot() {
 
 export function NavbarAccountAction() {
   const hasToken = useSyncExternalStore(subscribeSessionToken, getSnapshot, getServerSnapshot);
-  const [user, setUser] = useState<NavbarUser | null>(null);
+  const currentUser = useCurrentUserQuery(hasToken);
+  const user = currentUser.data?.user;
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!hasToken) return;
-
-    async function loadUser() {
-      try {
-        const res = await apiClient.auth.me.$get();
-        if (!res.ok) {
-          if (!cancelled) setUser(null);
-          return;
-        }
-        const data = await res.json();
-        if (!cancelled) setUser({ name: data.user.name, username: data.user.username });
-      } catch {
-        if (!cancelled) setUser(null);
-      }
-    }
-
-    void loadUser();
-    return () => {
-      cancelled = true;
-    };
-  }, [hasToken]);
+  if (hasToken && currentUser.isPending) {
+    return (
+      <span
+        role="status"
+        aria-label="অ্যাকাউন্ট লোড হচ্ছে"
+        className="block size-10 animate-pulse rounded-full border border-violet-100 bg-violet-50"
+      >
+        <span className="sr-only">অ্যাকাউন্ট লোড হচ্ছে…</span>
+      </span>
+    );
+  }
 
   if (hasToken) {
-    return <NavbarProfileDropdown label={user?.name ?? user?.username ?? "Account"} />;
+    return <NavbarProfileDropdown label={user?.name ?? user?.username ?? "অ্যাকাউন্ট"} />;
   }
 
   return (

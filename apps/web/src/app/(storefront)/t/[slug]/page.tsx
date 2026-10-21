@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TeacherStorefront } from "@/components/teacher-storefront/teacher-storefront";
-import { getCourseBatches } from "@/lib/course-batches";
-import { getCoursesByTeacher, getPublicTeacher } from "@/lib/public-directory-data";
+import { getCourseBatches } from "@/utils/course-batches";
+import { getCoursesByTeacher, getPublicTeacher } from "@/utils/public-directory-data";
 
 type TeacherStorefrontPageProps = { params: Promise<{ slug: string }> };
 

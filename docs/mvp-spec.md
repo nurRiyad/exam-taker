@@ -14,8 +14,10 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 
 - Public page per teacher/coaching.
 - Supports logo, banner, color, and teacher/user picture.
-- Initial pilots may use separate teacher-specific deployments generated from a common template.
-- Public course list shows course title, short description, price/free status, discount, and exam route summary.
+- All teachers use the shared multi-tenant platform, with branding and data scoped to each teacher's tenant.
+- Each teacher's public storefront lists that teacher's courses with title, short description, student-facing price/free status, discount, and exam route summary.
+- Global teacher/course directories are admin/support pages, not student marketplace pages.
+- Teachers can view and manage only their own tenant's courses, batches, exams, and enrolled students. Students can view their own memberships, attempts, results, and progress. Admins can access platform-wide records and support views.
 
 ## Course
 
@@ -26,15 +28,15 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 - Free course join is auto-approved after login.
 - Teacher can block/remove students from future access.
 
-## Course Route And Exam Topics
+## Course Batches, Routes, And Exam Topics
 
-- A course can have one or many exam topics.
-- Future exam topics are visible before questions are ready.
+- A course can have one or many batches. A batch groups its student cohort, syllabus, and schedule; a batch contains one or more scheduled exam topics.
+- Future exam topics are visible on the owning teacher's public storefront before questions are ready.
 - Future topic fields: title, short description, date/time.
 - Date/time is required before route publication.
 - Marks/question count are hidden until exam publish.
-- Past exam list is always public, with locked details for non-enrolled users.
-- Public past exam metadata shows syllabus details, date/time, live participant count, and top score with username.
+- Past exam list is public on the teacher's storefront, with locked details for non-enrolled users.
+- Public past exam metadata shows syllabus details, date/time, live participant count, and top score with username, subject to the exam's configured result visibility.
 
 ## Student Signup And Auth
 
@@ -127,10 +129,8 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 
 ## Language And Currency
 
-- Launch UI in English.
-- Build i18n structure from day one with empty Bangla placeholders.
-- Admin UI stays English-only.
-- Teacher/student Bangla UI is post-MVP.
+- Launch UI is Bangla-first across public, student, teacher, and admin pages.
+- Keep user-facing copy and locale-sensitive formatting easy to adapt to English later; do not add English UI unless requested.
 - Content and PDFs must support Bangla from day one.
 - Currency is BDT only.
 
@@ -152,6 +152,6 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 
 - First pilot through wife's known coaching network.
 - Start with Golding Coaching or Rokibul Sir.
-- Offer: 500 BDT / 5 exams / 100 students.
+- Agree the per-student billing rate for each course with the teacher before the pilot; admin invoices manually from the approved/enrolled student count.
 - Founder available during first live exams.
-- Track support time, exam reliability, number of paid students, and teacher willingness to run the next exam pack.
+- Track support time, exam reliability, approved students, and teacher willingness to continue using the platform.

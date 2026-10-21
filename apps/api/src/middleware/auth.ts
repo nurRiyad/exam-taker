@@ -12,6 +12,7 @@ import { verifySession } from "../utils/jwt";
 import { toPublicUser, type PublicUser } from "../utils/user";
 import type { Role } from "../types";
 import type { Env } from "../types/env";
+import { findDemoUserById } from "../features/auth/demo-users";
 
 export type AuthEnv = {
   Bindings: Env;
@@ -29,6 +30,11 @@ async function authenticate(c: Context<AuthEnv>): Promise<PublicUser> {
 
   const session = await verifySession(token, c.env.JWT_SECRET);
   if (!session) throw new HTTPException(401, { message: "Not authenticated" });
+
+  if (c.env.DEMO_AUTH_ENABLED === "true") {
+    const demoUser = findDemoUserById(session.sub, session.role);
+    if (demoUser) return demoUser;
+  }
 
   const db = getDb(c.env.DB);
   const [row] = await db.select().from(users).where(eq(users.id, session.sub)).limit(1);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { PublicTeacher } from "@/lib/public-directory-data";
+import { cn } from "@/utils/utils";
+import type { PublicTeacher } from "@/utils/public-directory-data";
 import { getStorefrontBrand } from "./brand";
 
 export function TeacherPageMasthead({
@@ -13,7 +13,7 @@ export function TeacherPageMasthead({
 }) {
   const brand = getStorefrontBrand(teacher.id);
   return (
-    <header className="border-b border-border bg-background">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/95 shadow-sm shadow-foreground/[0.02] backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         <Link
           href={`/t/${teacher.id}`}

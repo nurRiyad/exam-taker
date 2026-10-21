@@ -8,7 +8,7 @@ The overall software business that hosts teacher pages, courses, exams, students
 
 The paying or revenue-generating customer who creates courses, exam routes, exams, and questions. A teacher may be an individual teacher, coaching owner, or admin working for a coaching brand.
 
-Teachers can open a teacher account during signup; the platform creates their initial tenant and owner membership immediately ().
+Teachers can open a teacher account during signup; the platform creates their initial tenant and owner membership immediately.
 
 ## Student
 
@@ -22,19 +22,15 @@ A branded public page for one teacher or coaching brand. Example: `teacing.com/h
 
 Teacher page customization using logo, banner, color, and teacher/user picture.
 
-## Teacher Template Deployment
-
-Superseded. Early plan to generate separate per-teacher code deployments from a shared template; replaced by a single shared multi-tenant deployment from day one (see Tenant, and ).
-
 ## Tenant
 
-A logically separated teacher/coaching space inside one shared multi-tenant deployment (). Each tenant has its own courses, students, exams, results, and branding, scoped by `tenant_id` within the same app and database.
+A logically separated teacher/coaching space inside one shared multi-tenant deployment. Each tenant has its own courses, students, exams, results, and branding, scoped by `tenant_id` within the same app and database.
 
-For self-serve teacher signup, the initial tenant name and slug are derived from the teacher's username and can be branded later ().
+For self-serve teacher signup, the initial tenant name and slug are derived from the teacher's username and can be branded later.
 
 ## Course
 
-A paid or free preparation program created by a teacher. A course contains a route and scheduled exams.
+A paid or free preparation program created by a teacher. A course contains one or more batches/routes, each with its own student cohort, syllabus, and scheduled exams.
 
 ## Course Price
 
@@ -56,9 +52,9 @@ A course with no student-facing price. Free courses auto-approve student join re
 
 Bangladeshi taka. MVP supports BDT only.
 
-## English-first I18n-ready
+## Bangla-first UI
 
-Product-language decision that MVP launches in English first while being structured so Bangla can be added easily. Admin UI remains English-only; teacher/student UI should support Bangla later. Translation/i18n structure exists from day one with empty Bangla placeholders.
+Product-language decision that public, student, teacher, and admin UI use Bangla by default. Keep user-facing copy and locale-sensitive formatting easy to adapt to English later; do not add English UI unless requested.
 
 ## Username
 
@@ -278,7 +274,7 @@ Access rule where approved students keep access to past course exams/results unl
 
 ## Past Exam Visibility
 
-Public course-page behavior where past exam titles/dates can be visible to everyone, but results and details remain locked for non-enrolled users.
+Public teacher-storefront behavior where past exam titles/dates can be visible to everyone, while details and private student results remain locked for non-enrolled users. A released leaderboard may be public according to that exam's configured result visibility.
 
 ## Locked Exam CTA
 
@@ -378,27 +374,23 @@ A shared page/deployment template customized per teacher with logo, banner, colo
 
 ## Pilot Terms
 
-Plain-language agreement for the first paid teachers covering pricing, included exams, student cap, content responsibility, downtime expectations, refund policy, and support boundaries.
+Plain-language agreement for a pilot teacher covering the negotiated per-course billing rate, student-facing course price and access process, content responsibility, downtime expectations, refund policy, and support boundaries. The current model sets no fixed exam count or student cap.
 
 ## Active Student
 
-Resolved (): the billing unit is the count of approved/enrolled students in a specific course at the moment an invoice is generated, not a cross-course or time-window concept.
+The billing unit is the count of approved/enrolled students in a specific course at the moment an invoice is generated, not a cross-course or time-window concept.
 
 ## Course Billing Rate
 
-The platform's private negotiated per-student rate charged to a teacher for a specific course (`price_per_student_bdt`). Distinct from the course's student-facing price. See.
+The platform's private negotiated per-student rate charged to a teacher for a specific course (`price_per_student_bdt`). Distinct from the course's student-facing price.
 
 ## Invoice
 
-A per-course bill generated manually by admin, computed from the course's approved-student-count snapshot times its negotiated `Course Billing Rate`, with an optional manual adjustment. Tracked through `draft -> sent -> paid`/`void`. Replaces exam-pack usage billing. See.
-
-## Exam Pack
-
-Historical MVP pricing framing (500 BDT for 5 exams), used for the first pilot offer language in `docs/pilot-terms.md`. Superseded as the actual platform-to-teacher billing mechanism by per-course `Invoice`s ().
+A per-course bill generated manually by admin, computed from the course's approved-student-count snapshot times its negotiated `Course Billing Rate`, with an optional manual adjustment. Tracked through `draft -> sent -> paid`/`void`. This is the current platform billing model; it replaces historical exam-pack usage billing.
 
 ## Exam Duplication
 
-Teacher workflow for copying an old exam to create a new one faster. Duplication itself is unrestricted; it no longer counts against any exam-pack billing limit, since billing is per-course/student-count ().
+Teacher workflow for copying an old exam to create a new one faster. Duplication is unrestricted. Platform billing is based on the negotiated per-student rate for each course, not on exam count.
 
 ## JWT Session
 

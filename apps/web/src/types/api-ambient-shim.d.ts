@@ -1,4 +1,4 @@
-// apps/api's `AppType` (imported type-only in src/lib/api-client.ts, per
+// apps/api's `AppType` (imported type-only in src/utils/api-client.ts, per
 // ) references a couple of Cloudflare Workers ambient globals
 // (`Env`, `D1Database`) declared in apps/api/worker-configuration.d.ts.
 // That file also redefines the global `Response`/`fetch` to their

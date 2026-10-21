@@ -13,8 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { getExamCategoryLabel, type PublicCourse } from "@/lib/public-directory-data";
-import { cn } from "@/lib/utils";
+import { getExamCategoryLabel, type PublicCourse } from "@/utils/public-directory-data";
+import { cn } from "@/utils/utils";
 
 const CATEGORY_OPTIONS = ["সব", "BCS", "ব্যাংক", "সরকারি চাকরি", "প্রাথমিক"] as const;
 

@@ -2,6 +2,8 @@
 
 This is a product-level model, not final database DDL.
 
+The current UI groups a course's schedule and syllabus into batches/routes. This draft model still attaches student enrollment and exam topics directly to a course and does not define a persisted `Batch` entity. Treat batch routes as UI/demo structure for now; do not infer a database change from the route map. Before backend work, decide whether a batch is only a schedule grouping or also has its own enrollment/access roster. The current product rule is that a teacher can see students enrolled in their own course, and students can see only their own course access and results.
+
 ## Tenant
 
 - `id`

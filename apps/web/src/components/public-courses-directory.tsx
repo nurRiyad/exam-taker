@@ -4,8 +4,8 @@ import { useState } from "react";
 import { PublicCourseCard } from "@/components/public-course-card";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { COURSE_FILTERS, PUBLIC_COURSES_DIRECTORY } from "@/lib/public-directory-data";
-import { cn } from "@/lib/utils";
+import { COURSE_FILTERS, PUBLIC_COURSES_DIRECTORY } from "@/utils/public-directory-data";
+import { cn } from "@/utils/utils";
 
 export function PublicCoursesDirectory() {
   const [query, setQuery] = useState("");

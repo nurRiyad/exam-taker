@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import type { CourseBatch } from "@/lib/course-batches";
+import type { CourseBatch } from "@/utils/course-batches";
 
 const STATUS_FILTERS = ["সব", "চলমান", "শিগগিরই", "শেষ"] as const;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { getExamCategoryLabel } from "@/lib/public-directory-data";
+import { getExamCategoryLabel } from "@/utils/public-directory-data";
 import { StorefrontCourseCard } from "./storefront-course-card";
 import type { StorefrontCourse } from "./types";
 
@@ -38,12 +38,15 @@ export function TeacherStorefrontCourses({
   return (
     <section
       id="courses"
-      className="mx-auto flex w-full max-w-6xl scroll-mt-5 flex-col gap-5 px-4 py-9 sm:px-6 sm:py-12"
+      className="mx-auto flex w-full max-w-6xl scroll-mt-5 flex-col gap-5 px-4 py-8 sm:px-6 sm:py-12"
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-1">
-          <p className="text-sm font-semibold text-primary">শেখা শুরু করুন</p>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">কোর্স ও চলমান ব্যাচ</h2>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-1.5">
+          <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+            <Sparkles aria-hidden="true" className="size-4" /> শেখা শুরু করুন
+          </p>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">কোর্সসমূহ</h2>
+          <p className="text-sm text-muted-foreground">আপনার প্রস্তুতির লক্ষ্য অনুযায়ী কোর্স বেছে নিন।</p>
         </div>
         <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:flex sm:items-center">
           <label className="relative min-w-0 sm:w-56">

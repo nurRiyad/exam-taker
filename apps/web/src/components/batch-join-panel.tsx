@@ -7,9 +7,9 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { CourseBatch } from "@/lib/course-batches";
-import { formatBanglaDate, getBatchExams } from "@/lib/course-batches";
-import { cn } from "@/lib/utils";
+import type { CourseBatch } from "@/utils/course-batches";
+import { formatBanglaDate, getBatchExams } from "@/utils/course-batches";
+import { cn } from "@/utils/utils";
 
 export function BatchJoinPanel({
   courseId,

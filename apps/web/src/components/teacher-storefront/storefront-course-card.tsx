@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { CalendarDays, GraduationCap } from "lucide-react";
+import { ArrowUpRight, CalendarDays, GraduationCap } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { formatBanglaDate } from "@/lib/course-batches";
-import { getExamCategoryLabel } from "@/lib/public-directory-data";
+import { formatBanglaDate } from "@/utils/course-batches";
+import { getExamCategoryLabel } from "@/utils/public-directory-data";
 import { getStorefrontCourseCopy } from "./content";
 import type { StorefrontCourse } from "./types";
 
@@ -22,7 +22,7 @@ export function StorefrontCourseCard({ course, teacherSlug }: { course: Storefro
         <CardHeader className="gap-1.5 p-0">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs font-medium text-muted-foreground">{getExamCategoryLabel(course.examCategory)}</p>
-            <span className="shrink-0 rounded-md bg-secondary px-2 py-1 text-xs font-semibold text-secondary-foreground">
+            <span className="shrink-0 rounded-md bg-[var(--teacher-accent-soft)] px-2 py-1 text-xs font-semibold text-[var(--teacher-accent)]">
               {copy.price}
             </span>
           </div>
@@ -48,6 +48,13 @@ export function StorefrontCourseCard({ course, teacherSlug }: { course: Storefro
               </span>
             ) : null}
           </div>
+          <span className="inline-flex items-center justify-end gap-1 pt-0.5 text-xs font-semibold text-primary sm:text-sm">
+            কোর্স দেখুন{" "}
+            <ArrowUpRight
+              aria-hidden="true"
+              className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+            />
+          </span>
         </CardContent>
       </Card>
     </Link>
