@@ -15,6 +15,11 @@ export async function findBySlug(db: Database, slug: string): Promise<Pick<Tenan
   return existing;
 }
 
+export async function findPageBySlug(db: Database, slug: string): Promise<TenantRow | undefined> {
+  const [tenant] = await db.select().from(tenants).where(eq(tenants.slug, slug)).limit(1);
+  return tenant;
+}
+
 export async function insert(db: Database, data: NewTenant): Promise<TenantRow> {
   const [tenant] = await db.insert(tenants).values(data).returning();
   return tenant;

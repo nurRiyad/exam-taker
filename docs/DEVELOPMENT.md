@@ -26,16 +26,9 @@ Use TanStack Query for browser-side server state. Place typed endpoint functions
 
 Server Components, `proxy.ts`, and other server-only callers cannot use React hooks. They call the feature request functions directly and explicitly handle cookies/tokens and cache behavior.
 
-## Demo API login
+## Authentication
 
-Local API development uses the JWT secret in the ignored `apps/api/.dev.vars` file. Add `DEMO_AUTH_ENABLED=true` there to enable the hard-coded walkthrough accounts; the repository's local file is configured for this. Do not add this flag to Wrangler's checked-in vars or enable it in a deployed environment.
-
-| Role | Username | Password |
-| --- | --- | --- |
-| Admin | `admin` | `admin` |
-| Teacher | `kafi` | `kafi` |
-
-`GET /home` returns the landing page's demo content. `POST /auth/login` issues a signed JWT for either walkthrough account, and `GET /auth/me` resolves that session without creating a D1 user. Signup remains on the existing database-backed flow and is not required for these demo accounts.
+Local API development uses the JWT secret in the ignored `apps/api/.dev.vars` file. Admin and teacher accounts are global and log in with email or phone. A teacher owns one page. Students sign up and log in from a teacher page; their account is unique within that page and shared across its courses, batches, and exams. Passwords must contain 5–20 characters. `GET /auth/me` resolves the account and, for teachers and students, returns the associated page context.
 
 ## Useful commands
 

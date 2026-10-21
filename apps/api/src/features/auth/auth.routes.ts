@@ -12,8 +12,6 @@ import {
   usernameSchema,
 } from "@exam-taker/validation/auth";
 import * as authService from "./auth.service";
-import { UnauthorizedError } from "../../utils/errors";
-import { findDemoUser, isDemoUsername } from "./demo-users";
 
 export const authRoutes = new Hono<AuthEnv>()
   .get("/username-availability", zValidator("query", z.object({ username: usernameSchema })), async (c) => {
@@ -21,20 +19,21 @@ export const authRoutes = new Hono<AuthEnv>()
     return c.json({ available });
   })
   .post("/signup", zValidator("json", signupSchema), async (c) => {
-    const user = await authService.signup(getDb(c.env.DB), c.req.valid("json"));
-    const token = await signSession({ sub: user.id, role: user.role }, requireJwtSecret(c.env.JWT_SECRET));
-    return c.json({ user, token }, 201);
+    const result = await authService.signup(getDb(c.env.DB), c.req.valid("json"));
+    const token = await signSession(
+      { sub: result.user.id, role: result.user.role, ...(result.tenantId ? { tenantId: result.tenantId } : {}) },
+      requireJwtSecret(c.env.JWT_SECRET),
+    );
+    return c.json({ user: result.user, token }, 201);
   })
   .post("/login", zValidator("json", loginSchema), async (c) => {
     const input = c.req.valid("json");
-    const demoAuthEnabled = c.env.DEMO_AUTH_ENABLED === "true";
-    const demoUser = demoAuthEnabled ? findDemoUser(input.identifier, input.password) : undefined;
-    if (demoAuthEnabled && !demoUser && isDemoUsername(input.identifier)) {
-      throw new UnauthorizedError("Incorrect username/phone or password");
-    }
-    const user = demoUser ?? (await authService.login(getDb(c.env.DB), input));
-    const token = await signSession({ sub: user.id, role: user.role }, requireJwtSecret(c.env.JWT_SECRET));
-    return c.json({ user, token });
+    const result = await authService.login(getDb(c.env.DB), input);
+    const token = await signSession(
+      { sub: result.user.id, role: result.user.role, ...(result.tenantId ? { tenantId: result.tenantId } : {}) },
+      requireJwtSecret(c.env.JWT_SECRET),
+    );
+    return c.json({ user: result.user, token });
   })
   .post("/logout", (c) => c.body(null, 204))
   .get("/me", requireAuth, (c) => {

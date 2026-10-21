@@ -37,7 +37,7 @@ function LoginForm() {
     setError(undefined);
     login.reset();
     if (!identifier.trim() || !password) {
-      setError("Enter your username or phone and your password");
+      setError("ইমেইল বা ফোন নম্বর এবং পাসওয়ার্ড লিখুন");
       return;
     }
 
@@ -53,21 +53,11 @@ function LoginForm() {
   return (
     <AuthCard title="লগইন করুন">
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-        <aside
-          aria-label="ডেমো অ্যাকাউন্ট"
-          className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm text-violet-950"
-        >
-          <p className="font-semibold">ডেমো অ্যাকাউন্ট</p>
-          <p className="mt-1 text-xs leading-5">
-            অ্যাডমিন: admin / admin
-            <br />
-            শিক্ষক: kafi / kafi
-          </p>
-        </aside>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="identifier">ব্যবহারকারীর নাম বা ফোন নম্বর</Label>
+          <Label htmlFor="identifier">ইমেইল বা ফোন নম্বর</Label>
           <Input
             id="identifier"
+            type="text"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             autoComplete="username"

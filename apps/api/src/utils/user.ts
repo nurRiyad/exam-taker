@@ -1,4 +1,5 @@
 import type { users } from "@exam-taker/db/schema";
+import type { students } from "@exam-taker/db/schema";
 import { denormalizePhoneToLocal } from "./phone";
 
 type UserRow = typeof users.$inferSelect;
@@ -14,7 +15,7 @@ function isProfilePlaceholderEmail(email: string): boolean {
 
 /** Shapes a DB user row for API responses — never leaks `passwordHash`, always
  * displays phone in local `01...` form. */
-export function toPublicUser(row: UserRow) {
+export function toPublicUser(row: UserRow, teacherPage?: { id: string; slug: string }) {
   return {
     id: row.id,
     name: row.name === row.username ? null : row.name,
@@ -26,7 +27,26 @@ export function toPublicUser(row: UserRow) {
     institution: row.institution,
     status: row.status,
     createdAt: row.createdAt,
+    tenantId: teacherPage?.id ?? null,
+    teacherPageSlug: teacherPage?.slug ?? null,
   };
 }
 
-export type PublicUser = ReturnType<typeof toPublicUser>;
+export function toPublicStudent(row: typeof students.$inferSelect, tenantSlug?: string) {
+  return {
+    id: row.id,
+    name: row.name,
+    username: row.email.split("@")[0] || `student-${row.id.slice(0, 6)}`,
+    phone: denormalizePhoneToLocal(row.phoneE164),
+    email: row.email,
+    role: "student" as const,
+    city: null,
+    institution: null,
+    status: row.status,
+    createdAt: row.createdAt,
+    tenantId: row.tenantId,
+    teacherPageSlug: tenantSlug ?? null,
+  };
+}
+
+export type PublicUser = ReturnType<typeof toPublicUser> | ReturnType<typeof toPublicStudent>;

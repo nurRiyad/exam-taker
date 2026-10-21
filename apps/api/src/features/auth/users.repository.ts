@@ -6,11 +6,11 @@ import { BD_LOCAL_PHONE_REGEX, normalizePhoneToE164 } from "../../utils/phone";
 type UserRow = typeof users.$inferSelect;
 type NewUser = typeof users.$inferInsert;
 
-/** Login/reset both accept a username or phone (local or E.164). */
+/** Global admin/teacher login accepts email or phone (local or E.164). */
 function byIdentifier(identifier: string) {
   const candidateE164 = BD_LOCAL_PHONE_REGEX.test(identifier) ? normalizePhoneToE164(identifier) : undefined;
   return or(
-    eq(users.username, identifier),
+    eq(users.email, identifier.trim().toLowerCase()),
     eq(users.phoneE164, identifier),
     candidateE164 ? eq(users.phoneE164, candidateE164) : undefined,
   );
@@ -18,6 +18,15 @@ function byIdentifier(identifier: string) {
 
 export async function findByIdentifier(db: Database, identifier: string): Promise<UserRow | undefined> {
   const [user] = await db.select().from(users).where(byIdentifier(identifier)).limit(1);
+  return user;
+}
+
+export async function findByEmailOrPhone(db: Database, email: string, phoneE164: string): Promise<UserRow | undefined> {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(or(eq(users.email, email), eq(users.phoneE164, phoneE164)))
+    .limit(1);
   return user;
 }
 
@@ -33,12 +42,14 @@ export async function findByUsername(db: Database, username: string): Promise<Pi
 
 export async function findConflicts(
   db: Database,
-  { username, phoneE164 }: { username: string; phoneE164: string },
+  { username, phoneE164, email }: { username?: string; phoneE164: string; email: string },
 ): Promise<Array<Pick<UserRow, "username" | "phoneE164" | "email">>> {
   return db
     .select({ username: users.username, phoneE164: users.phoneE164, email: users.email })
     .from(users)
-    .where(or(eq(users.username, username), eq(users.phoneE164, phoneE164)));
+    .where(
+      or(username ? eq(users.username, username) : undefined, eq(users.email, email), eq(users.phoneE164, phoneE164)),
+    );
 }
 
 export async function insert(db: Database, data: NewUser): Promise<UserRow> {

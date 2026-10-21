@@ -7,7 +7,7 @@ export async function loginRequest(input: LoginInput) {
   if (!response.ok) {
     const { message } = await extractApiError(
       response,
-      response.status === 401 ? "ব্যবহারকারীর নাম/ফোন অথবা পাসওয়ার্ড সঠিক নয়" : "লগইন করা যায়নি। আবার চেষ্টা করুন।",
+      response.status === 401 ? "ইমেইল/ফোন অথবা পাসওয়ার্ড সঠিক নয়" : "লগইন করা যায়নি। আবার চেষ্টা করুন।",
     );
     throw new Error(message);
   }

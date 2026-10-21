@@ -8,7 +8,7 @@
 // docs/DEVELOPMENT.md. Application code must not rely on this
 // file alone for those invariants.
 import { sql } from "drizzle-orm";
-import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 const id = () =>
   text("id")
@@ -46,17 +46,38 @@ export const users = sqliteTable("users", {
   createdAt: createdAt(),
 });
 
-export const teacherMemberships = sqliteTable("teacher_memberships", {
+// Student credentials are isolated by teacher page. The same email or phone
+// can therefore have separate accounts and progress under different tenants.
+export const students = sqliteTable("students", {
   id: id(),
   tenantId: text("tenant_id")
     .notNull()
     .references(() => tenants.id),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id),
-  role: text("role").notNull().default("owner"),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phoneE164: text("phone_e164").notNull(),
+  passwordHash: text("password_hash").notNull(),
+  status: text("status").notNull().default("active"),
   createdAt: createdAt(),
 });
+
+export const teacherMemberships = sqliteTable(
+  "teacher_memberships",
+  {
+    id: id(),
+    tenantId: text("tenant_id")
+      .notNull()
+      .references(() => tenants.id),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    role: text("role").notNull().default("owner"),
+    createdAt: createdAt(),
+  },
+  (table) => ({
+    teacherUserUnique: uniqueIndex("idx_teacher_memberships_user_unique").on(table.userId),
+  }),
+);
 
 export const courses = sqliteTable("courses", {
   id: id(),

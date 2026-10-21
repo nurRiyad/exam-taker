@@ -41,13 +41,14 @@ A mobile-first exam platform for Bangladesh coaching teachers who run low-cost B
 ## Student Signup And Auth
 
 - One-screen signup.
-- Required: username, phone, role, password, password confirmation.
-- Username is globally unique, starts with a letter, allows letters/numbers/underscores, min length 3, and is immutable in MVP.
+- Admin and teacher accounts are global. Each teacher account owns exactly one teacher page.
+- Student accounts are scoped to one teacher page. A student can have separate accounts on multiple teacher pages; each account works across all courses, batches, and exams on that page.
+- Signup requires email, Bangladesh phone, password, and password confirmation. Student signup also carries the teacher page context; teacher signup chooses a unique page slug.
+- Email and phone are unique globally for admin/teacher accounts and unique per teacher page for students.
 - Phone is Bangladesh-only, accepts `01...`, stores `+880...`, displays `01...`.
-- Name and email are profile-completion fields after signup; email verification is skipped in MVP.
-- Login accepts username or phone plus password.
-- Teacher signup creates the initial teacher tenant and owner membership.
-- Password min length is 6.
+- Email verification is skipped in MVP.
+- Login accepts email or phone plus password. Student login resolves the account within the teacher page in the URL.
+- Password length is 5–20 characters.
 - Password reset uses teacher/admin-generated one-time reset code, expires in 1 hour, delivered manually outside platform.
 
 ## Payment And Access
