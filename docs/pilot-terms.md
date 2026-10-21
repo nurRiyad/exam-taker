@@ -1,14 +1,13 @@
 # First Paid Pilot Terms
 
-**Historical framing.** The exam-pack pricing below (500 BDT / 5 exams / 100 students) was the original pilot offer explored during discovery. The current billing mechanism is per-course, negotiated per-student rate, manually invoiced by admin. The rest of this doc (support commitments, responsibilities, refund/downtime policy, scope limits) still reflects how the platform operates during a pilot.
+These are draft operating terms for an early pilot. Agree and record the teacher's private per-student billing rate for each course before the pilot starts. Admin invoices manually from that course's approved/enrolled student count. This platform billing rate is separate from the course price charged to students. No fixed exam-pack price, exam count, or student cap is part of the current billing model.
 
-## Offer (Historical)
+## Pilot Setup
 
-- Price: 500 BDT.
-- Included: 5 live exams.
-- Student cap: up to 100 enrolled students.
-- Extra student baseline: 100 BDT per additional 50 students.
-- Final price can be adjusted by agreement with the teacher before the pilot starts.
+- Record the agreed per-student rate for each course.
+- Record the course's student-facing price and payment/access process separately.
+- Admin generates invoices manually using the approved/enrolled student count snapshot for the course.
+- Agree any onboarding or question-entry support with the teacher before launch.
 
 ## Included Support
 
@@ -32,9 +31,9 @@
 
 ## Refund And Downtime
 
-- If a platform-side failure prevents a scheduled live exam from running, that exam should not count against the 5-exam pack.
-- If the teacher cancels or does not provide questions on time, the exam can be rescheduled but still belongs to the same pilot pack.
-- No automatic cash refund policy is promised in MVP; failed platform exams are handled by replacement exam credit first.
+- If a platform-side failure prevents a scheduled live exam from running, the teacher and platform owner agree on a replacement schedule or exam. The per-course billing model has no exam-pack credit count.
+- If the teacher cancels or does not provide questions on time, agree a replacement schedule with the teacher.
+- No automatic cash refund policy is promised in MVP; platform-side failures are handled through a replacement schedule or a manual invoice adjustment agreed with the teacher.
 
 ## Data And Export
 

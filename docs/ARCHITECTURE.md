@@ -17,7 +17,7 @@ docs/              Product and engineering guides
 
 ## Development sequence
 
-Build and polish complete user flows in `apps/web` with realistic mock data first. Keep mocks local to their product feature and make the UI usable without a running API. After the screens and interaction patterns are established, replace mock adapters with API calls. Put request schemas shared by web and API in `packages/validation`; put database schema/client/migrations in `packages/db`.
+Build and polish complete user flows in `apps/web` with realistic mock data first. Keep mocks local to their product feature and make the UI usable without a running API. Replace mock adapters with API calls only after the user explicitly says the frontend is ready for backend work. Until then, do not add or expand API behavior or database integration. Put request schemas shared by web and API in `packages/validation`; put database schema/client/migrations in `packages/db` once backend work is authorized.
 
 ## Application boundaries
 

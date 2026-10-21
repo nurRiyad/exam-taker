@@ -21,11 +21,13 @@ Initial user:
 
 Primary product language:
 
-- English-first launch UI, built so Bangla can be added easily. Admin UI stays English-only. Teacher and student UI should support Bangla later.
+- Bangla-first UI for public, student, teacher, and admin experiences. Keep copy and locale formatting straightforward to adapt to English later; English UI is not part of the launch unless requested.
 
 ## Core Insight
 
 Some teachers already sell a simple but valuable habit: a planned route of topics and dated MCQ exams. The business is not about replacing teachers. The business is about giving those teachers a branded, easy, low-cost digital exam system.
+
+Exam Taker is a teacher-oriented exam operations tool, not a cross-teacher course marketplace. Students should find courses through a teacher's own public storefront or a direct link. Global teacher and course directories are for admin/support use.
 
 The sharper first wedge is not a full course platform. The first wedge is replacing printed/offline MCQ exam operations:
 
@@ -109,7 +111,7 @@ Platform admin:
 
 - Create/approve teacher accounts.
 - Create teacher pages from a common code/template.
-- Deploy separate teacher-specific versions during the first pilot if that is faster.
+- Onboard teacher tenants in the shared multi-tenant platform and configure each teacher's branded storefront.
 - See basic usage and payment status.
 - Use read-only support views during MVP.
 - Print/export exams when supporting a teacher.
@@ -130,46 +132,9 @@ Platform admin:
 - Image-to-question extraction from uploaded photos.
 - Image-based MCQs with diagrams/photos inside questions.
 
-## Business Model Options
+## Current Billing Decision
 
-Option A: One-time setup fee
-
-- Teacher pays a setup fee to launch their branded page.
-- Simple to explain.
-- Weak recurring revenue.
-
-Option B: Monthly subscription per teacher
-
-- Teacher pays a fixed monthly fee.
-- Predictable revenue.
-- Harder for very small teachers unless pricing is low.
-
-Option C: Per active student fee
-
-- Teacher pays based on actual student usage.
-- Aligns with teacher success.
-- Requires tracking, billing discipline, and trust.
-
-Option D: Hybrid
-
-- Small setup fee plus low monthly subscription or per-student usage fee.
-- Best candidate for MVP because it filters unserious teachers while keeping recurring upside.
-
-Option E: Exam pack pricing
-
-- Teacher buys a pack, for example 500 BDT for 5 exams.
-- Additional cost can scale by number of students or exams.
-- Easier to understand because it maps to the teacher's existing exam workflow.
-- Risk: low price may not cover support, question-entry help, and reliability expectations.
-
-## Current Lean Recommendation (Historical — Superseded)
-
-This section captured the original exam-pack pricing hypothesis (500 BDT/5 exams/100 students) explored during discovery. The current billing mechanism is per-course, negotiated per-student rate, manually invoiced by admin. The old numbers are historical and should not be treated as current.
-
-- Offer an initial pilot pack around 500 BDT for 5 exams with up to 100 students.
-- Use 100 BDT per extra 50 students as an initial overage baseline, adjustable by teacher and exam.
-- Include limited manual onboarding and question-entry help for the first pilot teachers.
-- Track actual support time, number of students per exam, and platform cost.
+The platform charges a teacher per course using a negotiated per-student rate. An admin manually creates an invoice from the approved/enrolled student count for that course. There is no fixed exam-pack price or exam-count allowance. Student-facing course price and the platform's private teacher billing rate are separate. Pilot onboarding and question-entry support can be agreed with each teacher.
 
 ## Key Risks
 

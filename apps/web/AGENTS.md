@@ -11,4 +11,5 @@
 - Use restrained transitions for navigation and UI-state changes, while respecting `prefers-reduced-motion` and keeping interactions immediate.
 - Follow accessibility basics: semantic elements, keyboard support, visible focus, sufficient contrast, and accessible dialogs/menus.
 - Follow the existing Next.js App Router conventions and existing design tokens/components.
+- Use [../../docs/UI-ROUTES.md](../../docs/UI-ROUTES.md) as the route, product-flow, and page-visibility map. Keep intended behavior grounded in the approved business decisions, distinguish placeholders from implemented flows, and update the map when routes, audiences, or user-visible behavior materially change. Admins have platform-wide views, teachers are scoped to their own courses and enrolled students, students see their own memberships/results, and public acquisition uses teacher storefront pages. Navigation visibility does not replace authorization checks.
 - Use pnpm and the root commands in `docs/DEVELOPMENT.md`.

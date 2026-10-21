@@ -8,8 +8,8 @@ export function TeacherStorefrontHeader({ teacher, brand }: { teacher: PublicTea
   return (
     <header className="border-b border-border bg-background">
       <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <a
-          href="#home"
+        <Link
+          href={`/t/${teacher.id}`}
           className="flex min-w-0 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[var(--teacher-accent)]"
         >
           <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[var(--teacher-accent-soft)] text-sm font-bold text-[var(--teacher-accent)]">
@@ -19,7 +19,7 @@ export function TeacherStorefrontHeader({ teacher, brand }: { teacher: PublicTea
             <span className="block truncate text-sm font-semibold">{teacher.name}</span>
             <span className="block truncate text-xs text-muted-foreground">{teacher.institution}</span>
           </span>
-        </a>
+        </Link>
         <nav
           aria-label="শিক্ষকের পেজ নেভিগেশন"
           className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex"

@@ -16,6 +16,8 @@ This repository is being rebuilt with a UI-first workflow. Until the user explic
 2. Keep mock data and UI state near the relevant product feature. Avoid new API calls, backend changes, database changes, or backend-driven product behavior until the user explicitly gives the go-ahead to begin backend work.
 3. Treat UI readiness as a user decision. Do not switch to backend work just because a screen or feature appears complete; continue implementing the requested frontend scope with mock data until the user says the frontend is ready.
 4. Preserve working routes and functionality while restructuring; avoid speculative feature changes.
+5. Use [docs/UI-ROUTES.md](docs/UI-ROUTES.md) as the route, UI behavior, and page-visibility map. Check it before changing a product flow and update it when routes, audiences, or user-visible behavior materially change. It records current implementation status separately from intended MVP behavior.
+6. Preserve the visibility model in that guide: admins have platform-wide views; teachers are limited to their own courses and enrolled students; students are limited to their own memberships and results; public pages use teacher-branded storefronts and explicitly published content. Navigation visibility does not replace authorization checks.
 
 ## UI Product Principles
 

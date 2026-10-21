@@ -98,7 +98,6 @@ No blocking MVP discovery questions remain.
 Questions to revisit after the first paid pilot:
 
 1. Should teacher email communication be sent from the platform or stay manual longer?
-2. Does the 500 BDT / 5 exams / 100 students offer cover support time and reliability expectations?
+2. Does the negotiated per-student rate for each course cover support time and reliability expectations?
 3. Which flat tags are actually used by teachers and which should be removed from the official template?
-4. Should early separate teacher deployments be merged into one multi-tenant deployment before the third teacher?
-5. What paid Cloudflare plan or data backup policy is needed once live exam volume becomes predictable?
+4. What paid Cloudflare plan or data backup policy is needed once live exam volume becomes predictable?
